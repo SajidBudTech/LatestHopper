@@ -284,6 +284,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 children: [
                                   InkWell(
                                       highlightColor: Colors.white,
+                                      splashColor: Colors.white,
                                       onTap: (){
 
                                       },
@@ -293,6 +294,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                   InkWell(
                                       highlightColor: Colors.white,
+                                      splashColor: Colors.white,
                                       onTap: (){
 
                                       },
@@ -302,6 +304,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                   InkWell(
                                       highlightColor: Colors.white,
+                                      splashColor: Colors.white,
                                       onTap: (){
 
                                       },

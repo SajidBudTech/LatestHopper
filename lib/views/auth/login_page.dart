@@ -272,6 +272,7 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           InkWell(
                               highlightColor: Colors.white,
+                              splashColor: Colors.white,
                               onTap: (){
 
                               },
@@ -282,6 +283,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           InkWell(
                               highlightColor: Colors.white,
+                              splashColor: Colors.white,
                               onTap: (){
 
                               },
@@ -292,6 +294,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           InkWell(
                               highlightColor: Colors.white,
+                              splashColor: Colors.white,
                               onTap: (){
 
                               },
