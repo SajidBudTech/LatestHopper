@@ -283,6 +283,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   InkWell(
+                                      highlightColor: Colors.white,
                                       onTap: (){
 
                                       },
@@ -291,6 +292,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         width: 72,)
                                   ),
                                   InkWell(
+                                      highlightColor: Colors.white,
                                       onTap: (){
 
                                       },
@@ -299,6 +301,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         width: 72,)
                                   ),
                                   InkWell(
+                                      highlightColor: Colors.white,
                                       onTap: (){
 
                                       },

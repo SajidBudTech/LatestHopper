@@ -271,6 +271,7 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           InkWell(
+                              highlightColor: Colors.white,
                               onTap: (){
 
                               },
@@ -280,6 +281,7 @@ class _LoginPageState extends State<LoginPage> {
                                 fit: BoxFit.cover,)
                           ),
                           InkWell(
+                              highlightColor: Colors.white,
                               onTap: (){
 
                               },
@@ -289,6 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                               )
                           ),
                           InkWell(
+                              highlightColor: Colors.white,
                               onTap: (){
 
                               },

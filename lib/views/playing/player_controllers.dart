@@ -28,6 +28,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
         Container(
             child:IconButton(
                 alignment: Alignment.center,
+                highlightColor: Colors.white,
                 iconSize: 36,
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(),
@@ -41,6 +42,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                 }
             )),
         InkWell(
+          highlightColor: Colors.white,
           onTap: (){
 
           },
@@ -51,6 +53,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
           ),
         ),
         InkWell(
+          highlightColor: Colors.white,
           onTap: (){
              setState(() {
                isPlaying=!isPlaying;
@@ -67,6 +70,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
           ),
         ),
         InkWell(
+          highlightColor: Colors.white,
           onTap: (){
 
           },
@@ -80,6 +84,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                 alignment: Alignment.center,
                 iconSize: 36,
                 padding: EdgeInsets.zero,
+                highlightColor: Colors.white,
                 constraints: BoxConstraints(),
                 icon: Icon(
                   Icons.skip_next_sharp,
