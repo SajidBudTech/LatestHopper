@@ -7,8 +7,8 @@ class AppSizes {
 
   static double inputHeight = 50;
 
-  static double otpHeight = 65;
-  static double otpWidth = 65;
+  static double otpHeight = 48;
+  static double otpWidth = 48;
 
   static double vendorImageHeight = 145;
   static double smallVendorImageHeight = 56;

@@ -17,10 +17,14 @@ class AppRoutes {
   static const authorDetailRoute = "author_details";
 
 
+  static const forgotPasswordRoute = "forgot_password";
+  static const forgotPasswordCodeRoute = "forgot_password_code";
+  static const forgotPasswordReset = "forgot_password_reset";
+
+
   static const enterPhoneRoute = "enterPhonenumber";
   static const verifyOTPRoute = "verifyOTP";
 
-  static const forgotPasswordRoute = "forgot_password";
   static const bookDetailRoute = "book_detail";
   static const discoverCategoryRoute = "discover_category";
   static const discoverSubCategoryRoute = "discover_subcategory";

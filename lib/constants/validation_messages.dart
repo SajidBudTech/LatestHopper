@@ -8,8 +8,7 @@ class ValidationMessages {
   static const String invalidDigit = "Single digit allowed!";
   static const String invalidPhoneNumber = "Please enter a valid phone number";
   // Invlaid password
-  static const String invalidPassword =
-      "Password must contain minimum 6 characters";
+  static const String invalidPassword = "Password must contain minimum 6 alphanumeric characters, 1 Uppercase character, 1 Special character";
 
   static const String invalidMessage = "Please enter valid message";
 

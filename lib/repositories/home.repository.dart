@@ -4,13 +4,90 @@ import 'package:flutter_hopper/constants/api.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/models/api_response.dart';
 import 'package:flutter_hopper/models/dialog_data.dart';
+import 'package:flutter_hopper/models/home_category.dart';
+import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/services/http.service.dart';
 import 'package:flutter_hopper/utils/api_response.utils.dart';
 import 'package:flutter_hopper/views/auth/login_page.dart';
 
 
 class HomePageRepository extends HttpService {
-  //get book from server base on the type
+
+  Future<List<HomePost>> getHomePostList() async {
+    List<HomePost> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.homePagePost);
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    (apiResponse.body as List).forEach((categoryJSONObject) {
+      //vendor data
+      categories.add(HomePost.fromJson(categoryJSONObject));
+
+    });
+
+    return categories;
+
+  }
+  Future<List<HomePost>> getHomePostSearch(String keyword) async {
+    List<HomePost> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.searchPost,queryParameters: {
+      "search":keyword
+    });
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    (apiResponse.body as List).forEach((categoryJSONObject) {
+      //vendor data
+      categories.add(HomePost.fromJson(categoryJSONObject));
+
+    });
+
+    return categories;
+
+  }
+
+  Future<List<HomeCategory>> getFilterCategoryList() async {
+    List<HomeCategory> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.filterCategory);
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    (apiResponse.body as List).forEach((categoryJSONObject) {
+      //vendor data
+      categories.add(HomeCategory.fromJson(categoryJSONObject));
+
+    });
+
+    return categories;
+
+  }
 
   /*Future<List<CommonBook>> getNewReleases() async {
     List<CommonBook> categories = [];

@@ -8,13 +8,17 @@ import 'package:flutter_hopper/constants/app_sizes.dart';
 import 'package:flutter_hopper/constants/app_strings.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
+import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
+import 'package:intl/intl.dart';
 
 class HomeListViewItem extends StatefulWidget {
   HomeListViewItem({
     Key key,
+    this.homePost
   }) : super(key: key);
 
+  HomePost homePost;
   @override
   _HomeListViewItemState createState() => _HomeListViewItemState();
 }
@@ -51,7 +55,8 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
                            height: AppSizes.vendorImageHeight,
                            fit: BoxFit.cover,
                            width: double.infinity,
-                         )),
+                         )
+                     ),
                      Positioned.fill(child:ClipRRect(
                          borderRadius: BorderRadius.circular(8.0),
                          child:Image.asset("assets/images/black_shadow.png",
@@ -75,7 +80,7 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                              Text(
-                              "Rock and Roll Globe",
+                              widget.homePost.title.rendered??"",
                               style: AppTextStyle.h4TitleTextStyle(
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
@@ -83,7 +88,7 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
                               textDirection: AppTextDirection.defaultDirection,
                             ),
                            Text(
-                              "Aug 05 2021 10 Mins",
+                              DateFormat("MMM dd yyyy").format(DateFormat("yyyy-MM-ddTHH:mm:ss").parse(widget.homePost.date)),
                               style: AppTextStyle.h6TitleTextStyle(
                                 fontWeight: FontWeight.w400,
                                 color: Colors.grey[400],
@@ -123,7 +128,7 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
                 child:Container(
                 padding: EdgeInsets.only(left: 2,top: 10),
                 child: Text(
-                  "By Gillian G.Gaar",
+                  "By ${widget.homePost.author??""}",
                   style: AppTextStyle.h5TitleTextStyle(
                     fontWeight: FontWeight.w500,
                     color: AppColor.accentColor,
@@ -134,9 +139,9 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
                 ),
               )),
               Container(
-                padding: EdgeInsets.only(left: 2,top: 2),
+                padding: EdgeInsets.only(left: 0,top: 2),
                 child: Text(
-                  "Pediatricians plead with FDA to move quickly on covid vaccine for kids",
+                  stripHtmlIfNeeded(widget.homePost.excerpt.rendered??""),
                   style: AppTextStyle.h5TitleTextStyle(
                       fontWeight: FontWeight.w400,
                       color: AppColor.textColor(context),
@@ -149,5 +154,9 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
             ],
           )
         );
+  }
+
+  String stripHtmlIfNeeded(String text){
+    return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
   }
 }

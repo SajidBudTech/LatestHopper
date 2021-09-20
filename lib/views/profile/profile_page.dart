@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/profile.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
 import 'package:flutter_hopper/views/profile/menu_item.dart';
@@ -8,11 +9,8 @@ import 'package:flutter_hopper/constants/app_paddings.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
-import 'package:flutter_hopper/utils/ui_spacer.dart';
-import 'package:flutter_hopper/models/loading_state.dart';
-import 'package:flutter_hopper/widgets/shimmers/vendor_shimmer_list_view_item.dart';
-import 'package:flutter_hopper/models/state_data_model.dart';
-import 'package:flutter_hopper/widgets/state/state_loading_data.dart';
+import 'package:flutter_hopper/bloc/auth.bloc.dart';
+import 'package:flutter_hopper/constants/app_strings.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key key}) : super(key: key);
@@ -21,16 +19,25 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
-    with AutomaticKeepAliveClientMixin<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClientMixin<ProfilePage> {
   @override
   bool get wantKeepAlive => true;
+  ProfileBloc _profileBlo=ProfileBloc();
+  String userFullName="";
+  String userEmail="";
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    userFullName=AuthBloc.getUserFullName();
+    userEmail=AuthBloc.getUserEmail();
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext viewcontext) {
     super.build(context);
     return ViewModelBuilder<MainHomeViewModel>.reactive(
-        viewModelBuilder: () => MainHomeViewModel(context),
+        viewModelBuilder: () => MainHomeViewModel(viewcontext),
         onModelReady: (model) => model.initialise(),
         builder: (context, model, child) => Scaffold(
             body:Container(
@@ -40,9 +47,12 @@ class _ProfilePageState extends State<ProfilePage>
                         fit: BoxFit.fill)),
                 child:Column(
                   children: [
+
                     ProfileAppBar(
                       imagePath: "assets/images/appbar_image.png",
                       backgroundColor: AppColor.accentColor,
+                      name: userFullName??"",
+                      email: userEmail??"",
                       onPressed: (){
                         Navigator.pop(context, false);
                       },
@@ -88,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage>
                     MenuItem(
                       title: "Logout",
                       onPressed: () {
-
+                        _showLogoutDialog(viewcontext);
                       },
                     ),
 
@@ -98,6 +108,54 @@ class _ProfilePageState extends State<ProfilePage>
                   ],
                 )
             )));
+  }
+
+  void _processLogout(BuildContext viewcontext) async {
+    await AuthBloc.prefs.setBool(AppStrings.authenticated, false);
+    Navigator.pushNamedAndRemoveUntil(
+      viewcontext,
+      AppRoutes.loginRoute,
+          (route) => false,
+    );
+  }
+
+  Future<bool> _showLogoutDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) => new AlertDialog(
+        title: new Text(
+          'Logout',
+          style: AppTextStyle.h3TitleTextStyle(
+            color: AppColor.accentColor,
+          ),
+          textDirection: AppTextDirection.defaultDirection,
+        ),
+        content: new Text('Logout of Hopper Audio?',
+            style: AppTextStyle.h4TitleTextStyle(
+              color: AppColor.textColor(context),
+            ),
+            textDirection: AppTextDirection.defaultDirection),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: new Text('No',
+                style: AppTextStyle.h4TitleTextStyle(
+                  color: AppColor.primaryColorDark,
+                ),
+                textDirection: AppTextDirection.defaultDirection),
+          ),
+          new FlatButton(
+            onPressed: () => _processLogout(context),
+            child: new Text('Yes',
+                style: AppTextStyle.h4TitleTextStyle(
+                  color: AppColor.primaryColorDark,
+                ),
+                textDirection: AppTextDirection.defaultDirection),
+          ),
+        ],
+      ),
+    ) ??
+        false;
   }
 
 }

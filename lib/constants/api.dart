@@ -4,15 +4,23 @@ class Api {
   // static const baseUrl = "http://test.thelifeshaper.com/api";
 
    //static const LIVE URL  = "https://abantuaudio.com/flutter/app";
-     static const baseUrl = "https://abantuaudio.com/flutter/app";
+     static const baseUrl = "https://lookwhatwemadeyou.com/audiohopper/wp-json";
  // static const baseUrl = "https://173db198c876.ngrok.io/ayurveda_new/public/api";
 
-  static const login = "/login";
+  static const login = "/wp/v2/users/?search=";
   static const loginSocial = "/login/social";
-  static const register = "/register";
+  static const register = "/wp/v2/users";
+  static const registerToken = "/api/v1/token";
+  static const homePagePost = "/wp/v2/posts";
+  static const filterCategory = "/wp/v2/categories";
+  static const searchPost = "/wp/v2/posts/";
+  static const forgotPasswordCheckEmail = "/bdpwr/v1/reset-password";
+  static const forgotPasswordValidateCode = "/bdpwr/v1/validate-code";
+  static const forgotPasswordReset = "/bdpwr/v1/set-password";
+
+
   static const otp = "/otp";
   static const logout = "/logout";
-  static const forgotPassword = "/forgot";
 
   static const changePassword = "/password/change";
   static const updateProfile = "/user/update";

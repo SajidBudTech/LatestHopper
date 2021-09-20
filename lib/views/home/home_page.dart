@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hopper/views/home/main_home_page.dart';
 import 'package:flutter_hopper/views/hopper/hopper_page.dart';
 import 'package:flutter_hopper/views/miniplayer/mini_player.dart';
@@ -43,6 +44,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return Scaffold(
         backgroundColor: Colors.white,
         bottomNavigationBar:Column(

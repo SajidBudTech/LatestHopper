@@ -30,18 +30,34 @@ class AuthBloc extends BaseBloc {
     return prefs.getBool(AppStrings.FlutterAppBadgetConstant) ?? false;
   }
 
-  static void saveUserData(Map userDetails,String token,String passwrod) {
 
-    prefs.setString(PreferenceString.UserName,userDetails["local"]["username"]??"");
-    prefs.setString(PreferenceString.UserEmail,userDetails["local"]["email"] ?? "");
-    prefs.setString(PreferenceString.UserPassword,passwrod??"");
-    prefs.setBool(PreferenceString.IsVerfied,userDetails["isVerified"]);
-    prefs.setBool(PreferenceString.Trial,userDetails["trial"]);
-    prefs.setBool(PreferenceString.Cancel_at_period_end,userDetails["cancel_at_period_end"]);
-    //prefs.setDouble(PreferenceString.UserDiscount,userDetails["discount"]);
-    prefs.setString(PreferenceString.UserToken,token??"");
-    prefs.setString(PreferenceString.UserPlan,userDetails["plan"]??"");
-   // prefs.setDouble(PreferenceString.UserPlanCost,userDetails["planCost"]??0);
+  static void SaveUserToken(String token) {
+     prefs.setString(PreferenceString.UserToken,token??"");
   }
+
+  static int getUserId() {
+    return prefs.getInt(PreferenceString.UserId)??0;
+  }
+  static String getUserFullName() {
+    return prefs.getString(PreferenceString.UserFullName)??"";
+  }
+  static String getUserEmail() {
+    return prefs.getString(PreferenceString.UserEmail)??"";
+  }
+
+
+  static void saveUserData(Map userDetails,String passwrod) {
+
+    prefs.setString(PreferenceString.UserName,userDetails["username"]??"");
+    prefs.setString(PreferenceString.UserFullName,userDetails["first_name"]??"");
+    prefs.setString(PreferenceString.UserEmail,userDetails["email"]?? "");
+    prefs.setString(PreferenceString.UserPassword,passwrod??"");
+    prefs.setInt(PreferenceString.UserId,userDetails["id"]??0);
+    prefs.setString(PreferenceString.UserUrl,userDetails["url"]??"");
+    prefs.setString(PreferenceString.UserLink,userDetails["link"]??"");
+
+  }
+
+
 
 }

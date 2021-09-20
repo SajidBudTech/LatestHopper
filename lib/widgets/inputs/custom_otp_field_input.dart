@@ -84,11 +84,19 @@ class _CustomTextOTPFieldState extends State<CustomTextOTPField> {
         Container(
           height: widget.isFixedHeight ? AppSizes.otpHeight : null,
           width: widget.isFixedWidth ? AppSizes.otpWidth : null,
-          padding: EdgeInsets.fromLTRB(30, 5, 20,5),
+          padding: EdgeInsets.fromLTRB(0, 30, 0,0),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: widget.fillColor ?? AppColor.textFieldBackground(context),
-            borderRadius: BorderRadius.all(
+            //color: widget.fillColor ?? AppColor.textFieldBackground(context),
+            color: Colors.white,
+           /* borderRadius: BorderRadius.all(
               Radius.circular(20),
+            ),*/
+            border: Border(
+                top: BorderSide(width: 1.0, color: Colors.black),
+                left: BorderSide(width: 1.0, color: Colors.black),
+                bottom: BorderSide(width: 1.0, color: Colors.black),
+                right: BorderSide(width: 1.0, color: Colors.black)
             ),
           ),
           child: Row(
@@ -109,7 +117,7 @@ class _CustomTextOTPFieldState extends State<CustomTextOTPField> {
                   readOnly: widget.isReadOnly,
                   controller: widget.textEditingController,
                   focusNode: widget.focusNode,
-                  textAlign: TextAlign.start,
+                  textAlign: TextAlign.center,
                   maxLength: 1,
                   textDirection: AppTextDirection.defaultDirection,
                   onEditingComplete: (){
@@ -146,6 +154,7 @@ class _CustomTextOTPFieldState extends State<CustomTextOTPField> {
                     hintStyle: widget.hintTextStyle,
                     labelText: widget.labelText,
                     hintText: widget.hintText,
+                    filled: true,
                     counter: Offstage(),
                   ),
                 ),

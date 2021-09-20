@@ -1,10 +1,10 @@
 import 'package:flutter_hopper/bloc/base.bloc.dart';
 import 'package:flutter_hopper/constants/strings/search.strings.dart';
 import 'package:flutter_hopper/models/home_post.dart';
-import 'package:flutter_hopper/repositories/home.repository.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:flutter_hopper/repositories/home.repository.dart';
 
-class SearchHopperBloc extends BaseBloc {
+class SearchDoctorsBloc extends BaseBloc {
   //
   int queryCategoryId;
   //VendorRepository instance
@@ -42,7 +42,7 @@ class SearchHopperBloc extends BaseBloc {
     }
   }
 
-/*void initSearchSpecial(String value, {bool forceSearch = false}) async {
+  /*void initSearchSpecial(String value, {bool forceSearch = false}) async {
     //making sure user entered something before doing an api call
     if (value.isNotEmpty || forceSearch) {
       //add null data so listener can show shimmer widget to indicate loading

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/models/home_post.dart';
+import 'package:flutter_hopper/widgets/listview/main_home_listview_item.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
@@ -11,13 +13,13 @@ class SearchGroupedVendorsListView extends StatelessWidget {
    const SearchGroupedVendorsListView({
     Key key,
     @required this.title,
-    //this.products,
+    this.searchPosts,
     this.titleTextStyle,
   }) : super(key: key);
 
   final String title;
   final TextStyle titleTextStyle;
-  //final List<Product> products;
+  final List<HomePost> searchPosts;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class SearchGroupedVendorsListView extends StatelessWidget {
         ),
         UiSpacer.verticalSpace(space: 20),
         ..._buildVendorsWidgetList(context),
-        UiSpacer.verticalSpace(space: 30),
+       // UiSpacer.verticalSpace(space: 30),
       ],
     );
   }
@@ -44,23 +46,17 @@ class SearchGroupedVendorsListView extends StatelessWidget {
     List<Widget> vendorsWidget = [];
 
     //create vendor widget out of the vendors data available
-   /* if (products != null) {
-      products.asMap().forEach(
-            (index, product) {
-          //prepare the vendor widget
-          final Vendor vendor=Vendor();
-          vendor.id=product.vendorId;
-          vendor.currency=product.currency;
-
+    if (searchPosts != null) {
+      searchPosts.asMap().forEach(
+            (index, searchPost) {
           final vendorWidget = AnimationConfiguration.staggeredList(
             position: index,
-            duration: const Duration(milliseconds: 375),
+            duration: const Duration(milliseconds: 300),
             child: SlideAnimation(
               verticalOffset: 50.0,
               child: FadeInAnimation(
-                child: SearchProductListViewItem(
-                  product: product,
-                  vendor: vendor,
+                child: HomeListViewItem(
+                  homePost: searchPost,
                 ),
               ),
             ),
@@ -94,8 +90,8 @@ class SearchGroupedVendorsListView extends StatelessWidget {
 
             ]
         ),
-      );*/
-   // }
+      );
+    }
 
     return vendorsWidget;
   }

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/repositories/auth.repository.dart';
 import 'package:flutter_hopper/bloc/base.bloc.dart';
 import 'package:flutter_hopper/constants/validation_messages.dart';
@@ -15,7 +16,7 @@ class EditProfileBloc extends BaseBloc {
 
   //text editing controller
   TextEditingController nameTEC = new TextEditingController();
-  TextEditingController emailAddressTEC = new TextEditingController(text: "shadrias@domain.com");
+  TextEditingController emailAddressTEC = new TextEditingController();
 
 
   //view entered data
@@ -37,6 +38,8 @@ class EditProfileBloc extends BaseBloc {
   @override
   void initBloc(){
     super.initBloc();
+    nameTEC.text = AuthBloc.getUserFullName();
+    emailAddressTEC.text = AuthBloc.getUserEmail();
   }
 
 

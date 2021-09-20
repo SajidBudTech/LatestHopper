@@ -45,7 +45,7 @@ class _HomeFilterPageState extends State<HomeFilterPage> {
   Widget build(BuildContext context) {
     return ViewModelBuilder<MainHomeViewModel>.reactive(
       viewModelBuilder: () => MainHomeViewModel(context),
-      onModelReady: (model) => model.initialise(),
+      onModelReady: (model) => model.getHomeCategoryDetails(),
       builder: (context, model, child) => Scaffold(
           body: SafeArea(
               child: Column(
@@ -66,16 +66,15 @@ class _HomeFilterPageState extends State<HomeFilterPage> {
                             padding: EdgeInsets.only(left: 20,right: 20),
                             child: model.mainHomeLoadingState == LoadingState.Loading
                             //the loadinng shimmer
-                                ? SliverToBoxAdapter(
-                              child: VendorShimmerListViewItem(),
-                            ) : model.mainHomeLoadingState == LoadingState.Failed
+                                ?  VendorShimmerListViewItem()
+                                : model.mainHomeLoadingState == LoadingState.Failed
                                 ? LoadingStateDataView(
                               stateDataModel: StateDataModel(
                                 showActionButton: true,
                                 actionButtonStyle: AppTextStyle.h4TitleTextStyle(
                                   color: Colors.red,
                                 ),
-                                actionFunction: model.initialise,
+                                actionFunction: model.getHomeCategoryDetails,
                               ),
                             )
                                 :
@@ -84,20 +83,20 @@ class _HomeFilterPageState extends State<HomeFilterPage> {
                               primary: true,
                               scrollDirection: Axis.vertical,
                               physics: AlwaysScrollableScrollPhysics(),
-                              children: model.filterMap.keys.map((String key) {
+                              children: model.filterCategoryMap.keys.map((String key) {
                                 return new CheckboxListTile(
                                   title: new Text(key,
                                   style: AppTextStyle.h4TitleTextStyle(
-                                    color: model.filterMap[key]?AppColor.accentColor:Colors.black,),
+                                    color: model.filterCategoryMap[key]?AppColor.accentColor:Colors.black,),
                                   ),
-                                  value: model.filterMap[key],
+                                  value: model.filterCategoryMap[key],
                                   dense: true,
                                   contentPadding: EdgeInsets.zero,
                                   activeColor: AppColor.accentColor,
                                   checkColor: Colors.white,
                                   onChanged: (bool value) {
                                     setState(() {
-                                      model.filterMap[key] = value;
+                                      model.filterCategoryMap[key] = value;
                                     });
                                   },
                                 );

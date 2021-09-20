@@ -38,7 +38,8 @@ class HttpService {
   //Get the access token of the logged in user
   Future<String> getAuthBearerToken() async {
     //final currentUser = await appDatabase.userDao.findCurrent();
-    return await AuthBloc.prefs.getString(PreferenceString.UserToken);
+    String token=await AuthBloc.prefs.getString(PreferenceString.UserToken);
+    return token;//await AuthBloc.prefs.getString(PreferenceString.UserToken);
 
   }
 

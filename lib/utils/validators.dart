@@ -16,13 +16,13 @@ class Validators {
       return false;
     }
   }
-
-  static bool isPasswordValid(String password, {bool includeCaps = false, int minLength = 2}) {
-    if (password.isEmpty
-        /*password.length < minLength *//*|| RegExp(r".*[A-Z].*").hasMatch(password) != includeCaps*/) {
-      return false;
-    } else {
+  //RegExp(r".*[A-Z].*")
+  //^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$
+  static bool isPasswordValid(String password, {bool includeCaps = true, int minLength = 8}) {
+    if (password.length >= minLength && RegExp(r"^(?=.*?[A-Z])(?=.*?[!@#\$&*~]).{8,}$").hasMatch(password)) {
       return true;
+    } else {
+      return false;
     }
   }
 
@@ -44,12 +44,12 @@ class Validators {
     }
   });
 
-  static bool validateDigit (String digit)
+  static bool validateDigit(String digit)
      {
         if (digit.length ==1) {
           return true;
         } else {
           return false;
         }
-      }
+    }
 }

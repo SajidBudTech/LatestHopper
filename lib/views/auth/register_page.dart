@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hopper/bloc/base.bloc.dart';
 import 'package:flutter_hopper/bloc/login.bloc.dart';
+import 'package:flutter_hopper/bloc/register.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_images.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/constants/strings/login.strings.dart';
+import 'package:flutter_hopper/utils/flash_alert.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:flutter_hopper/widgets/appbar/auth_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
@@ -23,36 +25,33 @@ import 'package:flutter_hopper/constants/app_sizes.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key}) : super(key: key);
-
   @override
   _RegisterPageState createState() => _RegisterPageState();
-
 }
 
 class _RegisterPageState extends State<RegisterPage> {
   //login bloc
-  LoginBloc _loginBloc = LoginBloc();
+  RegisterBloc _registerBloc = RegisterBloc();
   //email focus node
   final emailFocusNode = new FocusNode();
+  final nameFocusNode = new FocusNode();
+  final confirmFocusNode = new FocusNode();
   //password focus node
   final passwordFocusNode = new FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _loginBloc.initBloc();
+    _registerBloc.initBloc();
     //listen to the need to show a dialog alert or a normal snackbar alert type
-    _loginBloc.showAlert.listen((show) {
+    _registerBloc.showAlert.listen((show) {
       //when asked to show an alert
       if (show) {
-        /* EdgeAlert.show(
-          context,
-          title: _loginBloc.dialogData.title,
-          description: _loginBloc.dialogData.body,
-          backgroundColor: _loginBloc.dialogData.backgroundColor,
-          icon: _loginBloc.dialogData.iconData,
-        );*/
-
+        ShowFlash(
+            context,
+            title: _registerBloc.dialogData.title,
+            message: _registerBloc.dialogData.body
+          ).show();
         /*Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.homeRoute,
@@ -62,7 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     //listen to state of the ui
-    _loginBloc.uiState.listen((uiState) async {
+    _registerBloc.uiState.listen((uiState) async {
       if (uiState == UiState.redirect) {
         // await Navigator.popUntil(context, (route) => false);
         //Navigator.pushNamed(context, AppRoutes.homeRoute);
@@ -77,12 +76,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    _loginBloc.dispose();
+    _registerBloc.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext viewcontext) {
     return AnnotatedRegion<
         SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -107,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Column(
                           children: [
                             StreamBuilder<bool>(
-                              stream: _loginBloc.validEmailAddress,
+                              stream: _registerBloc.validName,
                               builder: (context, snapshot) {
                                 return CustomTextFormField(
                                   hintText: GeneralStrings.fullname,
@@ -117,17 +116,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fillColor: AppColor.textFieldColor,
                                   keyboardType: TextInputType.name,
                                   textInputAction: TextInputAction.next,
-                                  //textEditingController: _loginBloc.emailAddressTEC,
+                                  textEditingController: _registerBloc.nameTEC,
                                   errorText: snapshot.error,
-                                 // onChanged: _loginBloc.validateEmailAddress,
-                                  focusNode: emailFocusNode,
-                                  nextFocusNode: passwordFocusNode,
+                                  onChanged: _registerBloc.validateName,
+                                  focusNode: nameFocusNode,
+                                  nextFocusNode: emailFocusNode,
                                 );
                               },
                             ),
                             UiSpacer.verticalSpace(space: 20),
                             StreamBuilder<bool>(
-                              stream: _loginBloc.validEmailAddress,
+                              stream: _registerBloc.validEmailAddress,
                               builder: (context, snapshot) {
                                 return CustomTextFormField(
                                   hintText: GeneralStrings.email,
@@ -135,11 +134,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                   borderRadius: 32,
                                   padding: EdgeInsets.only(top: 3,bottom: 3,left: 20,right: 10),
                                   fillColor: AppColor.textFieldColor,
-                                  keyboardType: TextInputType.name,
+                                  keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
-                                  //textEditingController: _loginBloc.emailAddressTEC,
+                                  textEditingController: _registerBloc.emailAddressTEC,
                                   errorText: snapshot.error,
-                                 // onChanged: _loginBloc.validateEmailAddress,
+                                  onChanged: _registerBloc.validateEmailAddress,
                                   focusNode: emailFocusNode,
                                   nextFocusNode: passwordFocusNode,
                                 );
@@ -148,7 +147,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             UiSpacer.verticalSpace(space: 20),
                             //password textformfield
                             StreamBuilder<bool>(
-                              stream: _loginBloc.validPasswordAddress,
+                              stream: _registerBloc.validPassword,
                               builder: (context, snapshot) {
                                 return CustomTextFormField(
                                   hintText: GeneralStrings.password,
@@ -158,16 +157,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fillColor: AppColor.textFieldColor,
                                   togglePassword: true,
                                   obscureText: true,
-                                  //textEditingController: _loginBloc.passwordTEC,
+                                  textEditingController: _registerBloc.passwordTEC,
                                   errorText: snapshot.error,
-                                 // onChanged: _loginBloc.validatePassword,
+                                  onChanged: _registerBloc.validatePassword,
                                   focusNode: passwordFocusNode,
+                                  nextFocusNode: confirmFocusNode,
                                 );
                               },
                             ),
                             UiSpacer.verticalSpace(space: 20),
                             StreamBuilder<bool>(
-                              stream: _loginBloc.validPasswordAddress,
+                              stream: _registerBloc.validConfirmPassword,
                               builder: (context, snapshot) {
                                 return CustomTextFormField(
                                   hintText: GeneralStrings.confirmpassword,
@@ -177,16 +177,15 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fillColor: AppColor.textFieldColor,
                                   togglePassword: true,
                                   obscureText: true,
-                                  //textEditingController: _loginBloc.passwordTEC,
+                                  textEditingController: _registerBloc.confirmPaswordTEC,
                                   errorText: snapshot.error,
-                                  //onChanged: _loginBloc.validatePassword,
-                                  focusNode: passwordFocusNode,
+                                  onChanged: _registerBloc.validatePassword,
                                 );
                               },
                             ),
                             UiSpacer.verticalSpace(space: 20),
                             StreamBuilder<UiState>(
-                              stream: _loginBloc.uiState,
+                              stream: _registerBloc.uiState,
                               builder: (context, snapshot) {
                                 final uiState = snapshot.data;
                                 return Container(
@@ -196,7 +195,16 @@ class _RegisterPageState extends State<RegisterPage> {
                                       color: AppColor.accentColor,
                                       onPressed: uiState != UiState.loading
                                           ? (){
-                                            Navigator.pushNamed(context, AppRoutes.subcriptionPurchaseRoute);
+                                            //Navigator.pushNamed(context, AppRoutes.subcriptionPurchaseRoute);
+                                          if(_registerBloc.passwordTEC.text==_registerBloc.confirmPaswordTEC.text){
+                                            _registerBloc.processRegiration();
+                                          }else{
+                                             ShowFlash(
+                                                 viewcontext,
+                                                 title: "Password does not match with confirmpassword!",
+                                                 message: "Please try again"
+                                             ).show();
+                                          }
                                          }
                                           : null,
                                       child: uiState != UiState.loading

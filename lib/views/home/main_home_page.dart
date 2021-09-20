@@ -29,7 +29,7 @@ class _MainHomePageState extends State<MainHomePage>
     super.build(context);
     return ViewModelBuilder<MainHomeViewModel>.reactive(
         viewModelBuilder: () => MainHomeViewModel(context),
-        onModelReady: (model) => model.initialise(),
+        onModelReady: (model) => model.getHomePostDetails(),
         builder: (context, model, child) => Scaffold(
             body: SafeArea(
               child: Column(
@@ -54,25 +54,26 @@ class _MainHomePageState extends State<MainHomePage>
                               ? SliverToBoxAdapter(
                             child: VendorShimmerListViewItem(),
                           ) : model.mainHomeLoadingState == LoadingState.Failed
-                              ? LoadingStateDataView(
+                              ? SliverToBoxAdapter(child:LoadingStateDataView(
                             stateDataModel: StateDataModel(
                               showActionButton: true,
                               actionButtonStyle: AppTextStyle.h4TitleTextStyle(
                                 color: Colors.red,
                               ),
-                              actionFunction: model.initialise,
+                              actionFunction: model.getHomePostDetails,
                             ),
-                          )
+                          ))
                               :
                           //listing type
                           SliverList(
                             delegate: SliverChildBuilderDelegate(
                                   (context, index) {
-                                return AnimatedVendorListViewItem(
-                                  index: index,
+                                   return AnimatedVendorListViewItem(
+                                     index: index,
+                                     homePost: model.mainhomeList[index],
                                 );
                               },
-                              childCount: model.homeList.length,
+                              childCount: model.mainhomeList.length,
                             ),
                           ),
                         ),

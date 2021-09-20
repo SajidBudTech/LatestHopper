@@ -3,6 +3,8 @@ import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/views/appbarview/notification_page.dart';
 import 'package:flutter_hopper/views/appbarview/search_page.dart';
 import 'package:flutter_hopper/views/auth/forgot_password.dart';
+import 'package:flutter_hopper/views/auth/forgot_password_code.dart';
+import 'package:flutter_hopper/views/auth/forgot_pasword_reset.dart';
 import 'package:flutter_hopper/views/auth/login_page.dart';
 import 'package:flutter_hopper/views/auth/onboarding_page.dart';
 import 'package:flutter_hopper/views/auth/register_page.dart';
@@ -31,6 +33,18 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case AppRoutes.forgotPasswordRoute:
       return MaterialPageRoute(builder: (context) => ForgotPasswordPage());
+
+    case AppRoutes.forgotPasswordCodeRoute:
+      return MaterialPageRoute(builder: (context) => VerifyCodePage(
+        email: settings.arguments,
+      ));
+    case AppRoutes.forgotPasswordReset:
+      List data=settings.arguments as List;
+      return MaterialPageRoute(builder: (context) => SetNewPasswordPage(
+        email: data[0],
+        code: data[1],
+      ));
+
     case AppRoutes.subcriptionPurchaseRoute:
       return MaterialPageRoute(builder: (context) => SubcriptionPurchasePage());
 

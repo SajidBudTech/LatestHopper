@@ -6,6 +6,7 @@ import 'package:flutter_hopper/constants/app_sizes.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/search.strings.dart';
+import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:flutter_hopper/widgets/appbar/empty_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
@@ -64,14 +65,15 @@ class _SearchHopperPageState extends State<SearchHopperPage> {
                 //padding: AppPaddings.defaultPadding(),
                 padding: EdgeInsets.fromLTRB(
                   AppPaddings.contentPaddingSize,
-                  MediaQuery.of(context).size.height * 0.10,
+                  0,
+                  //MediaQuery.of(context).size.height * 0.10,
                   AppPaddings.contentPaddingSize,
                   AppPaddings.contentPaddingSize,
                 ),
                 children: <Widget>[
                   //Resut
-                  StreamBuilder<List<String>>(
-                    stream: _searchHopperBloc.searchVendors,
+                  StreamBuilder<List<HomePost>>(
+                    stream: _searchHopperBloc.searchPosts,
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
                         return EmptyHopper(
@@ -79,11 +81,11 @@ class _SearchHopperPageState extends State<SearchHopperPage> {
                         );
                       }
                       return SearchGroupedVendorsListView(
-                        title: SearchStrings.result,
+                        title: "Search Results",
+                        searchPosts: snapshot.data,
                         titleTextStyle: AppTextStyle.h3TitleTextStyle(
                           color: AppColor.textColor(context),
-                        ),
-                        //products: snapshot.data,
+                        ), //products: snapshot.data,
                       );
                     },
                   ),

@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hopper/bloc/base.bloc.dart';
+import 'package:flutter_hopper/bloc/forgot_password.bloc.dart';
 import 'package:flutter_hopper/bloc/login.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_images.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/forgot_password.strings.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/constants/strings/login.strings.dart';
+import 'package:flutter_hopper/utils/flash_alert.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:flutter_hopper/widgets/appbar/auth_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
@@ -32,7 +34,7 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   //login bloc
-  LoginBloc _loginBloc = LoginBloc();
+  ForgotPasswordBloc _forgotPasswordBloc = ForgotPasswordBloc();
   //email focus node
   final emailFocusNode = new FocusNode();
   //password focus node
@@ -41,44 +43,32 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   void initState() {
     super.initState();
-    _loginBloc.initBloc();
+    _forgotPasswordBloc.initBloc();
     //listen to the need to show a dialog alert or a normal snackbar alert type
-    _loginBloc.showAlert.listen((show) {
+    _forgotPasswordBloc.showAlert.listen((show) {
       //when asked to show an alert
       if (show) {
-        /* EdgeAlert.show(
-          context,
-          title: _loginBloc.dialogData.title,
-          description: _loginBloc.dialogData.body,
-          backgroundColor: _loginBloc.dialogData.backgroundColor,
-          icon: _loginBloc.dialogData.iconData,
-        );*/
-
-        /*Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.homeRoute,
-          (route) => false,
-        );*/
+        ShowFlash(
+            context,
+            title: _forgotPasswordBloc.dialogData.title,
+            message: _forgotPasswordBloc.dialogData.body
+        ).show();
       }
     });
 
     //listen to state of the ui
-    _loginBloc.uiState.listen((uiState) async {
+    _forgotPasswordBloc.uiState.listen((uiState) async {
       if (uiState == UiState.redirect) {
         // await Navigator.popUntil(context, (route) => false);
-        //Navigator.pushNamed(context, AppRoutes.homeRoute);
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.homeRoute,
-              (route) => false,
-        );
+         Navigator.pushNamed(context, AppRoutes.forgotPasswordCodeRoute,
+             arguments: _forgotPasswordBloc.emailAddressTEC.text);
       }
     });
   }
 
   @override
   void dispose() {
-    _loginBloc.dispose();
+    _forgotPasswordBloc.dispose();
     super.dispose();
   }
 
@@ -124,7 +114,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                 )),
                             UiSpacer.verticalSpace(space: 20),
                             StreamBuilder<bool>(
-                              stream: _loginBloc.validEmailAddress,
+                              stream: _forgotPasswordBloc.validEmailAddress,
                               builder: (context, snapshot) {
                                 return CustomTextFormField(
                                   hintText: GeneralStrings.email,
@@ -134,9 +124,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   fillColor: AppColor.textFieldColor,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
-                                  textEditingController: _loginBloc.emailAddressTEC,
+                                  textEditingController: _forgotPasswordBloc.emailAddressTEC,
                                   errorText: snapshot.error,
-                                  onChanged: _loginBloc.validateEmailAddress,
+                                  onChanged: _forgotPasswordBloc.validateEmailAddress,
                                   focusNode: emailFocusNode,
                                   nextFocusNode: passwordFocusNode,
                                 );
@@ -144,7 +134,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             ),
                             UiSpacer.verticalSpace(space: 20),
                             StreamBuilder<UiState>(
-                              stream: _loginBloc.uiState,
+                              stream: _forgotPasswordBloc.uiState,
                               builder: (context, snapshot) {
                                 final uiState = snapshot.data;
                                 return Container(
@@ -154,8 +144,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                       color: AppColor.accentColor,
                                       onPressed: uiState != UiState.loading
                                           ? (){
-                                        _loginBloc.processLogin();
-                                      }
+                                               _forgotPasswordBloc.resetPasswordCheclEmail();
+                                             }
                                           : null,
                                       child: uiState != UiState.loading
                                           ? Text(

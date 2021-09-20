@@ -38,6 +38,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+    _editProfileBloc.initBloc();
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/utils/router.dart' as router;
@@ -48,13 +49,31 @@ void main() async {
     if (AuthBloc.authenticated()) {
       _startRoute = AppRoutes.homeRoute;
     }else{
-      _startRoute = AppRoutes.welcomeRoute;
+      _startRoute = AppRoutes.loginRoute;
     }
 
   }
 
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(
+      new MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: AppStrings.appName,
+        onGenerateRoute: router.generateRoute,
+        initialRoute: _startRoute,
+        theme: ThemeData(
+          accentColor: AppColor.accentColor,
+          primaryColor: AppColor.primaryColor,
+          primaryColorDark: AppColor.primaryColorDark,
+          cursorColor: AppColor.cursorColor,
+        ),
+      ),
+
+    );
+  });
   // Run app!
-  runApp(
+ /* runApp(
     new MaterialApp(
       debugShowCheckedModeBanner: false,
       title: AppStrings.appName,
@@ -67,7 +86,7 @@ void main() async {
         cursorColor: AppColor.cursorColor,
       ),
     ),
-  );
+  );*/
 
 }
 

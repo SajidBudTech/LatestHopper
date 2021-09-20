@@ -21,6 +21,7 @@ import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
 import 'package:flutter_hopper/widgets/inputs/custom_text_form_field.dart';
 import 'package:flutter_hopper/widgets/platform/platform_circular_progress_indicator.dart';
 import 'package:flutter_hopper/constants/app_sizes.dart';
+import 'package:flutter_hopper/utils/flash_alert.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key}) : super(key: key);
@@ -46,19 +47,11 @@ class _LoginPageState extends State<LoginPage> {
     _loginBloc.showAlert.listen((show) {
       //when asked to show an alert
       if (show) {
-       /* EdgeAlert.show(
-          context,
-          title: _loginBloc.dialogData.title,
-          description: _loginBloc.dialogData.body,
-          backgroundColor: _loginBloc.dialogData.backgroundColor,
-          icon: _loginBloc.dialogData.iconData,
-        );*/
-
-        /*Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.homeRoute,
-          (route) => false,
-        );*/
+        ShowFlash(
+            context,
+            title: _loginBloc.dialogData.title,
+            message: _loginBloc.dialogData.body
+        ).show();
       }
     });
 
@@ -94,18 +87,19 @@ class _LoginPageState extends State<LoginPage> {
         body: SafeArea(
             child:Column(
               children: [
-                AuthAppBar(
-                  title: "LOGIN",
-                  imagePath: "assets/images/appbar_image.png",
-                  backgroundColor: AppColor.accentColor,
-                ),
+                 AuthAppBar(
+                    title: "LOGIN",
+                    imagePath: "assets/images/appbar_image.png",
+                    backgroundColor: AppColor.accentColor,
+                  ),
                 UiSpacer.verticalSpace(space: 20),
-                Expanded(child:SingleChildScrollView(
+               Expanded(
+                 child:SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                     physics: AlwaysScrollableScrollPhysics(),
                     child:Container(
                         padding: AppPaddings.defaultPadding(),
-                        child: Column(
+                        child: Expanded(child:Column(
                           children: [
                             StreamBuilder<bool>(
                               stream: _loginBloc.validEmailAddress,
@@ -158,8 +152,8 @@ class _LoginPageState extends State<LoginPage> {
                                   color: AppColor.accentColor,
                                   onPressed: uiState != UiState.loading
                                       ? (){
-
-                                  }
+                                           _loginBloc.generateLoginToken();
+                                       }
                                       : null,
                                   child: uiState != UiState.loading
                                       ? Text(
@@ -216,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                                  ])
                            ),
                             UiSpacer.verticalSpace(space: 30),
-                      Container(
+                           Container(
                           alignment: Alignment.center,
                           child: RichText(
                             textAlign: TextAlign.center,
@@ -249,65 +243,64 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                           )),
+                            UiSpacer.verticalSpace(space: AppSizes.getScreenheight(context)*0.14),
+                            Container(
+                                padding: EdgeInsets.only(left: 40,right: 40),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                        child:Text(
+                                          "Or login via",
+                                          textAlign: TextAlign.right,
+                                          style: AppTextStyle.h4TitleTextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500
+                                          ),
+                                        )
+                                    ),
+                                    UiSpacer.verticalSpace(space: 30),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        InkWell(
+                                            highlightColor: Colors.white,
+                                            splashColor: Colors.white,
+                                            onTap: (){
+
+                                            },
+                                            child: Image.asset("assets/images/google.png",
+                                              height: 72,
+                                              width: 72,
+                                              fit: BoxFit.cover,)
+                                        ),
+                                        InkWell(
+                                            highlightColor: Colors.white,
+                                            splashColor: Colors.white,
+                                            onTap: (){
+
+                                            },
+                                            child: Image.asset("assets/images/fb.png",
+                                              height: 72,
+                                              width: 72,
+                                            )
+                                        ),
+                                        InkWell(
+                                            highlightColor: Colors.white,
+                                            splashColor: Colors.white,
+                                            onTap: (){
+
+                                            },
+                                            child: Image.asset("assets/images/apple.png",
+                                              height: 72,
+                                              width: 72,)
+                                        )
+
+                                      ],
+                                    ),
+                                  ],
+                                ))
                           ],
-                        )))),
-
-                Container(
-                  padding: EdgeInsets.only(left: 60,right: 60,bottom: 40),
-                  child: Column(
-                    children: [
-                      Container(
-                          child:Text(
-                            "Or login via",
-                            textAlign: TextAlign.right,
-                            style: AppTextStyle.h4TitleTextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500
-                            ),
-                          )
-                      ),
-                      UiSpacer.verticalSpace(space: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          InkWell(
-                              highlightColor: Colors.white,
-                              splashColor: Colors.white,
-                              onTap: (){
-
-                              },
-                              child: Image.asset("assets/images/google.png",
-                                height: 72,
-                                width: 72,
-                                fit: BoxFit.cover,)
-                          ),
-                          InkWell(
-                              highlightColor: Colors.white,
-                              splashColor: Colors.white,
-                              onTap: (){
-
-                              },
-                              child: Image.asset("assets/images/fb.png",
-                                height: 72,
-                                width: 72,
-                              )
-                          ),
-                          InkWell(
-                              highlightColor: Colors.white,
-                              splashColor: Colors.white,
-                              onTap: (){
-
-                              },
-                              child: Image.asset("assets/images/apple.png",
-                                height: 72,
-                                width: 72,)
-                          )
-
-                        ],
-                      ),
-                    ],
-                  )
-                  )
+                        ))))),
                       ],
                     )
                 ),

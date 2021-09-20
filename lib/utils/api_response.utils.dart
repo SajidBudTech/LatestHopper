@@ -2,6 +2,7 @@
 import 'package:flutter_hopper/models/api_response.dart';
 
 class ApiResponseUtils {
+
   static ApiResponse parseApiResponse(dynamic response) {
     //
     int code = response.statusCode;
@@ -20,8 +21,26 @@ class ApiResponseUtils {
         }
 
         break;
+      case 201:
+        try {
+          message = body["message"];
+          data = body["data"].toString();
+        } catch (error) {
+          print("Message reading error ==> $error");
+        }
+
+        break;
+      case 202:
+        try {
+          message = body["message"];
+          data = body["data"].toString();
+        } catch (error) {
+          print("Message reading error ==> $error");
+        }
+
+        break;
       default:
-        message = body==""?"Whoops! Something went wrong, please contact support.":body["message"] ?? "Whoops! Something went wrong, please contact support.";
+        message = body["message"] ?? "Whoops! Something went wrong, please contact support.";
         errors.add(message);
         break;
     }

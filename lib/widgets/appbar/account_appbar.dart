@@ -15,12 +15,17 @@ class ProfileAppBar extends StatelessWidget {
     Key key,
     this.backgroundColor,
     this.imagePath,
+    this.name,
+    this.email,
     this.onPressed,
   }) : super(key: key);
 
   final Color backgroundColor;
   final String imagePath;
+  final String name;
+  final String email;
   final Function onPressed;
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,11 +98,11 @@ class ProfileAppBar extends StatelessWidget {
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: 'Shadrias Pearson\n',
+                                      text: '${name}\n',
                                       style: AppTextStyle.h4TitleTextStyle(color: Colors.white),
                                     ),
                                     TextSpan(
-                                        text: 'shadrias@domain.com',
+                                        text: '${email}',
                                         style:AppTextStyle.h4TitleTextStyle(color: Colors.white)
                                        /* recognizer: TapGestureRecognizer()
                                           ..onTap = () async{
