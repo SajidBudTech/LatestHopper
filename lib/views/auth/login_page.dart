@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                     physics: AlwaysScrollableScrollPhysics(),
                     child:Container(
                         padding: AppPaddings.defaultPadding(),
-                        child: Expanded(child:Column(
+                        child: Column(
                           children: [
                             StreamBuilder<bool>(
                               stream: _loginBloc.validEmailAddress,
@@ -300,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ],
                                 ))
                           ],
-                        ))))),
+                        )))),
                       ],
                     )
                 ),
