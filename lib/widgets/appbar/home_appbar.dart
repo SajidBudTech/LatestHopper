@@ -85,7 +85,7 @@ class HomeAppBar extends StatelessWidget {
                   child: InkWell(
                       onTap:()=>this.onPressed("PUBLICATION"),
                       child:Container(
-                        padding: EdgeInsets.only(left: 8,right: 8,top: 12,bottom: 12),
+                        padding: EdgeInsets.only(left: 6,right: 6,top: 12,bottom: 12),
                         decoration: BoxDecoration(
                           color: Color(0xFF168B8A),
                           borderRadius: BorderRadius.circular(20)
@@ -97,6 +97,8 @@ class HomeAppBar extends StatelessWidget {
                               color: AppColor.primaryColor,
                               fontWeight: FontWeight.w500
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       )
                   )
@@ -106,7 +108,7 @@ class HomeAppBar extends StatelessWidget {
                   child: InkWell(
                       onTap: ()=>this.onPressed("AUTHOR"),
                       child:Container(
-                        margin: EdgeInsets.only(left: 8,right: 8),
+                        margin: EdgeInsets.only(left: 5,right: 5),
                         padding: EdgeInsets.only(left: 8,right: 8,top: 12,bottom: 12),
                         decoration: BoxDecoration(
                             color: Color(0xFF168B8A),

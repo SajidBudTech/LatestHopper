@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "419595352820",
+    "project_id": "hopperaudio-ae4eb",
+    "storage_bucket": "hopperaudio-ae4eb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419595352820:android:d19c691c6b0b5401fefca1",
+        "android_client_info": {
+          "package_name": "com.application.audiohopper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "419595352820-ep05nqfhto4h1o0c890un91v4k2een8k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.application.audiohopper",
+            "certificate_hash": "67fc6cf0bbd058e638a204ef794e4995ab95cb36"
+          }
+        },
+        {
+          "client_id": "419595352820-rl82dpat51s8170t2enkjgpb3sedvqtm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLkGtjqo4i888t4FBL--wvwMAjnaczxRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "419595352820-rl82dpat51s8170t2enkjgpb3sedvqtm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

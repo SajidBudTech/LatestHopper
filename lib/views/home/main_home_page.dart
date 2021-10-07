@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
 import 'package:flutter_hopper/models/state_data_model.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
@@ -11,6 +13,7 @@ import 'package:stacked/stacked.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
+import 'package:flutter_hopper/widgets/platform/center_progress_bar.dart';
 
 class MainHomePage extends StatefulWidget {
   const MainHomePage({Key key}) : super(key: key);
@@ -29,7 +32,7 @@ class _MainHomePageState extends State<MainHomePage>
     super.build(context);
     return ViewModelBuilder<MainHomeViewModel>.reactive(
         viewModelBuilder: () => MainHomeViewModel(context),
-        onModelReady: (model) => model.getHomePostDetails(),
+        onModelReady: (model) => model.initHomeValue(),
         builder: (context, model, child) => Scaffold(
             body: SafeArea(
               child: Column(
@@ -40,45 +43,64 @@ class _MainHomePageState extends State<MainHomePage>
                        visibleBottom: true,
                        onPressed: (value){
                          Navigator.pushNamed(context, AppRoutes.filterRoute,
-                         arguments: value);
+                         arguments: [value,model]);
                        },
                   ),
-                  Expanded(
-                      child:
-                      CustomScrollView(slivers: [
-                        SliverPadding(
-                          padding: AppPaddings.defaultPadding(),
-                          sliver:
-                          model.mainHomeLoadingState == LoadingState.Loading
-                          //the loadinng shimmer
-                              ? SliverToBoxAdapter(
-                            child: VendorShimmerListViewItem(),
-                          ) : model.mainHomeLoadingState == LoadingState.Failed
-                              ? SliverToBoxAdapter(child:LoadingStateDataView(
-                            stateDataModel: StateDataModel(
-                              showActionButton: true,
-                              actionButtonStyle: AppTextStyle.h4TitleTextStyle(
-                                color: Colors.red,
-                              ),
-                              actionFunction: model.getHomePostDetails,
-                            ),
-                          ))
-                              :
-                          //listing type
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                   return AnimatedVendorListViewItem(
-                                     index: index,
-                                     homePost: model.mainhomeList[index],
-                                );
-                              },
-                              childCount: model.mainhomeList.length,
-                            ),
-                          ),
-                        ),
-                      ])),
+              Expanded(
+                child:Stack(
+                    children: [
+                      /*Expanded(
+                          child:*/
+                          CustomScrollView(slivers: [
+                            SliverPadding(
+                              padding: AppPaddings.defaultPadding(),
+                              sliver:
+                              model.mainHomeLoadingState == LoadingState.Loading
+                              //the loadinng shimmer
+                                  ? SliverToBoxAdapter(
+                                child: VendorShimmerListViewItem(),
+                              ) : model.mainHomeLoadingState == LoadingState.Failed
+                                  ? SliverToBoxAdapter(child:LoadingStateDataView(
+                                stateDataModel: StateDataModel(
+                                  showActionButton: true,
+                                  actionButtonStyle: AppTextStyle.h4TitleTextStyle(
+                                    color: Colors.red,
+                                  ),
+                                  actionFunction: model.initHomeValue,
+                                ),
+                              ))
+                                  :
+                              //listing type
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                    return AnimatedVendorListViewItem(
+                                      index: index,
+                                      homePost: model.mainhomeList[index],
+                                      OnPressed: (){
 
+                                        if(AudioConstant.audioIsPlaying){
+                                          AudioConstant.audioViewModel.player.stop();
+                                        }
+                                        AudioConstant.FROM_BOTTOM=false;
+                                        HomeBloc.switchPageToPalying(model.mainhomeList[index].id);
+                                      },
+                                    );
+                                  },
+                                  childCount: model.mainhomeList.length,
+                                ),
+                              ),
+                            ),
+                          ]),
+                       //),
+                      Visibility(
+                          visible: model.mainHomeLoadingState==LoadingState.Loading,
+                          child:Positioned.fill(
+                              child: CenterCircularProgressIndicator()
+                          )
+                      )
+                    ],
+                  ))
                 ],
               ),
              /* color: AppColor.pagebackgroundColor,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/bloc/profile.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
+import 'package:flutter_hopper/utils/termandcondition_utils.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
 import 'package:flutter_hopper/views/profile/menu_item.dart';
 import 'package:flutter_hopper/widgets/appbar/account_appbar.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/app_strings.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key key}) : super(key: key);
@@ -23,23 +25,21 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
   @override
   bool get wantKeepAlive => true;
   ProfileBloc _profileBlo=ProfileBloc();
-  String userFullName="";
-  String userEmail="";
+ // String userFullName="";
+ // String userEmail="";
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    userFullName=AuthBloc.getUserFullName();
-    userEmail=AuthBloc.getUserEmail();
+    _profileBlo.initBloc();
+    //userFullName=AuthBloc.getUserFullName();
+    //userEmail=AuthBloc.getUserEmail();
   }
 
   @override
   Widget build(BuildContext viewcontext) {
     super.build(context);
-    return ViewModelBuilder<MainHomeViewModel>.reactive(
-        viewModelBuilder: () => MainHomeViewModel(viewcontext),
-        onModelReady: (model) => model.initialise(),
-        builder: (context, model, child) => Scaffold(
+    return Scaffold(
             body:Container(
                 decoration: BoxDecoration(
                     image: DecorationImage(
@@ -51,8 +51,8 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                     ProfileAppBar(
                       imagePath: "assets/images/appbar_image.png",
                       backgroundColor: AppColor.accentColor,
-                      name: userFullName??"",
-                      email: userEmail??"",
+                      name: _profileBlo.userFullName??"",
+                      email: _profileBlo.userEmail??"",
                       onPressed: (){
                         Navigator.pop(context, false);
                       },
@@ -66,7 +66,13 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                     MenuItem(
                       title: "Edit Profile",
                       onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.editProfileRoute);
+                        Navigator.pushNamed(context, AppRoutes.editProfileRoute).then((value) {
+                             if(AudioConstant.FROM_UPDATE_PROFILE){
+                               _profileBlo.initBloc();
+                                rebuildWidget();
+                             }
+                          }
+                        );
                       },
                      ),
                     MenuItem(
@@ -84,15 +90,17 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                     MenuItem(
                       title: "Privacy Policy",
                       onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.privacyPolicyRoute,
-                        arguments: "Privacy Policy");
+                        /*Navigator.pushNamed(context, AppRoutes.privacyPolicyRoute,
+                        arguments: "Privacy Policy");*/
+                        Terms.lunchPrivacyPolicy();
                       },
                     ),
                     MenuItem(
                       title: "Terms & Conditions",
                       onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.privacyPolicyRoute,
-                        arguments: "Terms & Conditions");
+                       /* Navigator.pushNamed(context, AppRoutes.privacyPolicyRoute,
+                        arguments: "Terms & Conditions");*/
+                        Terms.lunchTermsAndCondition();
                       },
                     ),
                     MenuItem(
@@ -107,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
 
                   ],
                 )
-            )));
+            ));
   }
 
   void _processLogout(BuildContext viewcontext) async {
@@ -157,5 +165,11 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
     ) ??
         false;
   }
-
+  void rebuildWidget() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      setState(() {
+        AudioConstant.FROM_UPDATE_PROFILE=false;
+      });
+    });
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/constants/api.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/services/http.service.dart';
 import 'package:flutter_hopper/utils/api_response.utils.dart';
 import 'package:flutter_hopper/views/auth/login_page.dart';
+import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 
 
 class HomePageRepository extends HttpService {
@@ -86,6 +89,328 @@ class HomePageRepository extends HttpService {
     });
 
     return categories;
+
+  }
+
+  Future<List<String>> getFilterAuhtorList() async {
+    List<String> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.filterAuthor);
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    (apiResponse.body as List).forEach((categoryJSONObject) {
+      //vendor data
+      categories.add(categoryJSONObject);
+
+    });
+
+    return categories;
+
+  }
+  Future<List<String>> getFilterPublicationList() async {
+    List<String> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.filterPublication);
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    (apiResponse.body as List).forEach((categoryJSONObject) {
+      //vendor data
+      categories.add(categoryJSONObject);
+
+    });
+
+    return categories;
+
+  }
+
+  Future<HomePost> getPostDetails(int postId) async {
+    HomePost homePost = new HomePost();
+
+    //make http call for vendors data
+    final apiResult = await get(Api.searchPost+postId.toString());
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    homePost=HomePost.fromJson(apiResponse.body);
+
+
+    return homePost;
+
+  }
+
+  Future<List<Hopper>> getRecenltyViewedPost(int userId) async {
+    List<Hopper> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.recentlyViewPost+"/"+userId.toString());
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    if(apiResponse.body!="") {
+      (apiResponse.body as List).forEach((categoryJSONObject) {
+        //vendor data
+        categories.add(Hopper.fromJson(categoryJSONObject));
+      });
+    }
+
+    return categories;
+
+  }
+  Future<DialogData> addRecenltyViewedPost(int userId,int postId) async {
+    final resultDialogData = DialogData();
+
+    //make http call for vendors data
+    final apiResult = await post(Api.addToRecentlyViewed,{
+      "post_id":postId,
+      "user_id":userId
+    });
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    if (apiResponse.allGood) {
+      resultDialogData.title = "Successfully added to MyHopper!";
+      resultDialogData.body = "";
+      resultDialogData.dialogType = DialogType.success;
+    } else {
+      resultDialogData.title = "Failed to add to MyHopper!";
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+    }
+
+    return resultDialogData;
+
+  }
+  Future<DialogData> removeFromRecenttlyViewed(int userId,int postId) async {
+    final resultDialogData = DialogData();
+
+    //make http call for vendors data
+    final apiResult = await post(Api.removeFromRecentlyViewed,{
+      "post_id":postId,
+      "user_id":userId
+    });
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    if (apiResponse.allGood) {
+      resultDialogData.title = "Successfully removed from download!";
+      resultDialogData.body = "";
+      resultDialogData.dialogType = DialogType.success;
+    } else {
+      resultDialogData.title = "Failed to remove from download!";
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+    }
+
+    return resultDialogData;
+
+  }
+
+  Future<List<Hopper>> getMyHopperPost(int userId) async {
+    List<Hopper> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.myHopperPost+"/"+userId.toString());
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    if(apiResponse.body!="") {
+      (apiResponse.body as List).forEach((categoryJSONObject) {
+        //vendor data
+        categories.add(Hopper.fromJson(categoryJSONObject));
+      });
+    }
+
+    return categories;
+
+  }
+
+  Future<DialogData> addToMyHooper(int userId,int postId) async {
+    final resultDialogData = DialogData();
+
+    //make http call for vendors data
+    final apiResult = await post(Api.addToMyHopper,{
+      "post_id":postId,
+      "user_id":userId
+    });
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    if (apiResponse.allGood) {
+      resultDialogData.title = "Successfully added to MyHopper!";
+      resultDialogData.body = "";
+      resultDialogData.dialogType = DialogType.success;
+    } else {
+      resultDialogData.title = "Failed to add to MyHopper!";
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+    }
+
+    return resultDialogData;
+
+  }
+  Future<DialogData> removeFromMyHooper(int userId,int postId) async {
+    final resultDialogData = DialogData();
+
+    //make http call for vendors data
+    final apiResult = await post(Api.removeFromHopper,{
+      "post_id":postId,
+      "user_id":userId
+    });
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    if (apiResponse.allGood) {
+      resultDialogData.title = "Successfully removed from download!";
+      resultDialogData.body = "";
+      resultDialogData.dialogType = DialogType.success;
+    } else {
+      resultDialogData.title = "Failed to remove from download!";
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+    }
+
+    return resultDialogData;
+
+  }
+  Future<List<Hopper>> getDownloadList(int userId) async {
+    List<Hopper> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.downloadedPost+"/"+userId.toString());
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    if(apiResponse.body!="") {
+      (apiResponse.body as List).forEach((categoryJSONObject) {
+        //vendor data
+        categories.add(Hopper.fromJson(categoryJSONObject));
+      });
+    }
+
+    return categories;
+
+  }
+
+  Future<DialogData> addToDownload(int userId,int postId) async {
+    final resultDialogData = DialogData();
+
+    //make http call for vendors data
+    final apiResult = await post(Api.addToDownload,{
+      "post_id":postId,
+      "user_id":userId
+    });
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    if (apiResponse.allGood) {
+      resultDialogData.title = "Successfully added to MyHopper!";
+      resultDialogData.body = "";
+      resultDialogData.dialogType = DialogType.success;
+    } else {
+      resultDialogData.title = "Failed to add to MyHopper!";
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+    }
+
+    return resultDialogData;
+
+  }
+  Future<DialogData> removeFromDownload(int userId,int postId) async {
+    final resultDialogData = DialogData();
+
+    //make http call for vendors data
+    final apiResult = await post(Api.removeFromDownload,{
+      "post_id":postId,
+      "user_id":userId
+    });
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    if (apiResponse.allGood) {
+      resultDialogData.title = "Successfully removed from download!";
+      resultDialogData.body = "";
+      resultDialogData.dialogType = DialogType.success;
+    } else {
+      resultDialogData.title = "Failed to remove from download!";
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+    }
+
+    return resultDialogData;
 
   }
 

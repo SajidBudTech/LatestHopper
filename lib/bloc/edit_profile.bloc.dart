@@ -34,12 +34,37 @@ class EditProfileBloc extends BaseBloc {
 
 
 
-
+  int userId;
+  String password;
   @override
   void initBloc(){
     super.initBloc();
     nameTEC.text = AuthBloc.getUserFullName();
     emailAddressTEC.text = AuthBloc.getUserEmail();
+    userId=AuthBloc.getUserId();
+    password=AuthBloc.getUserPassword();
+  }
+
+  void editProfile() async{
+
+    if(validateName(nameTEC.text)){
+       setUiState(UiState.loading);
+       final resultDialogData = await _authRepository.updateProfile(
+         name: nameTEC.text,
+         userId: userId,
+         password: password,
+         email: emailAddressTEC.text,
+         userName: emailAddressTEC.text,
+       );
+
+       setUiState(UiState.done);
+
+       dialogData = resultDialogData;
+       dialogData.isDismissible = true;
+       //notify listners tto show show alert
+       setShowDialogAlert(true);
+
+     }
   }
 
 
@@ -47,16 +72,16 @@ class EditProfileBloc extends BaseBloc {
   void pickNewProfilePhoto() async {
     try {
 
-      /*FilePickerResult result = await FilePicker.platform.pickFiles(type: FileType.image);
+      FilePickerResult result = await FilePicker.platform.pickFiles(type: FileType.image);
       if(result != null) {
         File file = File(result.files.single.path);
         _profilePhoto.add(file);
       } else {
         // User canceled the picker
         _profilePhoto.add(null);
-      }*/
-      File image = await FilePicker.getFile(type: FileType.image);
-      _profilePhoto.add(image);
+      }
+       /*File image = await FilePicker.getFile(type: FileType.image);
+      _profilePhoto.add(image);*/
     } catch (error) {
       print("Error picking profile photo");
       _profilePhoto.addError(error);

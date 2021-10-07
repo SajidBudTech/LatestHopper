@@ -34,13 +34,47 @@ class AuthRepository extends HttpService {
       resultDialogData.body = apiResponse.message;
       resultDialogData.dialogType = DialogType.success;
 
+      LoginStrings.loginUserId=apiResponse.body[0]['id'];
       //save the user data to hive box
-       saveuserData(
+      /* saveuserData(
         apiResponse.body[0],
+        password,
+      );*/
+
+    } else {
+      resultDialogData.title = LoginStrings.processFailedTitle;
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+
+      /*saveuserData(
+        apiResponse.body["user"],
+        apiResponse.body["token"],
+        apiResponse.body["type"],
+      );*/
+    }
+
+    return resultDialogData;
+  }
+
+  Future<DialogData> getUserDetails({String password}) async {
+    //instance of the model to be returned
+    final resultDialogData = DialogData();
+    final apiResult = await get(Api.userDetails+"/"+LoginStrings.loginUserId.toString()+"?context=edit");
+
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+
+    if (apiResponse.allGood) {
+      resultDialogData.title = LoginStrings.processCompleteTitle;
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.success;
+
+      saveuserData(
+        apiResponse.body,
         password,
       );
 
     } else {
+
       resultDialogData.title = LoginStrings.processFailedTitle;
       resultDialogData.body = apiResponse.message;
       resultDialogData.dialogType = DialogType.failed;
@@ -89,6 +123,7 @@ class AuthRepository extends HttpService {
       final Map<String, dynamic> bodyPayload =
       {
         "username": email,
+        "name":name,
         "first_name":name,
         "last_name":"",
         "email": email,
@@ -258,46 +293,28 @@ class AuthRepository extends HttpService {
 
     //update account profile
     Future<DialogData> updateProfile({
+      int userId,
       String name,
-      String lname,
+      String userName,
       String email,
-      String phone,
-      File photo,
-      String dob,
-      String address,
-      String gst_no,
-      String gender,
-      String maritalStatus,
-      String height,
-      String wieght,
-      List<String> healthIssue,
-      String bloodGroup,
-      File medicalReport,
-      bool social = false,
+      String password
     }) async {
       //instance of the model to be returned
       final resultDialogData = DialogData();
 
       final Map<String, dynamic> bodyPayload =
       {
-        "name": name,
-        "lname": lname,
+
+       /* "id":userId,
+        "username": userName,
         "email": email,
-        "phone": phone,
-        "birthdate": dob,
-        "address": address,
-        "gst_no": gst_no,
-        "gender": gender,
-        "marital_status": maritalStatus,
-        "height": height,
-        "weight": wieght,
-        "health_issues": healthIssue,
-        "blood_group": bloodGroup,
-        "social": social ? "1" : "0"
+        "password": password,*/
+        "name": name,
+
       };
 
       //adding photo file to the payload if photo was selected
-      if (photo != null) {
+     /* if (photo != null) {
         final photoFile = await MultipartFile.fromFile(
           photo.path,
         );
@@ -305,29 +322,19 @@ class AuthRepository extends HttpService {
         bodyPayload.addAll({
           "photo": photoFile,
         });
-      }
-
-      if (medicalReport != null) {
-        final medicalFile = await MultipartFile.fromFile(
-          medicalReport.path,
-        );
-
-        bodyPayload.addAll({
-          "medical_report": medicalFile,
-        });
-      }
-
+      }*/
 
       final apiResult = await postWithFiles(
-        Api.updateProfile,
+        Api.updateProfile+"/"+userId.toString(),
         bodyPayload,
       );
 
       ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
       if (apiResponse.allGood) {
         resultDialogData.title = UpdateProfileStrings.processCompleteTitle;
-        resultDialogData.body = apiResponse.message;
+        resultDialogData.body = "";
         resultDialogData.dialogType = DialogType.successThenClosePage;
+        AuthBloc.setUserFullName(name);
 
         //get the local version of user data
         /*final currentUser = await appDatabase.userDao.findCurrent();
@@ -364,23 +371,23 @@ class AuthRepository extends HttpService {
         resultDialogData.body = errorMessage ?? apiResponse.message;
         resultDialogData.dialogType = DialogType.failed;
       }
+
       return resultDialogData;
     }
 
     //update user password
     Future<DialogData> updatePassword({
-      String currentPassword,
       String newPassword,
-      String confirmNewPassword,
+      int userId
     }) async {
       //instance of the model to be returned
       final resultDialogData = DialogData();
       final apiResult = await post(
-        Api.changePassword,
+        Api.changePassword+"/"+userId.toString(),
         {
-          "current_password": currentPassword,
-          "new_password": newPassword,
-          "new_password_confirmation": confirmNewPassword,
+          //"current_password": currentPassword,
+          "password": newPassword,
+          //"new_password_confirmation": confirmNewPassword,
         },
       );
 
@@ -388,8 +395,10 @@ class AuthRepository extends HttpService {
 
       if (apiResponse.allGood) {
         resultDialogData.title = UpdatePasswordStrings.processCompleteTitle;
-        resultDialogData.body = apiResponse.message;
+        resultDialogData.body = "Your password updated successfully!";
         resultDialogData.dialogType = DialogType.successThenClosePage;
+        AuthBloc.setUserPassword(newPassword);
+
       } else {
         //the error message
         var errorMessage = apiResponse.message;

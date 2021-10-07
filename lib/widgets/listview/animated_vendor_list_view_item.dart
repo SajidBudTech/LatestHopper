@@ -7,8 +7,9 @@ class AnimatedVendorListViewItem extends StatelessWidget {
   final int index;
   final HomePost homePost;
   final Widget listViewItem;
+  final Function OnPressed;
   const AnimatedVendorListViewItem(
-      {this.index, this.listViewItem,this.homePost,Key key})
+      {this.index, this.listViewItem,this.homePost,this.OnPressed,Key key})
       : super(key: key);
 
   @override
@@ -22,6 +23,7 @@ class AnimatedVendorListViewItem extends StatelessWidget {
           child: listViewItem ??
           HomeListViewItem(
             homePost: homePost,
+            onPressed: this.OnPressed,
           ),
         ),
       ),

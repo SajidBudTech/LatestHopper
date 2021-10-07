@@ -53,7 +53,8 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
         ShowFlash(
             context,
             title: _forgotPasswordBloc.dialogData.title,
-            message: _forgotPasswordBloc.dialogData.body
+            message: _forgotPasswordBloc.dialogData.body,
+            flashType: FlashType.failed
         ).show();
       }
     });
@@ -349,7 +350,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
                                       ? () {
                                             _verifyOtp(this.pin);
                                          }
-                                      : null,
+                                      : (){},
                                   child: uiState != UiState.loading
                                       ? Text(
                                       "Submit",

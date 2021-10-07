@@ -2,15 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/utils/router.dart' as router;
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/app_strings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
-  //
+  await FlutterDownloader.initialize(debug: true);
   //await Firebase.initializeApp();
   //Initialize App Database
   //await AppDatabaseSingleton().prepareDatabase();
@@ -36,6 +39,8 @@ void main() async {
   // await AppDatabaseSingleton.database.productExtraDao.deleteAll();
 
   // Set default home.
+
+  //SharedPreferences.setMockInitialValues({});
 
   String _startRoute = AppRoutes.welcomeRoute;
 

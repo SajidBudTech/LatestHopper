@@ -22,7 +22,14 @@ class HomePost{
   List<int> categories;
   String narrator;
   String publication;
+  String publicationDate;
+  String postDescription;
+  String audioFileDuration;
+  String audioFile;
+  String coverImageUrl;
+  String subHeader;
   String url;
+  bool isAdded=false;
 
   HomePost(
       {this.id,
@@ -48,7 +55,14 @@ class HomePost{
         this.categories,
         this.narrator,
         this.publication,
-        this.url});
+        this.publicationDate,
+        this.postDescription,
+        this.audioFileDuration,
+        this.audioFile,
+        this.coverImageUrl,
+        this.subHeader,
+        this.url,
+        this.isAdded});
 
   HomePost.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -76,6 +90,12 @@ class HomePost{
     categories = json['categories'].cast<int>();
     narrator = json['narrator'];
     publication = json['publication'];
+    publicationDate = json['publication_date'];
+    postDescription = json['post_description'];
+    audioFileDuration = json['audio_file_duration'];
+    audioFile = json['audio_file'];
+    coverImageUrl = json['cover_image_url'];
+    subHeader = json['sub_header'];
     url = json['url'];
   }
 

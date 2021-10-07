@@ -52,7 +52,7 @@ class _CoolOnboardingState extends State<CoolOnboarding> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
-        padding: EdgeInsets.only(top: 20,left: 30),
+        //padding: EdgeInsets.only(top: 20,left: 30),
           child:Column(
          mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +63,9 @@ class _CoolOnboardingState extends State<CoolOnboarding> {
             height: MediaQuery.of(context).size.height * 0.60,
             fit: BoxFit.fill,
           ),
-          SmoothPageIndicator(
+          Container(
+            padding: EdgeInsets.only(left: 30),
+            child:SmoothPageIndicator(
             controller: _pageController, // PageController
             count: 2,
             effect: ExpandingDotsEffect(
@@ -75,12 +77,15 @@ class _CoolOnboardingState extends State<CoolOnboarding> {
               dotColor: widget.indicatorDotColor ?? Colors.teal[200],
               activeDotColor: widget.indicatorActiveDotColor ?? Colors.teal[900],
             ), // your preferred effect
-          ),
-          Expanded(child: PageView(
+          )),
+          Expanded(
+            child: Container(
+                padding: EdgeInsets.only(left: 30),
+                child:PageView(
             controller: _pageController,
             onPageChanged: _pageViewChanged,
             children: widget.onBoardingSlides,
-          )),
+          ))),
 
         ],
       ))

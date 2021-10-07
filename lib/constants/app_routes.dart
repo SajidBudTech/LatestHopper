@@ -2,9 +2,15 @@ class AppRoutes {
 
   static const welcomeRoute = "welcome";
   static const loginRoute = "login";
+  static const loginWebView = "loginwebview";
   static const registerRoute = "register";
   static const subcriptionPurchaseRoute = "subcription_purchase";
   static const homeRoute = "home";
+  static const maiHomeRoute = "MainHome";
+  static const playingRoute = "playingPage";
+  static const hopperRoute = "hopperPage";
+  static const seeAllHopperRoute = "seeallhopperPage";
+  static const profileRoute = "profilePage";
   static const filterRoute = "filter";
 
   static const editProfileRoute = "edit_profile";

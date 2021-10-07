@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_hopper/constants/validation_messages.dart';
 
 class Validators {
   static bool isEmailValid(String email) {
@@ -28,19 +29,19 @@ class Validators {
 
   final validatePassword = StreamTransformer<String, String>.fromHandlers(
       handleData: (password, sink) {
-    if (password.length >= 6) {
+    if (password.length >= 8 && RegExp(r"^(?=.*?[A-Z])(?=.*?[!@#\$&*~]).{8,}$").hasMatch(password)) {
       sink.add(password);
     } else {
-      sink.addError('Password must be at least 6 characters');
+      sink.addError(ValidationMessages.invalidPassword);
     }
   });
 
   final validatePasswordBool = StreamTransformer<String, bool>.fromHandlers(
       handleData: (password, sink) {
-    if (password.length >= 6) {
+    if (password.length >= 8 && RegExp(r"^(?=.*?[A-Z])(?=.*?[!@#\$&*~]).{8,}$").hasMatch(password)) {
       sink.add(true);
     } else {
-      sink.addError('Password must be at least 6 characters');
+      sink.addError(ValidationMessages.invalidPassword);
     }
   });
 

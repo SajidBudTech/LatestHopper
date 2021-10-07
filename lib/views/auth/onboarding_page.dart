@@ -37,7 +37,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         indicatorActiveDotColor: AppColor.onboardingIndicatorActiveDotColor,
         onBoardingSlides: [
           OnboardingSlide(
-            asset: AppImages.onboardingimage,
+            asset: AppImages.onboardingimageone,
             title: OnboardingStrings.onboarding1Title,
             description: OnboardingStrings.onboarding1Body,
             backgroundColor: Colors.white,

@@ -16,6 +16,7 @@ import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/constants/strings/login.strings.dart';
 import 'package:flutter_hopper/utils/flash_alert.dart';
+import 'package:flutter_hopper/utils/termandcondition_utils.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:flutter_hopper/widgets/appbar/auth_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
@@ -50,7 +51,8 @@ class _RegisterPageState extends State<RegisterPage> {
         ShowFlash(
             context,
             title: _registerBloc.dialogData.title,
-            message: _registerBloc.dialogData.body
+            message: _registerBloc.dialogData.body,
+            flashType: FlashType.failed
           ).show();
         /*Navigator.pushNamedAndRemoveUntil(
           context,
@@ -202,11 +204,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                              ShowFlash(
                                                  viewcontext,
                                                  title: "Password does not match with confirmpassword!",
-                                                 message: "Please try again"
+                                                 message: "Please try again",
+                                                 flashType: FlashType.failed
                                              ).show();
                                           }
                                          }
-                                          : null,
+                                          : (){},
                                       child: uiState != UiState.loading
                                           ? Text(
                                         "SIGN UP",
@@ -257,7 +260,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                               decoration: TextDecoration.underline),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              print('Terms of Service"');
+                                              Terms.lunchTermsAndCondition();
                                             }),
                                       TextSpan(text: ' & '),
                                       TextSpan(
@@ -268,7 +271,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                               decoration: TextDecoration.underline),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              print('Privacy Policy"');
+                                              Terms.lunchPrivacyPolicy();
                                             }),
                                     ],
                                   ),

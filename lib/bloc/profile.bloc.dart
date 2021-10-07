@@ -33,14 +33,18 @@ class ProfileBloc extends BaseBloc {
 
 
   RegisterToken registerToken;
-
+  String userFullName="";
+  String userEmail="";
 
   @override
   void initBloc() async {
+    getUsetData();
     super.initBloc();
-
   }
-
+  void getUsetData() async{
+    userFullName=AuthBloc.getUserFullName();
+    userEmail=AuthBloc.getUserEmail();
+  }
 
   //as user enters name, we are doing name validation, error if its empty of less than 3 words
   bool validateName(String value) {

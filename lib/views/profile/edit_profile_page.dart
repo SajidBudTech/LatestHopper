@@ -7,6 +7,7 @@ import 'package:flutter_hopper/constants/app_images.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
 import 'package:flutter_hopper/models/state_data_model.dart';
+import 'package:flutter_hopper/utils/custom_dialog.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
 import 'package:flutter_hopper/widgets/appbar/common_app_bar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
@@ -21,6 +22,7 @@ import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:stacked/stacked.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 
 class EditProfilePage extends StatefulWidget {
   EditProfilePage({Key key, this.title}) : super(key: key);
@@ -39,6 +41,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
     _editProfileBloc.initBloc();
+
+    _editProfileBloc.showDialogAlert.listen(
+          (show) {
+        //when asked to show an alert
+        if (show) {
+
+          AudioConstant.FROM_UPDATE_PROFILE=true;
+          CustomDialog.showAlertDialog(
+            context,
+            _editProfileBloc.dialogData,
+             isDismissible: _editProfileBloc.dialogData.isDismissible,
+            onDismissAction: (){
+              setState(() {
+
+              });
+            }
+          );
+        } else {
+          CustomDialog.dismissDialog(context);
+        }
+      },
+    );
   }
 
   @override
@@ -49,10 +73,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<MainHomeViewModel>.reactive(
-      viewModelBuilder: () => MainHomeViewModel(context),
-      onModelReady: (model) => model.initialise(),
-      builder: (context, model, child) => Scaffold(
+    return Scaffold(
           body: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -152,7 +173,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         child: CustomButton(
                           padding: AppPaddings.mediumButtonPadding(),
                           color: AppColor.accentColor,
-                          onPressed: uiState != UiState.loading ? () {} : null,
+                          onPressed: uiState != UiState.loading ? () {
+                             _editProfileBloc.editProfile();
+                             } : (){},
                           child: uiState != UiState.loading
                               ? Text(
                                   "UPDATE PROFILE",
@@ -171,7 +194,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ))
           ],
         ),
-      )),
-    );
+      ));
   }
 }

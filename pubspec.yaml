@@ -41,9 +41,18 @@ dependencies:
   flutter_launcher_icons: ^0.7.2+1
   flutter_launcher_name: ^0.0.1
   flutter_staggered_animations: ^0.1.2
-  file_picker: ^1.12.6
+  file_picker: ^2.1.7
   sleek_circular_slider: ^1.2.0
   otp_text_field: ^1.0.2
+  just_audio: ^0.6.15+1
+  audio_service: ^0.16.2+1
+  url_launcher: ^5.5.0
+  share_plus: ^1.2.0
+  flutter_facebook_login: ^3.0.0
+  permission_handler: ^5.1.0+2
+  flutter_downloader: ^1.5.2
+  path_provider: ^1.6.28
+  firebase_dynamic_links: ^0.7.0+1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

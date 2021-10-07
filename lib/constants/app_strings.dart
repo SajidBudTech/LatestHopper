@@ -13,6 +13,7 @@ class AppStrings {
 
   static String dot = " • ";
 
+
   //price filter max and min
   static double minFilterPrice = 0;
   static double maxFilterPrice = 4000;

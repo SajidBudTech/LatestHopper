@@ -2,25 +2,21 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/bloc/base.bloc.dart';
-import 'package:flutter_hopper/bloc/edit_profile.bloc.dart';
-import 'package:flutter_hopper/constants/app_images.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
-import 'package:flutter_hopper/models/loading_state.dart';
-import 'package:flutter_hopper/models/state_data_model.dart';
+import 'package:flutter_hopper/utils/custom_dialog.dart';
+import 'package:flutter_hopper/utils/flash_alert.dart';
+import 'package:flutter_hopper/utils/validators.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
 import 'package:flutter_hopper/widgets/appbar/common_app_bar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
 import 'package:flutter_hopper/widgets/inputs/custom_text_form_field.dart';
 import 'package:flutter_hopper/widgets/platform/platform_circular_progress_indicator.dart';
-import 'package:flutter_hopper/widgets/profile/user_profile_photo.dart';
-import 'package:flutter_hopper/widgets/shimmers/vendor_shimmer_list_view_item.dart';
-import 'package:flutter_hopper/widgets/state/state_loading_data.dart';
-import 'package:flutter_hopper/bloc/login.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:stacked/stacked.dart';
+import 'package:flutter_hopper/bloc/change_password.bloc.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   ChangePasswordPage({Key key}) : super(key: key);
@@ -32,17 +28,32 @@ class ChangePasswordPage extends StatefulWidget {
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   //SearchVendorsBloc instance
 
-  LoginBloc _loginBloc = LoginBloc();
+  ChangePasswordBloc _changePasswordBloc = ChangePasswordBloc();
 
   @override
   void initState() {
     super.initState();
+    _changePasswordBloc.initBloc();
+    _changePasswordBloc.showDialogAlert.listen(
+          (show) {
+        //when asked to show an alert
+        if (show) {
+          CustomDialog.showAlertDialog(
+            context,
+            _changePasswordBloc.dialogData,
+            isDismissible: _changePasswordBloc.dialogData.isDismissible,
+          );
+        } else {
+          CustomDialog.dismissDialog(context);
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
     super.dispose();
-    _loginBloc.dispose();
+    _changePasswordBloc.dispose();
   }
 
   @override
@@ -69,7 +80,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   children: [
                     UiSpacer.verticalSpace(),
                     StreamBuilder<bool>(
-                      stream: _loginBloc.validPasswordAddress,
+                      stream: _changePasswordBloc.validCurrentPassword,
                       builder: (context, snapshot) {
                         return CustomTextFormField(
                           hintText: "Current Password",
@@ -79,15 +90,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           fillColor: AppColor.textFieldColor,
                           togglePassword: true,
                           obscureText: true,
-                         // textEditingController: _loginBloc.passwordTEC,
+                          textEditingController: _changePasswordBloc.currentPasswordTEC,
                           errorText: snapshot.error,
-                          onChanged: _loginBloc.validatePassword,
+                          //onChanged: _changePasswordBloc.changeCurrentPassword,
                         );
                       },
                     ),
                     UiSpacer.verticalSpace(),
                     StreamBuilder<bool>(
-                      stream: _loginBloc.validPasswordAddress,
+                      stream: _changePasswordBloc.validNewPassword,
                       builder: (context, snapshot) {
                         return CustomTextFormField(
                           hintText: "New Password",
@@ -97,15 +108,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           fillColor: AppColor.textFieldColor,
                           togglePassword: true,
                           obscureText: true,
-                          //textEditingController: _loginBloc.passwordTEC,
+                          textEditingController: _changePasswordBloc.newPasswordTEC,
                           errorText: snapshot.error,
-                          onChanged: _loginBloc.validatePassword,
+                          onChanged: _changePasswordBloc.changeNewPassword,
                         );
                       },
                     ),
                     UiSpacer.verticalSpace(),
-                    StreamBuilder<bool>(
-                      stream: _loginBloc.validPasswordAddress,
+                    StreamBuilder<String>(
+                      stream: _changePasswordBloc.validConfirmPassword,
                       builder: (context, snapshot) {
                         return CustomTextFormField(
                           hintText: "Confirm Password",
@@ -115,15 +126,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           fillColor: AppColor.textFieldColor,
                           togglePassword: true,
                           obscureText: true,
-                         // textEditingController: _loginBloc.passwordTEC,
+                          textEditingController: _changePasswordBloc.confirmPasswordTEC,
                           errorText: snapshot.error,
-                          onChanged: _loginBloc.validatePassword,
+                          onChanged: _changePasswordBloc.changeConfirmPassword,
                         );
                       },
                     ),
                     UiSpacer.verticalSpace(space: 30),
                     StreamBuilder<UiState>(
-                      stream: _loginBloc.uiState,
+                      stream: _changePasswordBloc.uiState,
                       builder: (context, snapshot) {
                         final uiState = snapshot.data;
                         return Container(
@@ -131,7 +142,27 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             child: CustomButton(
                               padding: AppPaddings.mediumButtonPadding(),
                               color: AppColor.accentColor,
-                              onPressed: uiState != UiState.loading ? () {} : null,
+                              onPressed: uiState != UiState.loading ? () {
+                                if(_changePasswordBloc.currentPassword ==_changePasswordBloc.currentPasswordTEC.text){
+                                  if((Validators.isPasswordValid(_changePasswordBloc.newPasswordTEC.text)) && (Validators.isPasswordValid(_changePasswordBloc.confirmPasswordTEC.text))&&(_changePasswordBloc.newPasswordTEC.text==_changePasswordBloc.confirmPasswordTEC.text)){
+                                    _changePasswordBloc.processUpdatePassword();
+                                  }else{
+                                    ShowFlash(
+                                        context,
+                                        title: "New password does not match with confirm password",
+                                        message: "Please try again",
+                                        flashType: FlashType.failed
+                                    ).show();
+                                  }
+                                }else{
+                                  ShowFlash(
+                                      context,
+                                      title: "Current password is invalid",
+                                      message: "Please try again",
+                                      flashType: FlashType.failed
+                                  ).show();
+                                }
+                              } : (){},
                               child: uiState != UiState.loading
                                   ? Text(
                                 "SUBMIT",

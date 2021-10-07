@@ -1,10 +1,12 @@
 // ViewModel
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/models/home_category.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
+import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:flutter_hopper/repositories/home.repository.dart';
 import 'package:flutter_hopper/viewmodels/base.viewmodel.dart';
 
@@ -15,15 +17,27 @@ class MainHomeViewModel extends MyBaseViewModel {
   //
 
   LoadingState mainHomeLoadingState = LoadingState.Loading;
+  LoadingState mainHomeCategoryLoadingState = LoadingState.Loading;
+  LoadingState mainHomeAuthorLoadingState = LoadingState.Loading;
+  LoadingState mainHomePublicationLoadingState = LoadingState.Loading;
+
   int listingStyle = 2;
 
 
   List<String> homeList=[];
 
   List<HomePost> mainhomeList=[];
+  List<HomePost> mainhomeFilterList=[];
   List<HomeCategory> mainhomeCategory=[];
+  List<String> mainhomeAuthor=[];
+  List<String> mainhomePublication=[];
+
+  List<Hopper> myHopperList=[];
+
 
   Map<String, bool> filterCategoryMap = {};
+  Map<String, bool> filterAuthorMap = {};
+  Map<String, bool> filterPublicationMap = {};
 
 
 
@@ -35,13 +49,50 @@ class MainHomeViewModel extends MyBaseViewModel {
     getHomeList();
   }
 
+  initHomeValue(){
+    getHomePostDetails();
+    getHomeCategoryDetails();
+    getHomeAuthotDetails();
+    getHomePublicationDetails();
+  }
+
   void getHomePostDetails() async{
     //add null data so listener can show shimmer widget to indicate loading
     mainHomeLoadingState = LoadingState.Loading;
     notifyListeners();
 
     try {
+
       mainhomeList = await _homePageRepository.getHomePostList();
+      getMyHopperList();
+      //mainHomeLoadingState = LoadingState.Done;
+      //notifyListeners();
+    } catch (error) {
+      mainHomeLoadingState = LoadingState.Failed;
+      notifyListeners();
+    }
+  }
+
+  void getMyHopperList() async{
+    //add null data so listener can show shimmer widget to indicate loading
+    //mainHomeLoadingState = LoadingState.Loading;
+    //notifyListeners();
+
+    final int userId=AuthBloc.getUserId();
+
+    try {
+
+      myHopperList = await _homePageRepository.getMyHopperPost(userId);
+
+      for(int i=0;i<mainhomeList.length;i++){
+        myHopperList.forEach((element) {
+          if(element.post.iD==mainhomeList[i].id){
+            mainhomeList[i].isAdded=true;
+          }
+        });
+      }
+      mainhomeFilterList=mainhomeList;
+      //notifyListeners();
       mainHomeLoadingState = LoadingState.Done;
       notifyListeners();
     } catch (error) {
@@ -52,7 +103,7 @@ class MainHomeViewModel extends MyBaseViewModel {
 
   void getHomeCategoryDetails() async{
     //add null data so listener can show shimmer widget to indicate loading
-    mainHomeLoadingState = LoadingState.Loading;
+    mainHomeCategoryLoadingState = LoadingState.Loading;
     notifyListeners();
 
     try {
@@ -61,10 +112,52 @@ class MainHomeViewModel extends MyBaseViewModel {
       for(HomeCategory homeCategory in mainhomeCategory){
         filterCategoryMap.putIfAbsent(homeCategory.name??"", () => false);
       }
-      mainHomeLoadingState = LoadingState.Done;
+      mainHomeCategoryLoadingState = LoadingState.Done;
       notifyListeners();
     } catch (error) {
-      mainHomeLoadingState = LoadingState.Failed;
+      mainHomeCategoryLoadingState = LoadingState.Failed;
+      notifyListeners();
+    }
+  }
+
+  void getHomeAuthotDetails() async{
+    //add null data so listener can show shimmer widget to indicate loading
+    mainHomeAuthorLoadingState = LoadingState.Loading;
+    notifyListeners();
+
+    try {
+
+       mainhomeAuthor = await _homePageRepository.getFilterAuhtorList();
+
+      for(String author in mainhomeAuthor){
+        filterAuthorMap.putIfAbsent(author??"", () => false);
+      }
+       mainHomeAuthorLoadingState = LoadingState.Done;
+      notifyListeners();
+    } catch (error) {
+      mainHomeAuthorLoadingState = LoadingState.Failed;
+      notifyListeners();
+    }
+
+  }
+
+  void getHomePublicationDetails() async{
+    //add null data so listener can show shimmer widget to indicate loading
+    mainHomePublicationLoadingState = LoadingState.Loading;
+    notifyListeners();
+
+    try {
+
+      mainhomePublication = await _homePageRepository.getFilterPublicationList();
+
+      for(String author in mainhomePublication){
+        filterPublicationMap.putIfAbsent(author??"", () => false);
+      }
+
+      mainHomePublicationLoadingState = LoadingState.Done;
+      notifyListeners();
+    } catch (error) {
+      mainHomePublicationLoadingState = LoadingState.Failed;
       notifyListeners();
     }
   }
@@ -80,6 +173,64 @@ class MainHomeViewModel extends MyBaseViewModel {
      notifyListeners();
    }
 
+   applyFilter()async{
+
+     List<HomePost> newFilterList=[];
+     for(HomePost homePost in mainhomeFilterList){
+
+       filterCategoryMap.forEach((key, value) {
+         mainhomeCategory.forEach((element) {
+           if(homePost.categories[0]==element.id && element.name==key && value){
+             bool check=newFilterList.any((item) => item.id == homePost.id);
+             if(!check){
+               newFilterList.add(homePost);
+             }
+           }
+         /* // if(homePost.categories==key && value){
+             bool check=newFilterList.any((item) => item.id == homePost.id);
+             if(!check){
+               newFilterList.add(homePost);
+             }
+          // }*/
+
+         });
+       });
+
+       filterAuthorMap.forEach((key, value) {
+         if(homePost.author==key && value){
+           bool check=newFilterList.any((item) => item.id == homePost.id);
+           if(!check){
+             newFilterList.add(homePost);
+           }
+         }
+       });
+
+       filterPublicationMap.forEach((key, value) {
+         if(homePost.publication==key && value){
+           bool check=newFilterList.any((item) => item.id == homePost.id);
+           if(!check){
+             newFilterList.add(homePost);
+           }
+         }
+       });
+
+     }
+
+     mainhomeList=newFilterList;
+     notifyListeners();
+
+   }
+
+   clearAll()async{
+
+     filterCategoryMap={};
+     filterAuthorMap= {};
+     filterPublicationMap= {};
+
+     mainhomeList=mainhomeFilterList;
+     notifyListeners();
+
+   }
 
   }
 

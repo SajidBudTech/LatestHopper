@@ -1,5 +1,6 @@
 class AppImages {
   static const appLogo = "assets/images/app_icon.png";
+  static const appMiniLogo = "assets/images/appicon_mini.png";
   static const defaultProfile = "assets/images/propic.png";
   static const emptyCart = "assets/images/empty_cart.png";
   static const emptyDeliveryAddress = "assets/images/empty_address.png";
@@ -23,6 +24,7 @@ class AppImages {
   static const ic_doctor = "assets/images/doctor.png";
 
   static const onboardingimage = "assets/images/welcome.png";
+  static const onboardingimageone = "assets/images/welcome_one.png";
 
 
 

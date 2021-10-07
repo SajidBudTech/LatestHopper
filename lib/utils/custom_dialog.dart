@@ -194,12 +194,12 @@ class CustomDialog {
       BuildContext context, {
         @required Widget content,
         EdgeInsetsGeometry contentPadding,
-        Color backgroundColor
+        Color backgroundColor,
       }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: AppSizes.containerTopRadiusShape(),
+     // shape: AppSizes.containerTopRadiusShape(),
       backgroundColor:backgroundColor==null?AppColor.appBackground(context):backgroundColor,
       builder: (BuildContext bc) {
         return SafeArea(

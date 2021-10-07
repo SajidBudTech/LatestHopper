@@ -49,7 +49,8 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
         ShowFlash(
             context,
             title: _forgotPasswordBloc.dialogData.title,
-            message: _forgotPasswordBloc.dialogData.body
+            message: _forgotPasswordBloc.dialogData.body,
+            flashType: FlashType.failed
         ).show();
       }
     });
@@ -148,10 +149,11 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
                                   ShowFlash(
                                       context,
                                       title: "Password does not match woth confirm password!",
-                                      message: "Please try again"
+                                      message: "Please try again",
+                                      flashType: FlashType.failed
                                   ).show();
                                   }
-                                 } : null,
+                                 } : (){},
                               child: uiState != UiState.loading
                                   ? Text(
                                 "Reset Password",

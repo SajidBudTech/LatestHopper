@@ -15,6 +15,7 @@ import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/constants/strings/login.strings.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
+import 'package:flutter_hopper/utils/termandcondition_utils.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:flutter_hopper/widgets/appbar/auth_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
@@ -50,7 +51,8 @@ class _LoginPageState extends State<LoginPage> {
         ShowFlash(
             context,
             title: _loginBloc.dialogData.title,
-            message: _loginBloc.dialogData.body
+            message: _loginBloc.dialogData.body,
+            flashType: FlashType.failed
         ).show();
       }
     });
@@ -135,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                                   obscureText: true,
                                   textEditingController: _loginBloc.passwordTEC,
                                   errorText: snapshot.error,
-                                  onChanged: _loginBloc.validatePassword,
+                                 // onChanged: _loginBloc.validatePassword,
                                   focusNode: passwordFocusNode,
                                 );
                               },
@@ -154,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ? (){
                                            _loginBloc.generateLoginToken();
                                        }
-                                      : null,
+                                      : (){},
                                   child: uiState != UiState.loading
                                       ? Text(
                                     LoginStrings.title,
@@ -227,7 +229,7 @@ class _LoginPageState extends State<LoginPage> {
                                         decoration: TextDecoration.underline),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        print('Terms of Service"');
+                                        Terms.lunchTermsAndCondition();
                                       }),
                                 TextSpan(text: ' & '),
                                 TextSpan(
@@ -236,9 +238,9 @@ class _LoginPageState extends State<LoginPage> {
                                         color: AppColor.primaryColorDark,
                                         fontWeight: FontWeight.w400,
                                         decoration: TextDecoration.underline),
-                                    recognizer: TapGestureRecognizer()
+                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        print('Privacy Policy"');
+                                        Terms.lunchPrivacyPolicy();
                                       }),
                               ],
                             ),
@@ -277,7 +279,8 @@ class _LoginPageState extends State<LoginPage> {
                                             highlightColor: Colors.white,
                                             splashColor: Colors.white,
                                             onTap: (){
-
+                                               _loginBloc.signinWithNewFacebook(context);
+                                              //Navigator.pushNamed(context, AppRoutes.loginWebView);
                                             },
                                             child: Image.asset("assets/images/fb.png",
                                               height: 72,

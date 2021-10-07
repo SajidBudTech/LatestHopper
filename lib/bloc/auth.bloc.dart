@@ -44,12 +44,21 @@ class AuthBloc extends BaseBloc {
   static String getUserEmail() {
     return prefs.getString(PreferenceString.UserEmail)??"";
   }
+  static String getUserPassword() {
+    return prefs.getString(PreferenceString.UserPassword)??"";
+  }
+  static void setUserPassword(String newpasword) {
+    prefs.setString(PreferenceString.UserPassword,newpasword??"");
+  }
+  static void setUserFullName(String name){
+    prefs.setString(PreferenceString.UserFullName,name??"");
+  }
 
 
   static void saveUserData(Map userDetails,String passwrod) {
 
     prefs.setString(PreferenceString.UserName,userDetails["username"]??"");
-    prefs.setString(PreferenceString.UserFullName,userDetails["first_name"]??"");
+    prefs.setString(PreferenceString.UserFullName,userDetails["name"]??"");
     prefs.setString(PreferenceString.UserEmail,userDetails["email"]?? "");
     prefs.setString(PreferenceString.UserPassword,passwrod??"");
     prefs.setInt(PreferenceString.UserId,userDetails["id"]??0);

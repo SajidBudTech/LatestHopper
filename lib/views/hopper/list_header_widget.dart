@@ -14,11 +14,13 @@ class HopperListHeader extends StatefulWidget {
   HopperListHeader({
     Key key,
     this.title,
-    this.onSeeAllClicked
+    this.onSeeAllClicked,
+    this.showSeeAll=true,
   }) : super(key: key);
 
   final title;
   final Function onSeeAllClicked;
+  final bool showSeeAll;
   @override
   _HopperListHeaderState createState() => _HopperListHeaderState();
 }
@@ -45,7 +47,11 @@ class _HopperListHeaderState extends State<HopperListHeader> {
             ),
             Expanded(
               flex: 2,
-              child:Text(
+              child:Visibility(
+                visible: widget.showSeeAll,
+               child: InkWell(
+               onTap: widget.onSeeAllClicked,
+               child:Text(
               "see all",
               textAlign: TextAlign.right,
               style: AppTextStyle.h5TitleTextStyle(
@@ -56,7 +62,7 @@ class _HopperListHeaderState extends State<HopperListHeader> {
               ),
               textDirection: AppTextDirection.defaultDirection,
              ),
-            )
+            )))
           ],
         )
     );

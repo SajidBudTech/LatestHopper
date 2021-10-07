@@ -10,24 +10,39 @@ class Api {
   static const login = "/wp/v2/users/?search=";
   static const loginSocial = "/login/social";
   static const register = "/wp/v2/users";
+  static const userDetails = "/wp/v2/users";
   static const registerToken = "/api/v1/token";
   static const homePagePost = "/wp/v2/posts";
   static const filterCategory = "/wp/v2/categories";
+  static const filterAuthor = "/wp/v2/post-filter-author";
+  static const filterPublication = "/wp/v2/post-filter-publication";
   static const searchPost = "/wp/v2/posts/";
   static const forgotPasswordCheckEmail = "/bdpwr/v1/reset-password";
   static const forgotPasswordValidateCode = "/bdpwr/v1/validate-code";
   static const forgotPasswordReset = "/bdpwr/v1/set-password";
 
 
+
   static const otp = "/otp";
   static const logout = "/logout";
 
-  static const changePassword = "/password/change";
-  static const updateProfile = "/user/update";
+  static const changePassword = "/wp/v2/users";
+  static const updateProfile = "/wp/v2/users";
 
 
-  static const newReleases = "/new-releases";
-  static const bestSeller = "/best-sellers";
+  static const recentlyViewPost = "/wp/v2/users-viewed-posts";
+  static const addToRecentlyViewed = "/wp/v2/update-users-post-meta";
+  static const removeFromRecentlyViewed = "/wp/v2/delete-users-post-meta-recenlty-viewed";
+
+  static const myHopperPost = "/wp/v2/users-my-hopper";
+  static const addToMyHopper = "/wp/v2/update-users-post-meta-add-my-hopper";
+  static const removeFromHopper = "/wp/v2/delete-users-post-meta-my-hopper";
+
+  static const downloadedPost = "/wp/v2/users-my-download";
+  static const addToDownload = "/wp/v2/update-users-post-meta-add-my-download";
+  static const removeFromDownload = "/wp/v2/delete-users-post-meta-my-download";
+
+
   static const abantuFavorites = "/abantu-favorites";
   static const bookDetails = "/books";
   static const discoverCategories = "/genres";

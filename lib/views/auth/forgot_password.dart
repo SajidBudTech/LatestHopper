@@ -51,7 +51,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         ShowFlash(
             context,
             title: _forgotPasswordBloc.dialogData.title,
-            message: _forgotPasswordBloc.dialogData.body
+            message: _forgotPasswordBloc.dialogData.body,
+            flashType: FlashType.failed
         ).show();
       }
     });
@@ -146,7 +147,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                           ? (){
                                                _forgotPasswordBloc.resetPasswordCheclEmail();
                                              }
-                                          : null,
+                                          : (){},
                                       child: uiState != UiState.loading
                                           ? Text(
                                         "SEND PASSWORD RESET LINK",

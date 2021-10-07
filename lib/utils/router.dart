@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
+import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
+import 'package:flutter_hopper/viewmodels/hopper.viewmodel.dart';
+import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
 import 'package:flutter_hopper/views/appbarview/notification_page.dart';
 import 'package:flutter_hopper/views/appbarview/search_page.dart';
 import 'package:flutter_hopper/views/auth/forgot_password.dart';
 import 'package:flutter_hopper/views/auth/forgot_password_code.dart';
 import 'package:flutter_hopper/views/auth/forgot_pasword_reset.dart';
 import 'package:flutter_hopper/views/auth/login_page.dart';
+import 'package:flutter_hopper/views/auth/login_webview.dart';
 import 'package:flutter_hopper/views/auth/onboarding_page.dart';
 import 'package:flutter_hopper/views/auth/register_page.dart';
 import 'package:flutter_hopper/views/home/author_detail_page.dart';
 import 'package:flutter_hopper/views/home/home_filter_page.dart';
 import 'package:flutter_hopper/views/home/home_page.dart';
+import 'package:flutter_hopper/views/home/main_home_page.dart';
+import 'package:flutter_hopper/views/hopper/hopper_page.dart';
+import 'package:flutter_hopper/views/hopper/see_all_page.dart';
+import 'package:flutter_hopper/views/playing/playing_page.dart';
 import 'package:flutter_hopper/views/profile/change_pasword.dart';
 import 'package:flutter_hopper/views/profile/edit_profile_page.dart';
 import 'package:flutter_hopper/views/profile/privacy_policy_page.dart';
+import 'package:flutter_hopper/views/profile/profile_page.dart';
 import 'package:flutter_hopper/views/profile/subcription_details_page.dart';
 import 'package:flutter_hopper/views/subcription/purchase_subcription.dart';
 
@@ -27,6 +36,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case AppRoutes.loginRoute:
       return MaterialPageRoute(builder: (context) => LoginPage());
+    case AppRoutes.loginWebView:
+      return MaterialPageRoute(builder: (context) => LoginWebView());
 
     case AppRoutes.registerRoute:
       return MaterialPageRoute(builder: (context) => RegisterPage());
@@ -50,9 +61,34 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case AppRoutes.homeRoute:
       return MaterialPageRoute(builder: (context) => HomePage());
+    case AppRoutes.maiHomeRoute:
+      return MaterialPageRoute(builder: (context) => MainHomePage());
+
+    case AppRoutes.playingRoute:
+      return MaterialPageRoute(builder: (context) => PlayingPage());
+    case AppRoutes.hopperRoute:
+      return MaterialPageRoute(builder: (context) => HopperPage());
+    case AppRoutes.seeAllHopperRoute:
+      List<dynamic> content=settings.arguments;
+      String title=content[0] as String;
+      List<Hopper> hooperlist=content[1] as List<Hopper>;
+      HopperViewModel model=content[2] as HopperViewModel;
+      return MaterialPageRoute(builder: (context) => SeeAllPagePage(
+        title: title,
+        hopperList: hooperlist,
+        model: model,
+      ));
+    case AppRoutes.profileRoute:
+      return MaterialPageRoute(builder: (context) => ProfilePage());
+
+
     case AppRoutes.filterRoute:
+      List<dynamic> content=settings.arguments;
+      String title=content[0] as String;
+      MainHomeViewModel model=content[1] as MainHomeViewModel;
       return MaterialPageRoute(builder: (context) => HomeFilterPage(
-        title: settings.arguments,
+        title: title,
+        model: model
       ));
 
     case AppRoutes.editProfileRoute:

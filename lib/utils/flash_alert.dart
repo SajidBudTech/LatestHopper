@@ -4,14 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 
+enum FlashType{
+  failed,
+  success
+}
 class ShowFlash{
   BuildContext context;
   String title;
   String message;
-  ShowFlash(BuildContext context,{String title,String message}){
+  FlashType flashType;
+  ShowFlash(BuildContext context,{String title,String message,FlashType flashType}){
     this.context=context;
     this.title=title;
     this.message=message;
+    this.flashType=flashType;
   }
 
   show(){
@@ -21,7 +27,7 @@ class ShowFlash{
       builder: (context, controller) {
         return Flash(
           controller: controller,
-          backgroundColor: AppColor.primaryColor,
+          backgroundColor: flashType==FlashType.success?AppColor.primaryColor:AppColor.failedColor,
           brightness: Brightness.light,
           boxShadows: [BoxShadow(blurRadius: 4)],
           barrierBlur: 3.0,
@@ -32,13 +38,13 @@ class ShowFlash{
           child: FlashBar(
             title: title==null?Container()
             :Text(title??"",style: AppTextStyle.h3TitleTextStyle(
-                color:AppColor.accentColor,
+                color:flashType==FlashType.success?AppColor.accentColor:Colors.white,
                 fontWeight: FontWeight.w500
             ),),
             message:message==null?Container():
             Text(message,
                style: AppTextStyle.h5TitleTextStyle(
-                  color: AppColor.accentColor,
+                  color: flashType==FlashType.success?AppColor.accentColor:Colors.white,
                   fontWeight: FontWeight.w400
               ),),
           ),

@@ -1,8 +1,8 @@
 class OnboardingStrings {
 
   static const String onboarding1Body =
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,";
-  static const String onboarding1Title = "TITLE 01";
+      "AudioHopper is an app-based service that provides professional narrations of current articles from a wide variety of publications, including points of view that have been excluded from competing apps.";
+  static const String onboarding1Title = "AudioHopper";
 
 
 

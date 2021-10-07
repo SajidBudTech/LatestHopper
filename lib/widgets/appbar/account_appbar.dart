@@ -10,7 +10,7 @@ import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
 
-class ProfileAppBar extends StatelessWidget {
+class ProfileAppBar extends StatefulWidget {
   const ProfileAppBar({
     Key key,
     this.backgroundColor,
@@ -26,11 +26,18 @@ class ProfileAppBar extends StatelessWidget {
   final String email;
   final Function onPressed;
 
+  @override
+  _ProfileAppBarState createState() => _ProfileAppBarState();
+
+}
+class _ProfileAppBarState extends State<ProfileAppBar> with AutomaticKeepAliveClientMixin<ProfileAppBar> {
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(left: 20,right: 20,top: 20,bottom: 10),
+        padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 10),
         decoration: BoxDecoration(
             color: AppColor.accentColor,
             borderRadius: BorderRadius.only(
@@ -46,65 +53,72 @@ class ProfileAppBar extends StatelessWidget {
                 Expanded(
                     flex: 1,
                     child: InkWell(
-                        onTap: (){
-                          Navigator.pushNamed(context, AppRoutes.notificationsRoute);
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, AppRoutes.notificationsRoute);
                         },
-                        child:CircleAvatar(
+                        child: CircleAvatar(
                             backgroundColor: Color(0xFF168B8A),
-                            child: Icon(FlutterIcons.notifications_mdi,color: AppColor.primaryColorDark,size: 24,)
+                            child: Icon(FlutterIcons.notifications_mdi,
+                              color: AppColor.primaryColorDark, size: 24,)
                         )
                     )
                 ),
                 //Delivery location
                 Expanded(
                     flex: 5,
-                    child:Container(
+                    child: Container(
                         alignment: Alignment.center,
-                        child:Image.asset(imagePath??"",
-                          height:36,
+                        child: Image.asset(widget.imagePath ?? "",
+                          height: 36,
                           fit: BoxFit.cover,))
                 ),
                 Expanded(
                     flex: 1,
                     child: InkWell(
-                        onTap: (){
-                          Navigator.pushNamed(context, AppRoutes.searchHopperPage);
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, AppRoutes.searchHopperPage);
                         },
-                        child:CircleAvatar(
+                        child: CircleAvatar(
                             backgroundColor: Color(0xFF168B8A),
-                            child: Icon(FlutterIcons.search_mdi,color: AppColor.primaryColorDark,size: 24,)
+                            child: Icon(FlutterIcons.search_mdi,
+                              color: AppColor.primaryColorDark, size: 24,)
                         )
                     )
                 ),
               ],
             ),
             UiSpacer.verticalSpace(space: 16),
-             Row(
-                  textDirection: AppTextDirection.defaultDirection,
-                  children: <Widget>[
-                    ClipOval(
-                              //clipBehavior: Clip.antiAliasWithSaveLayer,
-                             child:Image.asset("assets/images/propic.png",
-                              height: 100,
-                              fit: BoxFit.cover,
-                              width: 100,
-                            )
-                    ),
-                    Expanded(
-                        child: Container(
-                              margin: EdgeInsets.only(left: 8,right: 8),
-                              padding: EdgeInsets.only(left: 8,right: 8,top: 12,bottom: 12),
-                              child:  RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '${name}\n',
-                                      style: AppTextStyle.h4TitleTextStyle(color: Colors.white),
-                                    ),
-                                    TextSpan(
-                                        text: '${email}',
-                                        style:AppTextStyle.h4TitleTextStyle(color: Colors.white)
-                                       /* recognizer: TapGestureRecognizer()
+            Row(
+              textDirection: AppTextDirection.defaultDirection,
+              children: <Widget>[
+                ClipOval(
+                  //clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: Image.asset("assets/images/propic.png",
+                      height: 100,
+                      fit: BoxFit.cover,
+                      width: 100,
+                    )
+                ),
+                Expanded(
+                    child: Container(
+                        margin: EdgeInsets.only(left: 8, right: 8),
+                        padding: EdgeInsets.only(
+                            left: 8, right: 8, top: 12, bottom: 12),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '${widget.name}\n',
+                                style: AppTextStyle.h4TitleTextStyle(
+                                    color: Colors.white),
+                              ),
+                              TextSpan(
+                                  text: '${widget.email}',
+                                  style: AppTextStyle.h4TitleTextStyle(
+                                      color: Colors.white)
+                                /* recognizer: TapGestureRecognizer()
                                           ..onTap = () async{
                                             //https://testbud.in/sab-trek/terms
                                             var url = "https://187courts.com/terms";
@@ -114,20 +128,21 @@ class ProfileAppBar extends StatelessWidget {
                                               throw 'Could not launch $url';
                                             }
                                           }*/
-                                    )
-                                  ],
-
-                                ),
-
                               )
-                        )
-                    ),
+                            ],
 
-                  ],
+                          ),
+
+                        )
+                    )
                 ),
+
+              ],
+            ),
 
           ],
         )
     );
   }
+
 }

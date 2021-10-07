@@ -9,6 +9,8 @@ class LoginStrings {
   static const String google = "Google";
   static const String facebook = "Facebook";
 
+  static int loginUserId=0;
+
   static const String processTitle = "Authenticating";
   static const String processCompleteTitle = "Login Successful!";
   static const String processFailedTitle = "Login Failed!";

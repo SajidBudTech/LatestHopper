@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/home.bloc.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/widgets/listview/main_home_listview_item.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -57,6 +59,14 @@ class SearchGroupedVendorsListView extends StatelessWidget {
               child: FadeInAnimation(
                 child: HomeListViewItem(
                   homePost: searchPost,
+                  onPressed: (){
+                      Navigator.pop(context);
+                      if(AudioConstant.audioIsPlaying){
+                        AudioConstant.audioViewModel.player.stop();
+                      }
+                      AudioConstant.FROM_BOTTOM=false;
+                      HomeBloc.switchPageToPalying(searchPosts[index].id);
+                  },
                 ),
               ),
             ),
