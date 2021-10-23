@@ -2,18 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
-import 'package:flutter_hopper/constants/app_paddings.dart';
-import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/app_sizes.dart';
-import 'package:flutter_hopper/constants/app_strings.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
-import 'package:flutter_hopper/viewmodels/hopper.viewmodel.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'package:flutter_hopper/utils/flash_alert.dart';
+
 
 class HomeListViewItem extends StatefulWidget {
   HomeListViewItem({Key key, this.homePost, this.onPressed}) : super(key: key);
@@ -22,6 +19,7 @@ class HomeListViewItem extends StatefulWidget {
   Function onPressed;
   @override
   _HomeListViewItemState createState() => _HomeListViewItemState();
+
 }
 
 class _HomeListViewItemState extends State<HomeListViewItem> {
@@ -136,7 +134,7 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          widget.homePost.title.rendered ?? "",
+                                          widget.homePost.publication ?? "",
                                           style: AppTextStyle.h4TitleTextStyle(
                                             fontWeight: FontWeight.w500,
                                             color: Colors.white,
@@ -212,17 +210,21 @@ class _HomeListViewItemState extends State<HomeListViewItem> {
                             color: AppColor.accentColor,
                             decoration: TextDecoration.underline,
                             fontStyle: FontStyle.italic),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         textDirection: AppTextDirection.defaultDirection,
                       ),
                     )),
                 Container(
                   padding: EdgeInsets.only(left: 0, top: 2),
                   child: Text(
-                    stripHtmlIfNeeded(widget.homePost.excerpt.rendered ?? ""),
+                    (widget.homePost.title.rendered ?? ""),
                     style: AppTextStyle.h5TitleTextStyle(
                       fontWeight: FontWeight.w400,
                       color: AppColor.textColor(context),
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                     textDirection: AppTextDirection.defaultDirection,
                   ),
                 ),

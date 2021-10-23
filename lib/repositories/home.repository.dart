@@ -8,6 +8,7 @@ import 'package:flutter_hopper/models/api_response.dart';
 import 'package:flutter_hopper/models/dialog_data.dart';
 import 'package:flutter_hopper/models/home_category.dart';
 import 'package:flutter_hopper/models/home_post.dart';
+import 'package:flutter_hopper/models/notification.dart';
 import 'package:flutter_hopper/services/http.service.dart';
 import 'package:flutter_hopper/utils/api_response.utils.dart';
 import 'package:flutter_hopper/views/auth/login_page.dart';
@@ -141,6 +142,31 @@ class HomePageRepository extends HttpService {
 
   }
 
+  Future<List<NotificationData>> getNotifications(int userId) async {
+    List<NotificationData> categories = [];
+
+    //make http call for vendors data
+    final apiResult = await get(Api.notifications+"/"+userId.toString());
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+    if (!apiResponse.allGood) {
+      throw apiResponse.errors;
+    }
+
+    // print("About to collect");
+    //convert the data to list of category model
+    (apiResponse.body as List).forEach((categoryJSONObject) {
+      //vendor data
+      categories.add(NotificationData.fromJson(categoryJSONObject));
+
+    });
+
+    return categories;
+
+  }
+
   Future<HomePost> getPostDetails(int postId) async {
     HomePost homePost = new HomePost();
 
@@ -203,11 +229,11 @@ class HomePageRepository extends HttpService {
     }
 
     if (apiResponse.allGood) {
-      resultDialogData.title = "Successfully added to MyHopper!";
+      resultDialogData.title = "Successfully added to RecentlyViewed!";
       resultDialogData.body = "";
       resultDialogData.dialogType = DialogType.success;
     } else {
-      resultDialogData.title = "Failed to add to MyHopper!";
+      resultDialogData.title = "Failed to add to RecentlyViewed!";
       resultDialogData.body = apiResponse.message;
       resultDialogData.dialogType = DialogType.failed;
     }
@@ -232,11 +258,11 @@ class HomePageRepository extends HttpService {
     }
 
     if (apiResponse.allGood) {
-      resultDialogData.title = "Successfully removed from download!";
+      resultDialogData.title = "Successfully removed from RecentlyViewed!";
       resultDialogData.body = "";
       resultDialogData.dialogType = DialogType.success;
     } else {
-      resultDialogData.title = "Failed to remove from download!";
+      resultDialogData.title = "Failed to remove from RecentlyViewed!";
       resultDialogData.body = apiResponse.message;
       resultDialogData.dialogType = DialogType.failed;
     }
@@ -300,6 +326,7 @@ class HomePageRepository extends HttpService {
     return resultDialogData;
 
   }
+
   Future<DialogData> removeFromMyHooper(int userId,int postId) async {
     final resultDialogData = DialogData();
 
@@ -317,11 +344,11 @@ class HomePageRepository extends HttpService {
     }
 
     if (apiResponse.allGood) {
-      resultDialogData.title = "Successfully removed from download!";
+      resultDialogData.title = "Successfully removed from MyHopper!";
       resultDialogData.body = "";
       resultDialogData.dialogType = DialogType.success;
     } else {
-      resultDialogData.title = "Failed to remove from download!";
+      resultDialogData.title = "Failed to remove from MyHopper!";
       resultDialogData.body = apiResponse.message;
       resultDialogData.dialogType = DialogType.failed;
     }
@@ -372,11 +399,11 @@ class HomePageRepository extends HttpService {
     }
 
     if (apiResponse.allGood) {
-      resultDialogData.title = "Successfully added to MyHopper!";
+      resultDialogData.title = "Successfully added to Download!";
       resultDialogData.body = "";
       resultDialogData.dialogType = DialogType.success;
     } else {
-      resultDialogData.title = "Failed to add to MyHopper!";
+      resultDialogData.title = "Failed to add to Download!";
       resultDialogData.body = apiResponse.message;
       resultDialogData.dialogType = DialogType.failed;
     }

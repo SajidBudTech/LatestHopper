@@ -41,14 +41,14 @@ class MyBaseViewModel extends BaseViewModel {
           barrierBlur: 3.0,
           barrierColor: Colors.black38,
           barrierDismissible: true,
-          style: FlashStyle.floating,
+          //style: FlashStyle.floating,
           position: FlashPosition.top,
           child: FlashBar(
             title: Text(title,style: AppTextStyle.h4TitleTextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w400
             ),),
-            message:
+            content:
             Text(description,
               style: AppTextStyle.h6TitleTextStyle(
                   color: Colors.white,

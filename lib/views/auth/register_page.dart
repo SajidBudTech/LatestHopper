@@ -297,7 +297,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       highlightColor: Colors.white,
                                       splashColor: Colors.white,
                                       onTap: (){
-
+                                        _registerBloc.signinWithGoogle(context: context);
                                       },
                                       child: Image.asset("assets/images/google.png",
                                         height: 72,
@@ -307,7 +307,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       highlightColor: Colors.white,
                                       splashColor: Colors.white,
                                       onTap: (){
-
+                                       _registerBloc.signUpWithNewFacebook(context);
                                       },
                                       child: Image.asset("assets/images/fb.png",
                                         height: 72,
@@ -317,7 +317,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       highlightColor: Colors.white,
                                       splashColor: Colors.white,
                                       onTap: (){
-
+                                        _registerBloc.signinWithApple(context: context);
                                       },
                                       child: Image.asset("assets/images/apple.png",
                                         height: 72,

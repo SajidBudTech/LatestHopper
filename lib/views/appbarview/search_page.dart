@@ -127,6 +127,9 @@ class _SearchHopperPageState extends State<SearchHopperPage> {
                         Expanded(
                             child:SearchBar(
                               onSearchBarPressed: null,
+                              onSearchIconPressed: (search){
+                                 _searchHopperBloc.initSearch(search);
+                                },
                               hintText: "Type here",
                               readOnly: false,
                               onSubmit: _searchHopperBloc.initSearch,

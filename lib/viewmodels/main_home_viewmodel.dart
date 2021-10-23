@@ -6,6 +6,7 @@ import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/models/home_category.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
+import 'package:flutter_hopper/models/notification.dart';
 import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:flutter_hopper/repositories/home.repository.dart';
 import 'package:flutter_hopper/viewmodels/base.viewmodel.dart';
@@ -20,6 +21,7 @@ class MainHomeViewModel extends MyBaseViewModel {
   LoadingState mainHomeCategoryLoadingState = LoadingState.Loading;
   LoadingState mainHomeAuthorLoadingState = LoadingState.Loading;
   LoadingState mainHomePublicationLoadingState = LoadingState.Loading;
+  LoadingState mainNotificationLoadingState = LoadingState.Loading;
 
   int listingStyle = 2;
 
@@ -31,6 +33,8 @@ class MainHomeViewModel extends MyBaseViewModel {
   List<HomeCategory> mainhomeCategory=[];
   List<String> mainhomeAuthor=[];
   List<String> mainhomePublication=[];
+
+  List<NotificationData> notificationList=[];
 
   List<Hopper> myHopperList=[];
 
@@ -52,8 +56,6 @@ class MainHomeViewModel extends MyBaseViewModel {
   initHomeValue(){
     getHomePostDetails();
     getHomeCategoryDetails();
-    getHomeAuthotDetails();
-    getHomePublicationDetails();
   }
 
   void getHomePostDetails() async{
@@ -65,6 +67,19 @@ class MainHomeViewModel extends MyBaseViewModel {
 
       mainhomeList = await _homePageRepository.getHomePostList();
       getMyHopperList();
+      mainhomeList.forEach((element) {
+
+        mainhomeAuthor.add(element.author??"");
+        mainhomePublication.add(element.publication??"");
+
+      });
+      for(String author in mainhomeAuthor){
+        filterAuthorMap.putIfAbsent(author??"", () => false);
+      }
+      for(String author in mainhomePublication){
+        filterPublicationMap.putIfAbsent(author??"", () => false);
+      }
+
       //mainHomeLoadingState = LoadingState.Done;
       //notifyListeners();
     } catch (error) {
@@ -231,6 +246,25 @@ class MainHomeViewModel extends MyBaseViewModel {
      notifyListeners();
 
    }
+
+
+  void getNotificationList() async{
+    //add null data so listener can show shimmer widget to indicate loading
+    mainNotificationLoadingState = LoadingState.Loading;
+    notifyListeners();
+
+    final userId=AuthBloc.getUserId();
+    try {
+
+      notificationList = await _homePageRepository.getNotifications(userId);
+
+      mainNotificationLoadingState = LoadingState.Done;
+      notifyListeners();
+    } catch (error) {
+      mainNotificationLoadingState = LoadingState.Failed;
+      notifyListeners();
+    }
+  }
 
   }
 

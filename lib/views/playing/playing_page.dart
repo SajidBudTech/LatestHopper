@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_sizes.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
 import 'package:flutter_hopper/utils/termandcondition_utils.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
@@ -51,6 +53,8 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
   void initState() {
     // TODO: implement initState
     super.initState();
+    AudioConstant.sleeperActiveTime=AuthBloc.getSleeperTime();
+    AudioConstant.isSleeperActive=AuthBloc.isSleeperActive();
 
     _homeBloc.showAlert.listen((show) {
       //when asked to show an alert
@@ -62,7 +66,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
               flashType: FlashType.success)
               .show();
           setState(() {
-            ADDED=true;
+             ADDED=true;
           });
         } else {
           ShowFlash(context,
@@ -81,7 +85,11 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
        pageBody=ViewModelBuilder<PlayingViewModel>.reactive(
           viewModelBuilder: () => PlayingViewModel(context),
           onModelReady: (model) => model.getPlayingDetails(),
-          builder: (context, model, child) => Scaffold(
+          builder: (context, model, child) {
+            if(ADDED){
+               model.myPlayList[model.currentPlayingIndex].isAdded=true;
+            }
+           return Scaffold(
               body: Stack(
                 children: [
                   SafeArea(
@@ -97,7 +105,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                         actionFunction: model.getPlayingDetails,
                       ),
                     ))
-                        :model.playingData==null?
+                        :model.myPlayList.length==0?
                     Center(
                       // padding: EdgeInsets.only(),
                         child: EmptyPlayingPage()
@@ -107,7 +115,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                         Stack(
                           children: [
                             CachedNetworkImage(
-                              imageUrl: model.playingData.coverImageUrl??"",
+                              imageUrl: model.myPlayList[model.currentPlayingIndex].coverImageUrl??"",
                               placeholder: (context, url) => Container(
                                 height: AppSizes.vendorImageHeight,
                                 child: Center(
@@ -155,7 +163,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                           color: Colors.white,
                                         ),
                                           onTap: (){
-                                            model.addToDownload(postId: model.playingData.id);
+                                            model.addToDownload(postId: model.myPlayList[model.currentPlayingIndex].id);
                                           },
                                         ),
                                       )
@@ -183,7 +191,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                               textDirection: AppTextDirection.defaultDirection,
                                             ),
                                             Text(
-                                              model.playingData.author??"",
+                                              model.myPlayList[model.currentPlayingIndex].author??"",
                                               style: AppTextStyle.h4TitleTextStyle(
                                                 fontWeight: FontWeight.w500,
                                                 color: Colors.white,
@@ -207,6 +215,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                                   "assets/images/sleep_ic.png",
                                                   width: 28,
                                                   height: 28,
+                                                  color: AudioConstant.isSleeperActive?AppColor.accentColor:Colors.white,
                                                 )),
                                             SizedBox(
                                               width: 16,
@@ -225,10 +234,10 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                             ),
                                             InkWell(
                                                 onTap: (){
-                                                  if(ADDED){
-                                                    _homeBloc.addToMyHooper(postId: model.playingData.id);
+                                                  if(!model.myPlayList[model.currentPlayingIndex].isAdded){
+                                                    _homeBloc.addToMyHooper(postId: model.myPlayList[model.currentPlayingIndex].id);
                                                   }else{
-                                                    model.playingData.isAdded=true;
+                                                    model.myPlayList[model.currentPlayingIndex].isAdded=true;
                                                     ShowFlash(context,
                                                         title: "Already Added In MyHopper",
                                                         message: "Please try with some other article!",
@@ -240,6 +249,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                                   "assets/images/play_ic.png",
                                                   width: 28,
                                                   height: 28,
+                                                  color: model.myPlayList[model.currentPlayingIndex].isAdded?AppColor.accentColor:Colors.white,
                                                 ))
                                           ],
                                         )
@@ -264,9 +274,9 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                         alignment: Alignment.centerLeft,
                                         child: PublishItems(
                                           title: "Published By",
-                                          subtitle: model.playingData.publication??"",
+                                          subtitle: model.myPlayList[model.currentPlayingIndex].publication??"",
                                           iconPath: "assets/images/published_playing.png",
-                                          timeData: parseDate(model.playingData.publicationDate??"19790401"),
+                                          timeData: parseDate(model.myPlayList[model.currentPlayingIndex].publicationDate??"19790401"),
                                         ),
                                       )),
                                   Expanded(
@@ -275,9 +285,9 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                         alignment: Alignment.bottomRight,
                                         child: PublishItems(
                                           title: "Narrator",
-                                          subtitle: model.playingData.narrator??"",
+                                          subtitle: model.myPlayList[model.currentPlayingIndex].narrator??"",
                                           iconPath: "assets/images/published_narrator.png",
-                                          timeData: (model.playingData.audioFileDuration??"")+" mins",
+                                          timeData: (model.myPlayList[model.currentPlayingIndex].audioFileDuration??"")+" mins",
                                         ),
                                       ))
 
@@ -287,7 +297,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                               Container(
                                 padding: EdgeInsets.only(top: 16,bottom: 10),
                                 child: Text(
-                                    model.playingData.title.rendered??"",
+                                    model.myPlayList[model.currentPlayingIndex].title.rendered??"",
                                     textAlign: TextAlign.center,
                                     style: AppTextStyle.h4TitleTextStyle(
                                         color: Colors.black,
@@ -297,7 +307,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                               Container(
                                 padding: EdgeInsets.only(bottom: 10),
                                 child: Text(
-                                    model.playingData.subHeader??"",
+                                    model.myPlayList[model.currentPlayingIndex].subHeader??"",
                                     textAlign: TextAlign.center,
                                     style: AppTextStyle.h5TitleTextStyle(
                                         color: Colors.grey,
@@ -307,7 +317,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                               Container(
                                 padding: EdgeInsets.only(),
                                 child: Text(
-                                    model.playingData.postDescription??"",
+                                    model.myPlayList[model.currentPlayingIndex].postDescription??"",
                                     textAlign: TextAlign.left,
                                     style: AppTextStyle.h4TitleTextStyle(
                                         color: Colors.black,
@@ -320,7 +330,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                 child: InkWell(
                                     onTap: (){
                                      // if(model.playingData.url.isNotEmpty){
-                                        Terms.lunchReadAlong(model.playingData.url??"");
+                                        Terms.lunchReadAlong(model.myPlayList[model.currentPlayingIndex].url??"");
                                      // }
                                     },
                                     child:Text(
@@ -362,7 +372,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                   )
                 ],
               )
-          ));
+          );});
     }else{
       pageBody=Center(
         // padding: EdgeInsets.only(),
@@ -392,7 +402,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
         content:BottomDialogSheetPage(
            title: title,
            itemlList: itemList,
-          model: model,
+           model: model,
         )
     );
 

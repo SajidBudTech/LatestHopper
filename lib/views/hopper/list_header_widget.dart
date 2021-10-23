@@ -23,6 +23,7 @@ class HopperListHeader extends StatefulWidget {
   final bool showSeeAll;
   @override
   _HopperListHeaderState createState() => _HopperListHeaderState();
+
 }
 
 class _HopperListHeaderState extends State<HopperListHeader> {

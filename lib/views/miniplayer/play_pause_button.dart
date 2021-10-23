@@ -94,10 +94,14 @@ class _PlayPauseButtonState extends State<PlayPauseButton> {
                   }else if(completed){
                     widget.model.seekAudio(Duration.zero);
                   }else{
-                    widget.model.player.play();
+                    if(widget.model.myPlayList.length>0){
+                      widget.model.player.play();
+                    }
                   }
                   setState(() {
-                    isPlaying = !isPlaying;
+                    if(widget.model.myPlayList.length>0) {
+                       isPlaying = !isPlaying;
+                    }
                   });
                 },
               );

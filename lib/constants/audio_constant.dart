@@ -7,4 +7,6 @@ class AudioConstant{
   static bool FROM_SEE_ALL=false;
   static bool FROM_MINI_PLAYER=false;
   static bool FROM_UPDATE_PROFILE=false;
+  static bool isSleeperActive=false;
+  static String sleeperActiveTime="";
 }

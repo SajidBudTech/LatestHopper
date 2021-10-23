@@ -147,7 +147,7 @@ class HttpService {
     var response = Response();
     response.statusCode = 400;
     try {
-      if (ex.type == DioErrorType.CONNECT_TIMEOUT) {
+      if (ex.type == DioErrorType.connectTimeout) {
         response.data = {
           "message":
               "Connection timeout. Please check your internet connection and try again",

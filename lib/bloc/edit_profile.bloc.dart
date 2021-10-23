@@ -68,14 +68,17 @@ class EditProfileBloc extends BaseBloc {
   }
 
 
+
+
   //pick new profile
   void pickNewProfilePhoto() async {
     try {
 
       FilePickerResult result = await FilePicker.platform.pickFiles(type: FileType.image);
       if(result != null) {
-        File file = File(result.files.single.path);
+         File file = File(result.files.single.path);
         _profilePhoto.add(file);
+         editUserAvatar(file);
       } else {
         // User canceled the picker
         _profilePhoto.add(null);
@@ -83,10 +86,22 @@ class EditProfileBloc extends BaseBloc {
        /*File image = await FilePicker.getFile(type: FileType.image);
       _profilePhoto.add(image);*/
     } catch (error) {
-      print("Error picking profile photo");
+       print("Error picking profile photo");
       _profilePhoto.addError(error);
     }
   }
+
+  void editUserAvatar(File profilePhoto) async{
+      setUiState(UiState.loading);
+
+      final resultDialogData = await _authRepository.updateUserAvatar(
+        userId: userId,
+        photo: profilePhoto
+      );
+
+      setUiState(UiState.done);
+
+    }
 
   //as user enters name, we are doing name validation, error if its empty of less than 3 words
   bool validateName(String value) {

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
+import 'package:flutter_hopper/services/firebase_messaging.dart';
 import 'package:flutter_hopper/utils/router.dart' as router;
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/app_strings.dart';
@@ -14,11 +16,11 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(debug: true);
-  //await Firebase.initializeApp();
+  await Firebase.initializeApp();
   //Initialize App Database
   //await AppDatabaseSingleton().prepareDatabase();
   //start notification listening
-  //AppNotification.setUpFirebaseMessaging();
+  AppNotification.setUpFirebaseMessaging();
 
   //initiating tellam
   /*Tellam.initialize(

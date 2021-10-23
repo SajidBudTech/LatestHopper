@@ -43,7 +43,7 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return ViewModelBuilder<MainHomeViewModel>.reactive(
       viewModelBuilder: () => MainHomeViewModel(context),
-      onModelReady: (model) => model.initialise(),
+      onModelReady: (model) => model.getNotificationList(),
       builder: (context, model, child) => Scaffold(
           body: SafeArea(
             child: Column(
@@ -58,18 +58,18 @@ class _NotificationPageState extends State<NotificationPage> {
                 ),
                // UiSpacer.verticalSpace(),
                 Expanded(
-                  child: model.mainHomeLoadingState == LoadingState.Loading
-                      ? Padding(padding: EdgeInsets.only(left: 20,right: 20),child:VendorShimmerListViewItem())
-                      : model.mainHomeLoadingState == LoadingState.Failed
+                  child: model.mainNotificationLoadingState == LoadingState.Loading
+                      ? Padding(padding: EdgeInsets.only(left: 20,right: 20,top: 20),child:VendorShimmerListViewItem())
+                      : model.mainNotificationLoadingState == LoadingState.Failed
                       ? LoadingStateDataView(
                     stateDataModel: StateDataModel(
                       showActionButton: true,
                       actionButtonStyle: AppTextStyle.h4TitleTextStyle(
                         color: Colors.red,
                       ),
-                      actionFunction: model.initialise,
+                      actionFunction: model.getNotificationList,
                     ),
-                  ) : model.homeList.length==0
+                  ) : model.notificationList.length==0
                       ?EmptyHopper(title: "Oops,You have not got any notification yet!")
                       :ListView.separated(
                     scrollDirection: Axis.vertical,
@@ -79,6 +79,7 @@ class _NotificationPageState extends State<NotificationPage> {
                     padding: AppPaddings.defaultPadding(),
                     itemBuilder: (context, index) {
                       return NotificationListViewItem(
+                        notification: model.notificationList[index],
                         onPressed: (){
 
                         },
@@ -89,7 +90,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             color: Colors.grey[300],
                             margin: EdgeInsets.only(top: 10,bottom: 10),
                           ),
-                    itemCount: model.homeList.length,
+                    itemCount: model.notificationList.length,
                   ),
                 )
               ],

@@ -13,11 +13,13 @@ class UserProfilePhoto extends StatelessWidget {
     this.userProfileImageUrl = "",
     this.isFile = false,
     this.userProfileImage,
+    this.onCameraPressed
   }) : super(key: key);
 
   final String userProfileImageUrl;
   final bool isFile;
   final File userProfileImage;
+  final Function onCameraPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class UserProfilePhoto extends StatelessWidget {
                   userProfileImage,
                   height: AppSizes.userProfilePictureImageHeight,
                   width: AppSizes.userProfilePictureImageWidth,
+                  fit: BoxFit.cover,
                 )
               : CachedNetworkImage(
                   imageUrl: userProfileImageUrl,
@@ -71,10 +74,12 @@ class UserProfilePhoto extends StatelessWidget {
         )),
         Positioned.fill(child: Align(
           alignment: Alignment.center,
-          child: CircleAvatar(
+          child:InkWell(
+              onTap: onCameraPressed,
+              child:CircleAvatar(
               backgroundColor: Color(0xFFFFFFFF).withOpacity(0.5),
               child: Icon(FlutterIcons.camera_ant,color: Colors.white,size: 24,)
-          ),
+          )),
         ))
       ],
     );

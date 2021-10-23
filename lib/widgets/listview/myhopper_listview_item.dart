@@ -10,10 +10,11 @@ import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:intl/intl.dart';
 
 class MyHopperListViewItem extends StatefulWidget {
-  MyHopperListViewItem({Key key, this.onPressed, this.hopper,this.onDownloadPressed,this.showDownload,this.showAddTOPlayer})
+  MyHopperListViewItem({Key key, this.onPressed,this.onThreeDotPressed, this.hopper,this.onDownloadPressed,this.showDownload,this.showAddTOPlayer})
       : super(key: key);
 
   final Function onPressed;
+  final Function onThreeDotPressed;
   final Function onDownloadPressed;
   final Hopper hopper;
   final bool showDownload;
@@ -130,19 +131,41 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                     )),
                     Expanded(
                         child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        InkWell(
-                            onTap: widget.onPressed,
+                        Visibility(
+                            visible: (widget.showDownload && !widget.showAddTOPlayer),
+                            child:Container(
+                            margin:EdgeInsets.only(right: 16),
+                            child:InkWell(
+                                onTap: widget.onThreeDotPressed,
+                                child: Icon(
+                                  FlutterIcons.three_bars_oct,
+                                  size: 20,
+                                  color: Colors.grey,
+                                )))),
+                        Container(
+                            margin:EdgeInsets.only(right: 16),
+                            child:InkWell(
+                            onTap: widget.onThreeDotPressed,
                             child: Icon(
                               FlutterIcons.dots_three_horizontal_ent,
                               size: 20,
                               color: Colors.grey,
-                            )),
-                        SizedBox(
+                            ))),
+                       /* SizedBox(
                           width: 16,
-                        ),
-                        Visibility(
+                        ),*/
+                        widget.showDownload?
+                         InkWell(
+                            onTap: widget.onDownloadPressed,
+                            child:Image.asset(
+                              "assets/images/download _ic.png",
+                              width: 20,
+                              height: 20,
+                              color: Colors.grey,
+                            )):SizedBox.shrink(),
+                        /*Visibility(
                         visible: widget.showDownload,
                         child:InkWell(
                          onTap: widget.onDownloadPressed,
@@ -151,11 +174,24 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                           width: 20,
                           height: 20,
                           color: Colors.grey,
-                        ))),
-                        SizedBox(
+                        ))),*/
+                       /* SizedBox(
                           width: 16,
-                        ),
-                        Visibility(
+                        ),*/
+                        widget.showAddTOPlayer?InkWell(
+                            onTap:(){
+
+                            },
+                            child:Container(
+                              margin: EdgeInsets.only(left: (widget.showAddTOPlayer && widget.showDownload)?16:0),
+                                child:Image.asset(
+                              "assets/images/play_ic.png",
+                              width: 20,
+                              height: 20,
+                              color: Colors.grey,
+                            ))):SizedBox.shrink(),
+
+                       /* Visibility(
                           visible: widget.showAddTOPlayer,
                           child:InkWell(
                           onTap:(){
@@ -166,7 +202,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                           width: 20,
                           height: 20,
                           color: Colors.grey,
-                        )))
+                        )))*/
                       ],
                     )),
                   ],

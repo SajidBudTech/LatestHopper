@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/api.dart';
@@ -19,7 +20,7 @@ import 'package:flutter_hopper/utils/api_response.utils.dart';
 
 class AuthRepository extends HttpService {
   //FirebaseMessaging instance
-  // FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+   FirebaseMessaging _firebaseMessaging =  FirebaseMessaging.instance;
 
   //process user account login
   Future<DialogData> login({String email, String password}) async {
@@ -102,6 +103,12 @@ class AuthRepository extends HttpService {
 
     ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
     if (!apiResponse.allGood) {
+      if(apiResponse.body["error"]=="INVALID_CREDENTIALS"){
+        apiResponse.errors.clear();
+        apiResponse.errors.add(apiResponse.body["error"]);
+        throw apiResponse.errors;
+      }
+
       throw apiResponse.errors;
     }
 
@@ -375,6 +382,64 @@ class AuthRepository extends HttpService {
       return resultDialogData;
     }
 
+   //update account profile
+   Future<DialogData> updateUserAvatar({
+     int userId,
+     File photo
+   }) async {
+     //instance of the model to be returned
+     final resultDialogData = DialogData();
+
+     final Map<String, dynamic> bodyPayload =
+     {
+       "user_id": userId,
+     };
+
+     //adding photo file to the payload if photo was selected
+      if (photo != null) {
+        final photoFile = await MultipartFile.fromFile(
+          photo.path,
+        );
+
+        bodyPayload.addAll({
+          "avatar": photoFile,
+        });
+      }
+
+     final apiResult = await postWithFiles(
+       Api.uploadUserAvatar,
+       bodyPayload,
+     );
+
+     ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+     if (apiResponse.allGood) {
+       resultDialogData.title = UpdateProfileStrings.processCompleteTitle;
+       resultDialogData.body = "";
+       resultDialogData.dialogType = DialogType.successThenClosePage;
+       //AuthBloc.setUserFullName(name);
+     } else {
+       //the error message
+       var errorMessage = apiResponse.message;
+
+       try {
+         errorMessage += "\n" + apiResponse.body["errors"]["name"][0];
+       } catch (error) {
+         print("Name Validation ===> $error");
+       }
+       try {
+         errorMessage += "\n" + apiResponse.body["errors"]["email"][0];
+       } catch (error) {
+         print("Email Validation ===> $error");
+       }
+
+       resultDialogData.title = UpdateProfileStrings.processFailedTitle;
+       resultDialogData.body = errorMessage ?? apiResponse.message;
+       resultDialogData.dialogType = DialogType.failed;
+     }
+
+     return resultDialogData;
+   }
+
     //update user password
     Future<DialogData> updatePassword({
       String newPassword,
@@ -451,9 +516,9 @@ class AuthRepository extends HttpService {
     Tellam.client().register(tellamUser);*/
 
       //
-      /* _firebaseMessaging.subscribeToTopic("all");
-    _firebaseMessaging.subscribeToTopic(mUser.role);
-    _firebaseMessaging.subscribeToTopic(mUser.id.toString());*/
+      _firebaseMessaging.subscribeToTopic("post_push");
+     //_firebaseMessaging.subscribeToTopic(mUser.role);
+    //_firebaseMessaging.subscribeToTopic(mUser.id.toString());
 
       //save to shared pref
       AuthBloc.prefs.setBool(AppStrings.authenticated, true);

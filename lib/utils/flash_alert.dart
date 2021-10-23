@@ -29,11 +29,13 @@ class ShowFlash{
           controller: controller,
           backgroundColor: flashType==FlashType.success?AppColor.primaryColor:AppColor.failedColor,
           brightness: Brightness.light,
-          boxShadows: [BoxShadow(blurRadius: 4)],
-          barrierBlur: 3.0,
-          barrierColor: Colors.black38,
-          barrierDismissible: true,
-          style: FlashStyle.floating,
+         // boxShadows: [BoxShadow(blurRadius: 4)],
+         // barrierBlur: 3.0,
+         // barrierColor: Colors.black38,
+          //barrierDismissible: true,
+          behavior: FlashBehavior.fixed,
+          forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+          //behavior: FlashBehavior.floating,
           position: FlashPosition.top,
           child: FlashBar(
             title: title==null?Container()
@@ -41,7 +43,7 @@ class ShowFlash{
                 color:flashType==FlashType.success?AppColor.accentColor:Colors.white,
                 fontWeight: FontWeight.w500
             ),),
-            message:message==null?Container():
+            content:message==null?Container():
             Text(message,
                style: AppTextStyle.h5TitleTextStyle(
                   color: flashType==FlashType.success?AppColor.accentColor:Colors.white,

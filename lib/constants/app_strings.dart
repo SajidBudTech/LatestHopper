@@ -1,5 +1,5 @@
 class AppStrings {
-  static String appName = "All Ayurvedic";
+  static String appName = "Audio Hopper";
   static String googleApiKey = "AIzaSyATm1Umzz6ruzwRIbNV4uC1iAhoRQFaVCY";
 
   static String searchBarHint = "Search on $appName";
@@ -39,6 +39,9 @@ class AppStrings {
 
 
   static String FlutterAppBadgetConstant = "flutterNotificationBadget";
+
+  static String isSleeperActive = "isSleeperActive";
+  static String sleepTimerText = "sleepTimerText";
 
 
 }

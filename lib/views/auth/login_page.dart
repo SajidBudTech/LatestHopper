@@ -268,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                                             highlightColor: Colors.white,
                                             splashColor: Colors.white,
                                             onTap: (){
-
+                                              _loginBloc.signinWithGoogle(context: context);
                                             },
                                             child: Image.asset("assets/images/google.png",
                                               height: 72,
@@ -291,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                                             highlightColor: Colors.white,
                                             splashColor: Colors.white,
                                             onTap: (){
-
+                                              _loginBloc.signinWithApple(context: context);
                                             },
                                             child: Image.asset("assets/images/apple.png",
                                               height: 72,

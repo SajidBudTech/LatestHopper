@@ -1,14 +1,19 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
 import 'package:flutter_hopper/viewmodels/hopper.viewmodel.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
+import 'package:flutter_hopper/viewmodels/playing.viewmodel.dart';
 import 'package:flutter_hopper/views/hopper/hopper_bottom_sheet_page.dart';
 import 'package:flutter_hopper/views/hopper/list_header_widget.dart';
 import 'package:flutter_hopper/widgets/appbar/home_appbar.dart';
 import 'package:flutter_hopper/widgets/empty/hopper_empty.dart';
 import 'package:flutter_hopper/widgets/listview/myhopper_listview_item.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:stacked/stacked.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
@@ -79,17 +84,35 @@ class _HopperPageState extends State<HopperPage>
                               ),
                             ) : model.myHopperList.length==0
                                 ?EmptyHopper(title: "Nothing Added to My Hopper")
-                                :ListView.builder(
+                                : ReorderableListView.builder(
                               scrollDirection: Axis.vertical,
                               shrinkWrap:true,
                               primary: false,
+                              onReorder: (oldIndex,newIndex){
+                                setState(() {
+                                  final hopper=model.myHopperList.removeAt(oldIndex);
+                                  model.myHopperList.insert(newIndex, hopper);
+                                  if(AudioConstant.audioIsPlaying){
+                                    AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(oldIndex+1);
+                                    AudioConstant.audioViewModel.concatenatingAudioSource.insert(newIndex+1,AudioSource.uri(Uri.parse(model.myHopperList[newIndex].postCustom.audioFile[0]??"")));
+                                  }
+                                });
+                              },
                               padding: AppPaddings.defaultPadding(),
                               itemBuilder: (context, index) {
                                 return MyHopperListViewItem(
+                                  key: ValueKey(model.myHopperList[index]),
                                   hopper: model.myHopperList[index],
                                   showDownload: true,
                                   showAddTOPlayer: false,
                                   onPressed: (){
+                                      if(AudioConstant.audioIsPlaying){
+                                        AudioConstant.audioViewModel.player.stop();
+                                      }
+                                      AudioConstant.FROM_BOTTOM=false;
+                                      HomeBloc.switchPageToPalying(model.myHopperList[index].post.iD);
+                                  },
+                                  onThreeDotPressed: (){
                                     showSortBottomSheetDialog(model.myHopperList[index],true,model);
                                   },
                                   onDownloadPressed: (){
@@ -97,10 +120,7 @@ class _HopperPageState extends State<HopperPage>
                                   },
                                 );
                               },
-                              /* separatorBuilder: (context, index) => Container(
-                          height: 8,
-                        ),*/
-                              itemCount: model.myHopperList.length>=3?3:model.myHopperList.length,
+                              itemCount: model.myHopperList.length>3?3:model.myHopperList.length,
                             ),
                           ),
                           HopperListHeader(
@@ -135,6 +155,13 @@ class _HopperPageState extends State<HopperPage>
                                   showDownload: true,
                                   showAddTOPlayer: true,
                                   onPressed: (){
+                                    if(AudioConstant.audioIsPlaying){
+                                       AudioConstant.audioViewModel.player.stop();
+                                    }
+                                    AudioConstant.FROM_BOTTOM=false;
+                                    HomeBloc.switchPageToPalying(model.recentlyViewedList[index].post.iD);
+                                  },
+                                  onThreeDotPressed: (){
                                     showSortBottomSheetDialog(model.recentlyViewedList[index],false,model);
                                   },
                                   onDownloadPressed: (){
@@ -180,6 +207,13 @@ class _HopperPageState extends State<HopperPage>
                                   showDownload: false,
                                   showAddTOPlayer: true,
                                   onPressed: (){
+                                    if(AudioConstant.audioIsPlaying){
+                                      AudioConstant.audioViewModel.player.stop();
+                                    }
+                                    AudioConstant.FROM_BOTTOM=false;
+                                    HomeBloc.switchPageToPalying(model.downloadedList[index].post.iD);
+                                  },
+                                  onThreeDotPressed: (){
                                     showSortBottomSheetDialog(model.downloadedList[index],false,model);
                                   },
                                   onDownloadPressed: (){

@@ -30,6 +30,14 @@ class AuthBloc extends BaseBloc {
     return prefs.getBool(AppStrings.FlutterAppBadgetConstant) ?? false;
   }
 
+  static bool isSleeperActive() {
+    return prefs.getBool(AppStrings.isSleeperActive) ?? false;
+  }
+
+  static String getSleeperTime() {
+    return prefs.getString(AppStrings.sleepTimerText) ?? "";
+  }
+
 
   static void SaveUserToken(String token) {
      prefs.setString(PreferenceString.UserToken,token??"");

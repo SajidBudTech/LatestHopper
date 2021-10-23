@@ -58,6 +58,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               });
             }
           );
+
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            CustomDialog.dismissDialog(context);
+          });
+
         } else {
           CustomDialog.dismissDialog(context);
         }
@@ -89,11 +94,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Container(
                 alignment: Alignment.center,
                 width: double.infinity,
-                child: UserProfilePhoto(
+                child:/* UserProfilePhoto(
                   userProfileImageUrl: "",
                   isFile: false,
                   userProfileImage: File(AppImages.defaultProfile),
-                ) /*StreamBuilder<dynamic>(
+                )*/ StreamBuilder<dynamic>(
                         stream: _editProfileBloc.profilePhoto,
                         builder: (context, snapshot) {
                           //get the current user for future ref
@@ -103,22 +108,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               userProfileImageUrl: "",
                               isFile: true,
                               userProfileImage: snapshot.data,
+                              onCameraPressed: _editProfileBloc.pickNewProfilePhoto,
                             );
                           } else if (snapshot.hasData && snapshot.data is String) {
                             return UserProfilePhoto(
                               userProfileImageUrl: snapshot.data ?? "",
                               isFile: false,
                               userProfileImage: null,
+                              onCameraPressed: _editProfileBloc.pickNewProfilePhoto,
                             );
                           } else {
                             return UserProfilePhoto(
                               userProfileImageUrl: "",
                               isFile: false,
                               userProfileImage: File(AppImages.defaultProfile),
+                              onCameraPressed: _editProfileBloc.pickNewProfilePhoto,
                             );
-                          }*/
-                // },
-                // ),
+                          }
+                    },
+                 ),
                 ),
             Expanded(child: ListView(
               shrinkWrap: true,

@@ -22,7 +22,7 @@ class _CurrentlyPlayingThumbnailState extends State<CurrentlyPlayingThumbnail> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    coverImage=widget.model.myPlayList[widget.model.currentPlayingIndex].trackImage??"";
+    coverImage=widget.model.myPlayList[widget.model.currentPlayingIndex].coverImageUrl??"";
 
   }
   @override
@@ -31,7 +31,7 @@ class _CurrentlyPlayingThumbnailState extends State<CurrentlyPlayingThumbnail> {
         stream: widget.model.player.currentIndexStream,
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-              coverImage = widget.model.myPlayList[snapshot.data].trackImage ?? "";
+              coverImage = widget.model.myPlayList[snapshot.data].coverImageUrl ?? "";
             }
           return Container(
               padding: EdgeInsets.only(left: 10, top: 6, right: 10, bottom: 6),

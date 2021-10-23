@@ -3,6 +3,7 @@ import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_sizes.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 
 class BottomDialogListViewItem extends StatefulWidget {
   const BottomDialogListViewItem({
@@ -30,7 +31,7 @@ class _BottomDialogListViewItemState extends State<BottomDialogListViewItem> {
             child:Text(
               widget.title??"",
               style: AppTextStyle.h4TitleTextStyle(
-                  color: Colors.grey,
+                  color:AudioConstant.sleeperActiveTime==widget.title?AppColor.accentColor:Colors.grey,
                   fontWeight: FontWeight.w500
               ),
               textAlign: TextAlign.start,

@@ -3,22 +3,13 @@ import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
 import 'package:flutter_hopper/viewmodels/hopper.viewmodel.dart';
-import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
 import 'package:flutter_hopper/views/hopper/hopper_bottom_sheet_page.dart';
 import 'package:flutter_hopper/views/hopper/list_header_widget.dart';
 import 'package:flutter_hopper/widgets/appbar/home_appbar.dart';
+import 'package:flutter_hopper/widgets/appbar/see_all_appbar.dart';
 import 'package:flutter_hopper/widgets/empty/hopper_empty.dart';
 import 'package:flutter_hopper/widgets/listview/myhopper_listview_item.dart';
-import 'package:stacked/stacked.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
-import 'package:flutter_hopper/constants/app_routes.dart';
-import 'package:flutter_hopper/constants/app_text_styles.dart';
-import 'package:flutter_hopper/constants/app_text_direction.dart';
-import 'package:flutter_hopper/utils/ui_spacer.dart';
-import 'package:flutter_hopper/models/loading_state.dart';
-import 'package:flutter_hopper/widgets/shimmers/vendor_shimmer_list_view_item.dart';
-import 'package:flutter_hopper/models/state_data_model.dart';
-import 'package:flutter_hopper/widgets/state/state_loading_data.dart';
 
 class SeeAllPagePage extends StatefulWidget {
   SeeAllPagePage({Key key,this.title,this.hopperList,this.model}) : super(key: key);
@@ -40,11 +31,14 @@ class _SeeAllPageState extends State<SeeAllPagePage>{
             body: SafeArea(
                 child:Column(
                     children: [
-                      HomeAppBar(
+                      SeeAllAppBar(
                         imagePath: "assets/images/appbar_image.png",
                         backgroundColor: AppColor.accentColor,
-                        visibleBottom: false,
+                        onPressed: (){
+                          Navigator.pop(context, false);
+                        },
                       ),
+
                       Expanded(
                           child:SingleChildScrollView(
                             primary: true,

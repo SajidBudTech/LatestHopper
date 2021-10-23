@@ -62,7 +62,7 @@ class AppColor {
   static Color appBackground(BuildContext context) {
     var platformBrightness = MediaQuery.of(context).platformBrightness;
     if (platformBrightness == Brightness.dark) {
-      return Colors.grey[800];
+      return Colors.white;
     } else {
       return Colors.white;
     }

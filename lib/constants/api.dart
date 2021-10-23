@@ -20,6 +20,8 @@ class Api {
   static const forgotPasswordCheckEmail = "/bdpwr/v1/reset-password";
   static const forgotPasswordValidateCode = "/bdpwr/v1/validate-code";
   static const forgotPasswordReset = "/bdpwr/v1/set-password";
+  static const uploadUserAvatar = "/wp/v2/media";
+  static const notifications = "/wp/v2/users-notificatoon-list";
 
 
 
@@ -72,7 +74,6 @@ class Api {
 
   static const coupons = "/coupons";
 
-  static const notification = "/notifications";
 
 
   // Updates .....

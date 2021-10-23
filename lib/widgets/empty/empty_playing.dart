@@ -42,7 +42,7 @@ class _EmptyPlayingPageState extends State<EmptyPlayingPage> {
           //body/description
           UiSpacer.verticalSpace(space: 10),
           Text(
-            "choose an article from our various articles.",
+            "Choose an article from our various articles.",
             style: AppTextStyle.h4TitleTextStyle(
               color: AppColor.textColor(context),
             ),

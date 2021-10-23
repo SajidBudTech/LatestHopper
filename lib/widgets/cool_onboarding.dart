@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
+import 'package:flutter_hopper/utils/ui_spacer.dart';
+import 'package:flutter_hopper/widgets/appbar/empty_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
 import 'package:flutter_hopper/widgets/onboarding_slide.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -51,18 +53,24 @@ class _CoolOnboardingState extends State<CoolOnboarding> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: EmptyAppBar(
+        backgroundColor: Colors.white,
+      ),
       body: Container(
         //padding: EdgeInsets.only(top: 20,left: 30),
           child:Column(
          mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
+          //UiSpacer.verticalSpace(space: 10),
+          Container(
+            //margin: EdgeInsets.only(left: 16),
+           child:Image.asset(
             widget.onBoardingSlides[currentPageIndex].asset,
             width:double.infinity,
             height: MediaQuery.of(context).size.height * 0.60,
             fit: BoxFit.fill,
-          ),
+          )),
           Container(
             padding: EdgeInsets.only(left: 30),
             child:SmoothPageIndicator(
@@ -80,7 +88,7 @@ class _CoolOnboardingState extends State<CoolOnboarding> {
           )),
           Expanded(
             child: Container(
-                padding: EdgeInsets.only(left: 30),
+                padding: EdgeInsets.only(left: 30,top: 10),
                 child:PageView(
             controller: _pageController,
             onPageChanged: _pageViewChanged,

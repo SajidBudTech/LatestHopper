@@ -1,5 +1,6 @@
 // ViewModel
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'dart:io';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/audio_constant.dart';
@@ -12,13 +13,13 @@ import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
 import 'package:flutter_hopper/models/dialog_data.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 
 class HopperViewModel extends MyBaseViewModel {
-
-  HomePageRepository _homePageRepository= HomePageRepository();
+  HomePageRepository _homePageRepository = HomePageRepository();
 
   //
 
@@ -26,24 +27,23 @@ class HopperViewModel extends MyBaseViewModel {
   LoadingState recentlyViewedLoadingState = LoadingState.Loading;
   LoadingState downloadLoadingState = LoadingState.Loading;
 
-  List<Hopper> myHopperList=[];
-  List<Hopper> recentlyViewedList=[];
-  List<Hopper> downloadedList=[];
-  List<String> hooperList=[];
-  bool _permissionReady=false;
+  List<Hopper> myHopperList = [];
+  List<Hopper> recentlyViewedList = [];
+  List<Hopper> downloadedList = [];
+  List<String> hooperList = [];
+  bool _permissionReady = false;
   String _localPath;
 
   HopperViewModel(BuildContext context) {
     this.viewContext = context;
   }
 
-  initialise() async{
+  initialise() async {
     getMyHopperList();
     getRecentlyViewedList();
     getDownloadList();
-   // getDummyList();
+    // getDummyList();
   }
-
 
   /*void getBookDetails({int iSBN,String serachID}) async{
     //add null data so listener can show shimmer widget to indicate loading
@@ -60,11 +60,11 @@ class HopperViewModel extends MyBaseViewModel {
     }
   }*/
 
-  getMyHopperList()async{
+  getMyHopperList() async {
     myHopperLoadingState = LoadingState.Loading;
     notifyListeners();
 
-    final int userId=AuthBloc.getUserId();
+    final int userId = AuthBloc.getUserId();
     try {
       myHopperList = await _homePageRepository.getMyHopperPost(userId);
       myHopperLoadingState = LoadingState.Done;
@@ -75,13 +75,14 @@ class HopperViewModel extends MyBaseViewModel {
     }
   }
 
-  getRecentlyViewedList()async{
+  getRecentlyViewedList() async {
     recentlyViewedLoadingState = LoadingState.Loading;
     notifyListeners();
 
-    final int userId=AuthBloc.getUserId();
+    final int userId = AuthBloc.getUserId();
     try {
-      recentlyViewedList = await _homePageRepository.getRecenltyViewedPost(userId);
+      recentlyViewedList =
+          await _homePageRepository.getRecenltyViewedPost(userId);
       recentlyViewedLoadingState = LoadingState.Done;
       notifyListeners();
     } catch (error) {
@@ -90,11 +91,11 @@ class HopperViewModel extends MyBaseViewModel {
     }
   }
 
-  getDownloadList()async{
+  getDownloadList() async {
     downloadLoadingState = LoadingState.Loading;
     notifyListeners();
 
-    final int userId=AuthBloc.getUserId();
+    final int userId = AuthBloc.getUserId();
     try {
       downloadedList = await _homePageRepository.getDownloadList(userId);
       downloadLoadingState = LoadingState.Done;
@@ -105,26 +106,24 @@ class HopperViewModel extends MyBaseViewModel {
     }
   }
 
-   void addToMyHooperList(HomePost homePost)async{
-     if(myHopperList==null){
-       myHopperList=[];
-     }
+  void addToMyHooperList(HomePost homePost) async {
+    if (myHopperList == null) {
+      myHopperList = [];
+    }
 
-     Hopper hopper=Hopper();
-     hopper.post.postTitle=homePost.title.rendered??"";
-     hopper.postCustom.postDescription.add(homePost.postDescription??"");
-     hopper.postCustom.publicationDate.add(homePost.publicationDate??"");
-     hopper.postCustom.coverImageUrl.add(homePost.coverImageUrl??"");
-     hopper.postCustom.audioFile.add(homePost.audioFile);
-     hopper.postCustom.audioFileDuration.add(homePost.audioFileDuration);
+    Hopper hopper = Hopper();
+    hopper.post.postTitle = homePost.title.rendered ?? "";
+    hopper.postCustom.postDescription.add(homePost.postDescription ?? "");
+    hopper.postCustom.publicationDate.add(homePost.publicationDate ?? "");
+    hopper.postCustom.coverImageUrl.add(homePost.coverImageUrl ?? "");
+    hopper.postCustom.audioFile.add(homePost.audioFile);
+    hopper.postCustom.audioFileDuration.add(homePost.audioFileDuration);
 
-     myHopperList.add(hopper);
-     notifyListeners();
-
+    myHopperList.add(hopper);
+    notifyListeners();
   }
 
-  void addToMyHooper({int postId,Hopper hopper}) async {
-
+  void addToMyHooper({int postId, Hopper hopper}) async {
     //update ui state
     final int userId = AuthBloc.getUserId();
 
@@ -137,36 +136,70 @@ class HopperViewModel extends MyBaseViewModel {
     //preparing data to be sent to server
     CustomDialog.showAlertDialog(viewContext, dialogData);
     // setUiState(UiState.loading);
-    dialogData = await _homePageRepository.addToMyHooper(userId,postId);
+    dialogData = await _homePageRepository.addToMyHooper(userId, postId);
     CustomDialog.dismissDialog(viewContext);
     //update ui state after operation
     // setUiState(UiState.done);
     //checking if operation was successful before either showing an error or redirect to home page
     if (dialogData.dialogType == DialogType.success) {
-
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.success;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+
+      if (AudioConstant.audioViewModel != null) {
+        bool check=false;
+        AudioConstant.audioViewModel.myPlayList.forEach((element) {
+          if (element.id == postId) {
+            check=true;
+          }
+        });
+        if(!check){
+           HomePost _homePost=HomePost();
+          _homePost.id=hopper.post.iD;
+          _homePost.coverImageUrl=hopper.postCustom.coverImageUrl[0]??"";
+          _homePost.author=hopper.postCustom.author[0]??"";
+          _homePost.isAdded=true;
+          _homePost.publication=hopper.postCustom.publication[0]??"";
+          _homePost.publicationDate=hopper.postCustom.publicationDate[0]??"";
+          _homePost.narrator=hopper.postCustom.narrator[0]??"";
+           _homePost.audioFile=hopper.postCustom.audioFile[0]??"";
+          _homePost.audioFileDuration=hopper.postCustom.audioFileDuration[0]??"";
+          _homePost.title=Guid();
+          _homePost.title.rendered=hopper.post.postTitle??"";
+          _homePost.subHeader=hopper.postCustom.subHeader[0]??"";
+          _homePost.postDescription=hopper.postCustom.postDescription[0]??"";
+          _homePost.url=hopper.postCustom.url[0]??"";
+           AudioConstant.audioViewModel.myPlayList.add(_homePost);
+           AudioConstant.audioViewModel.concatenatingAudioSource.insert(AudioConstant.audioViewModel.myPlayList.length-1, AudioSource.uri(Uri.parse(_homePost.audioFile??"")));
+        }
+        notifyListeners();
+
+      }
+
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         myHopperList.add(hopper);
         notifyListeners();
       });
-
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        CustomDialog.dismissDialog(viewContext);
+      });
     } else {
       //prepare the data model to be used to show the alert on the view
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.failed;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         CustomDialog.dismissDialog(viewContext);
       });
-
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        CustomDialog.dismissDialog(viewContext);
+      });
     }
-
   }
 
-  void addToDownload({int postId,Hopper hopper}) async {
-
+  void addToDownload({int postId, Hopper hopper}) async {
     //update ui state
     final int userId = AuthBloc.getUserId();
 
@@ -179,39 +212,35 @@ class HopperViewModel extends MyBaseViewModel {
     //preparing data to be sent to server
     CustomDialog.showAlertDialog(viewContext, dialogData);
     // setUiState(UiState.loading);
-    dialogData = await _homePageRepository.addToDownload(userId,postId);
+    dialogData = await _homePageRepository.addToDownload(userId, postId);
     CustomDialog.dismissDialog(viewContext);
     //update ui state after operation
     // setUiState(UiState.done);
     //checking if operation was successful before either showing an error or redirect to home page
     if (dialogData.dialogType == DialogType.success) {
-
-     /* dialogData.isDismissible = true;
+      /* dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.success;
       //notify the ui with the newly gotten dialogdata model
       CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
         myHopperList.add(hopper);
         notifyListeners();
       });*/
-      downloadFile(hopper.postCustom.audioFile[0]??"");
+      downloadFile(hopper.postCustom.audioFile[0] ?? "");
       downloadedList.add(hopper);
       notifyListeners();
-
     } else {
       //prepare the data model to be used to show the alert on the view
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.failed;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         CustomDialog.dismissDialog(viewContext);
       });
-
     }
-
   }
 
   void removeFromMyHopper({int postId}) async {
-
     //update ui state
     final int userId = AuthBloc.getUserId();
 
@@ -224,48 +253,92 @@ class HopperViewModel extends MyBaseViewModel {
     //preparing data to be sent to server
     CustomDialog.showAlertDialog(viewContext, dialogData);
     // setUiState(UiState.loading);
-    dialogData = await _homePageRepository.removeFromMyHooper(userId,postId);
+    dialogData = await _homePageRepository.removeFromMyHooper(userId, postId);
     CustomDialog.dismissDialog(viewContext);
     //update ui state after operation
     // setUiState(UiState.done);
     //checking if operation was successful before either showing an error or redirect to home page
     if (dialogData.dialogType == DialogType.success) {
-
       dialogData.isDismissible = true;
-      if(AudioConstant.FROM_SEE_ALL){
+      if (AudioConstant.FROM_SEE_ALL) {
         dialogData.dialogType = DialogType.successThenClosePage;
-      }else{
+      } else {
         dialogData.dialogType = DialogType.success;
       }
+
+      if (AudioConstant.audioViewModel != null) {
+          //List<HomePost> toRemove = [];
+
+         /* AudioConstant.audioViewModel.myPlayList.forEach((element) {
+          if (element.id == postId) {
+            //myHopperList.remove(element);
+            //notifyListeners();
+            toRemove.add(element);
+          }
+        });*/
+          int index=0;
+         for(int i=0;i<AudioConstant.audioViewModel.myPlayList.length;i++){
+           if (AudioConstant.audioViewModel.myPlayList[i].id == postId) {
+              AudioConstant.audioViewModel.myPlayList.removeAt(i);
+              index=i;
+              break;
+           }
+         }
+
+
+         // AudioConstant.audioViewModel.myPlayList.removeWhere((e) => toRemove.contains(e));
+
+          if(HomeBloc.postID==postId){
+            AudioConstant.audioViewModel.player.stop();
+            if(AudioConstant.audioViewModel.myPlayList.length>0){
+              HomeBloc.postID=AudioConstant.audioViewModel.myPlayList[0].id;
+            }
+            AudioConstant.audioViewModel.currentPlayingIndex=0;
+
+          }else{
+             AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(index);
+          }
+
+          if(AudioConstant.audioViewModel.myPlayList.length==0){
+             AudioConstant.audioIsPlaying=false;
+             HomeBloc.postID=0;
+           }
+
+        notifyListeners();
+
+      }
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         List<Hopper> toRemove = [];
         myHopperList.forEach((element) {
-          if(element.post.iD==postId){
+          if (element.post.iD == postId) {
             //myHopperList.remove(element);
             //notifyListeners();
             toRemove.add(element);
           }
         });
 
-        myHopperList.removeWhere( (e) => toRemove.contains(e));
+        myHopperList.removeWhere((e) => toRemove.contains(e));
         notifyListeners();
       });
 
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        CustomDialog.dismissDialog(viewContext);
+      });
     } else {
       //prepare the data model to be used to show the alert on the view
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.failed;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         CustomDialog.dismissDialog(viewContext);
       });
-
     }
-
   }
-  void removeFromRecentlyViewed({int postId}) async {
 
+  void removeFromRecentlyViewed({int postId}) async {
     //update ui state
     final int userId = AuthBloc.getUserId();
 
@@ -278,44 +351,43 @@ class HopperViewModel extends MyBaseViewModel {
     //preparing data to be sent to server
     CustomDialog.showAlertDialog(viewContext, dialogData);
     // setUiState(UiState.loading);
-    dialogData = await _homePageRepository.removeFromRecenttlyViewed(userId,postId);
+    dialogData =
+        await _homePageRepository.removeFromRecenttlyViewed(userId, postId);
     CustomDialog.dismissDialog(viewContext);
     //update ui state after operation
     // setUiState(UiState.done);
     //checking if operation was successful before either showing an error or redirect to home page
     if (dialogData.dialogType == DialogType.success) {
-
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.successThenClosePage;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         List<Hopper> toRemove = [];
         recentlyViewedList.forEach((element) {
-          if(element.post.iD==postId){
+          if (element.post.iD == postId) {
             //myHopperList.remove(element);
             //notifyListeners();
             toRemove.add(element);
           }
         });
 
-        recentlyViewedList.removeWhere( (e) => toRemove.contains(e));
+        recentlyViewedList.removeWhere((e) => toRemove.contains(e));
         notifyListeners();
       });
-
     } else {
       //prepare the data model to be used to show the alert on the view
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.failedThenClosePage;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         CustomDialog.dismissDialog(viewContext);
       });
-
     }
-
   }
-  void removeFromDownload({int postId}) async {
 
+  void removeFromDownload({int postId}) async {
     //update ui state
     final int userId = AuthBloc.getUserId();
 
@@ -328,47 +400,42 @@ class HopperViewModel extends MyBaseViewModel {
     //preparing data to be sent to server
     CustomDialog.showAlertDialog(viewContext, dialogData);
     // setUiState(UiState.loading);
-    dialogData = await _homePageRepository.removeFromDownload(userId,postId);
+    dialogData = await _homePageRepository.removeFromDownload(userId, postId);
     CustomDialog.dismissDialog(viewContext);
     //update ui state after operation
     // setUiState(UiState.done);
     //checking if operation was successful before either showing an error or redirect to home page
     if (dialogData.dialogType == DialogType.success) {
-
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.success;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
         List<Hopper> toRemove = [];
         downloadedList.forEach((element) {
-          if(element.post.iD==postId){
+          if (element.post.iD == postId) {
             //myHopperList.remove(element);
             //notifyListeners();
             toRemove.add(element);
           }
         });
 
-        downloadedList.removeWhere( (e) => toRemove.contains(e));
+        downloadedList.removeWhere((e) => toRemove.contains(e));
         notifyListeners();
-
       });
-
     } else {
       //prepare the data model to be used to show the alert on the view
       dialogData.isDismissible = true;
       dialogData.dialogType = DialogType.failed;
       //notify the ui with the newly gotten dialogdata model
-      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
-         CustomDialog.dismissDialog(viewContext);
+      CustomDialog.showAlertDialog(viewContext, dialogData,
+          onDismissAction: () {
+        CustomDialog.dismissDialog(viewContext);
       });
-
     }
-
   }
 
-
-
-  downloadFile(String url)async{
+  downloadFile(String url) async {
     _permissionReady = await _checkPermission();
 
     if (_permissionReady) {
@@ -376,14 +443,13 @@ class HopperViewModel extends MyBaseViewModel {
     }
 
     final taskId = await FlutterDownloader.enqueue(
-      url: url??"",
+      url: url ?? "",
       savedDir: _localPath,
-      showNotification: true, // show download progress in status bar (for Android)
-      openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+      showNotification:
+          true, // show download progress in status bar (for Android)
+      openFileFromNotification:
+          true, // click on notification to open downloaded file (for Android)
     );
-
-
-
   }
 
   Future<bool> _checkPermission() async {
@@ -403,6 +469,7 @@ class HopperViewModel extends MyBaseViewModel {
     }
     return false;
   }
+
   Future<void> _prepareSaveDir() async {
     _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
 
@@ -420,5 +487,3 @@ class HopperViewModel extends MyBaseViewModel {
     return directory?.path;
   }
 }
-
-

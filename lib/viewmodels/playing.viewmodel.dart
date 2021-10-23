@@ -1,6 +1,7 @@
 // ViewModel
 import 'dart:io';
 
+import 'package:android_path_provider/android_path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
@@ -20,7 +21,9 @@ import 'package:flutter_hopper/viewmodels/base.viewmodel.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info/device_info.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:flutter_hopper/constants/app_strings.dart';
 
 
 class PlayingViewModel extends MyBaseViewModel {
@@ -35,8 +38,10 @@ class PlayingViewModel extends MyBaseViewModel {
   List<String> homeList=[];
   List<Hopper> myHopperList=[];
   HomePost playingData;
+
   bool _permissionReady=false;
   String _localPath;
+
 
   PlayingViewModel(BuildContext context) {
     this.viewContext = context;
@@ -62,8 +67,8 @@ class PlayingViewModel extends MyBaseViewModel {
       playingLoadingState = LoadingState.Failed;
       notifyListeners();
     }
-
   }
+
   void getMyHopperList() async{
     //add null data so listener can show shimmer widget to indicate loading
    // playingLoadingState = LoadingState.Loading;
@@ -81,12 +86,11 @@ class PlayingViewModel extends MyBaseViewModel {
            toRemove.add(element);
         }
       });
+
       myHopperList.removeWhere( (e) => toRemove.contains(e));
 
       initAudio();
       //notifyListeners();
-      playingLoadingState = LoadingState.Done;
-      notifyListeners();
     } catch (error) {
       playingLoadingState = LoadingState.Failed;
       notifyListeners();
@@ -102,8 +106,12 @@ class PlayingViewModel extends MyBaseViewModel {
   Duration bufferedDuration;
   String playerSpeed="1x";
   int currentPlayingIndex=0;
-  List<AudioItem> myPlayList=[];
+  int previousPlayingIndex=0;
+  List<HomePost> myPlayList=[];
   List<AudioSource> allPlayingArticleList=[];
+  ConcatenatingAudioSource concatenatingAudioSource;
+
+
  /* @override
   void dispose() {
     // Release decoders and buffers back to the operating system making them
@@ -133,8 +141,21 @@ class PlayingViewModel extends MyBaseViewModel {
        totalDuration=AudioConstant.audioViewModel.totalDuration;
        bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
        playerSpeed=AudioConstant.audioViewModel.playerSpeed;
+       myPlayList=AudioConstant.audioViewModel.myPlayList;
+       currentPlayingIndex=AudioConstant.audioViewModel.currentPlayingIndex;
+       allPlayingArticleList=AudioConstant.audioViewModel.allPlayingArticleList;
 
+       player.currentIndexStream.listen((currentIndex) {
+         previousPlayingIndex=currentPlayingIndex;
+         currentPlayingIndex=currentIndex;
+         HomeBloc.postID=myPlayList[currentPlayingIndex].id;
+         notifyListeners();
+         addToRecentlyViewed();
+       });
+
+       playingLoadingState = LoadingState.Done;
        notifyListeners();
+
      }
    }
 
@@ -147,9 +168,9 @@ class PlayingViewModel extends MyBaseViewModel {
 
     //player.stop();
 
-    player.positionStream.listen((event) {
+   /* player.positionStream.listen((event) {
         currentPostion=event;
-    });
+    });*/
 
      player.playbackEventStream.listen((event) {
            currentPostion=event.updatePosition;
@@ -162,31 +183,58 @@ class PlayingViewModel extends MyBaseViewModel {
     // Try to load audio from a source and catch any errors.
     try {
 
-         AudioItem audioItem=AudioItem();
+        /* AudioItem audioItem=AudioItem();
          audioItem.trackId=playingData.id;
          audioItem.audioSource=AudioSource.uri(Uri.parse(playingData.audioFile??""));
-         audioItem.trackDescription=playingData.postDescription??"";
-         audioItem.trackImage=playingData.coverImageUrl??"";
+         audioItem.trackDescription=playingData.title.rendered??"";
+         audioItem.trackImage=playingData.coverImageUrl??"";*/
          allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile??"")));
-         myPlayList.add(audioItem);
-        myHopperList.forEach((element) {
-          AudioItem audioItem=AudioItem();
+
+
+         myPlayList.add(playingData);
+
+
+         myHopperList.forEach((element) {
+          /*AudioItem audioItem=AudioItem();
           audioItem.trackId=element.post.iD;
           audioItem.audioSource=AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??""));
-          audioItem.trackDescription=element.postCustom.postDescription[0]??"";
+          audioItem.trackDescription=element.post.postTitle??"";
           audioItem.trackImage=element.postCustom.coverImageUrl[0]??"";
-          myPlayList.add(audioItem);
+          myPlayList.add(audioItem);*/
           allPlayingArticleList.add(AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??"")));
+
+           HomePost _homePost=HomePost();
+          _homePost.id=element.post.iD;
+          _homePost.coverImageUrl=element.postCustom.coverImageUrl[0]??"";
+          _homePost.author=element.postCustom.author[0]??"";
+          _homePost.isAdded=true;
+          _homePost.publication=element.postCustom.publication[0]??"";
+          _homePost.publicationDate=element.postCustom.publicationDate[0]??"";
+          _homePost.narrator=element.postCustom.narrator[0]??"";
+          _homePost.audioFile=element.postCustom.audioFile[0]??"";
+          _homePost.audioFileDuration=element.postCustom.audioFileDuration[0]??"";
+          _homePost.title=Guid();
+          _homePost.title.rendered=element.post.postTitle??"";
+          _homePost.subHeader=element.postCustom.subHeader[0]??"";
+          _homePost.postDescription=element.postCustom.postDescription[0]??"";
+          _homePost.url=element.postCustom.url[0]??"";
+           myPlayList.add(_homePost);
+
          });
+
+         playingLoadingState = LoadingState.Done;
+         notifyListeners();
+         concatenatingAudioSource= await ConcatenatingAudioSource(
+           // Start loading next item just before reaching it.
+           useLazyPreparation: true, // default
+           // Customise the shuffle algorithm.
+           shuffleOrder: DefaultShuffleOrder(), // default
+           // Specify the items in the playlist.
+           children: allPlayingArticleList,
+         );
+
         await player.setAudioSource(
-          ConcatenatingAudioSource(
-            // Start loading next item just before reaching it.
-            useLazyPreparation: true, // default
-            // Customise the shuffle algorithm.
-            shuffleOrder: DefaultShuffleOrder(), // default
-            // Specify the items in the playlist.
-            children: allPlayingArticleList,
-          ),
+          concatenatingAudioSource,
           // Playback will be prepared to start from track1.mp3
           initialIndex: currentPlayingIndex, // default
           // Playback will be prepared to start from position zero.
@@ -198,17 +246,25 @@ class PlayingViewModel extends MyBaseViewModel {
 
     player.positionStream.listen((position) {
       currentPostion=position;
+      //notifyListeners();
     });
 
-    player.bufferedPositionStream.listen((buffered) {
+     player.bufferedPositionStream.listen((buffered) {
       bufferedDuration=buffered;
     });
 
     player.currentIndexStream.listen((currentIndex) {
+      previousPlayingIndex=currentPlayingIndex;
       currentPlayingIndex=currentIndex;
+      HomeBloc.postID=myPlayList[currentPlayingIndex].id;
+      notifyListeners();
+
+      addToRecentlyViewed();
     });
 
-    player.play();
+
+
+     player.play();
 
   }
 
@@ -222,6 +278,7 @@ class PlayingViewModel extends MyBaseViewModel {
     Future.delayed(duration, (){
        player.stop();
     });
+    notifyListeners();
   }
 
   setupSpeed(double speed)async{
@@ -271,6 +328,7 @@ class PlayingViewModel extends MyBaseViewModel {
     }
 
   }
+
   void addToRecentlyViewed() async {
 
     //update ui state
@@ -285,7 +343,7 @@ class PlayingViewModel extends MyBaseViewModel {
     //preparing data to be sent to server
     CustomDialog.showAlertDialog(viewContext, dialogData);
     // setUiState(UiState.loading);*/
-    final dialogData = await _homePageRepository.addRecenltyViewedPost(userId,myPlayList[currentPlayingIndex].trackId);
+    final dialogData = await _homePageRepository.addRecenltyViewedPost(userId,myPlayList[previousPlayingIndex].id);
     //CustomDialog.dismissDialog(viewContext);
     //update ui state after operation
     // setUiState(UiState.done);
@@ -324,12 +382,29 @@ class PlayingViewModel extends MyBaseViewModel {
       url: url,
       savedDir: _localPath,
       showNotification: true, // show download progress in status bar (for Android)
-      openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+      openFileFromNotification: true,
+      //saveInPublicStorage: true,// click on notification to open downloaded file (for Android)
     );
 
   }
 
   Future<bool> _checkPermission() async {
+   /* DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    if (Platform.isAndroid && androidInfo.version.sdkInt <= 28) {
+      final status = await Permission.storage.status;
+      if (status != PermissionStatus.granted) {
+        final result = await Permission.storage.request();
+        if (result == PermissionStatus.granted) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;*/
     if (Platform.isAndroid) {
       final status = await Permission.storage.status;
 
@@ -348,8 +423,7 @@ class PlayingViewModel extends MyBaseViewModel {
   }
 
   Future<void> _prepareSaveDir() async {
-    _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
-
+    _localPath = (await _findLocalPath());
     final savedDir = Directory(_localPath);
     bool hasExisted = await savedDir.exists();
     if (!hasExisted) {
@@ -358,10 +432,18 @@ class PlayingViewModel extends MyBaseViewModel {
   }
 
   Future<String> _findLocalPath() async {
-    final directory = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
-    return directory?.path;
+    var externalStorageDirPath;
+    if (Platform.isAndroid) {
+      try {
+        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+      } catch (e) {
+        final directory = await getExternalStorageDirectory();
+        externalStorageDirPath = directory?.path;
+      }
+    } else if (Platform.isIOS) {
+      externalStorageDirPath = (await getApplicationDocumentsDirectory()).absolute.path;
+    }
+    return externalStorageDirPath;
   }
 
 }

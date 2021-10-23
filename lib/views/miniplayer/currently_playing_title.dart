@@ -24,16 +24,16 @@ class _CurrentlyPlayingTextState extends State<CurrentlyPlayingText> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    description=widget.model.myPlayList[widget.model.currentPlayingIndex].trackDescription??"";
+    description=widget.model.myPlayList[widget.model.currentPlayingIndex].title.rendered??"";
   }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
         stream: widget.model.player.currentIndexStream,
         builder: (context, snapshot){
-      if (snapshot.data != null) {
-        description=widget.model.myPlayList[snapshot.data].trackDescription??"";
-      }
+        if (snapshot.data != null) {
+         description=widget.model.myPlayList[snapshot.data].title.rendered??"";
+        }
       return Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,

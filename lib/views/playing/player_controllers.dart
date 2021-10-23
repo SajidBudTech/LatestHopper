@@ -59,8 +59,10 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                       ),
                       onPressed: () {
                         if(widget.model.player.hasPrevious){
-                           widget.model.currentPostion=Duration.zero;
-                           widget.model.player.seekToPrevious();
+                          setState(() {
+                            widget.model.currentPostion=Duration.zero;
+                            widget.model.player.seekToPrevious();
+                          });
                         }
                       }
                   )),
@@ -73,7 +75,6 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                 child: Image.asset("assets/images/back15.png",
                   width: 65,
                   height: 65,
-
                 ),
               ),
               InkWell(
@@ -126,8 +127,10 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                       ),
                       onPressed: () {
                         if(widget.model.player.hasNext){
-                          widget.model.currentPostion=Duration.zero;
-                          widget.model.player.seekToNext();
+                          setState(() {
+                            widget.model.currentPostion=Duration.zero;
+                            widget.model.player.seekToNext();
+                          });
                         }
                       }
                   )),
