@@ -82,8 +82,16 @@ class _MainHomePageState extends State<MainHomePage>
                                         if(AudioConstant.audioIsPlaying){
                                           AudioConstant.audioViewModel.player.stop();
                                         }
-                                        AudioConstant.FROM_BOTTOM=false;
+                                        if(HomeBloc.postID==model.mainhomeList[index].id){
+                                          AudioConstant.FROM_BOTTOM=true;
+                                        }else{
+                                          AudioConstant.FROM_BOTTOM=false;
+                                        }
+
+                                        AudioConstant.OFFLINE=false;
+
                                         HomeBloc.switchPageToPalying(model.mainhomeList[index].id);
+
                                       },
                                     );
                                   },

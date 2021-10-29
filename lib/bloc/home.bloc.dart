@@ -15,7 +15,7 @@ class HomeBloc extends BaseBloc {
   static int postID=0;
   //switch page to cart
   static void switchPageToPalying(int postId) {
-    AudioConstant.FROM_MINI_PLAYER=false;
+    //AudioConstant.FROM_MINI_PLAYER=false;
     postID=postId;
     currentPageIndex.add(1);
   }

@@ -85,7 +85,7 @@ class HomeAppBar extends StatelessWidget {
                   child: InkWell(
                       onTap:()=>this.onPressed("PUBLICATION"),
                       child:Container(
-                        padding: EdgeInsets.only(left: 6,right: 6,top: 12,bottom: 12),
+                        padding: EdgeInsets.only(left: 4,right: 4,top: 12,bottom: 12),
                         decoration: BoxDecoration(
                           color: Color(0xFF168B8A),
                           borderRadius: BorderRadius.circular(20)
@@ -93,7 +93,7 @@ class HomeAppBar extends StatelessWidget {
                         child: Text(
                            "PUBLICATION",
                           textAlign: TextAlign.center,
-                          style: AppTextStyle.h7TitleTextStyle(
+                          style: AppTextStyle.h12TitleTextStyle(
                               color: AppColor.primaryColor,
                               fontWeight: FontWeight.w500
                           ),
@@ -117,7 +117,7 @@ class HomeAppBar extends StatelessWidget {
                         child: Text(
                           "AUTHOR",
                           textAlign: TextAlign.center,
-                          style: AppTextStyle.h7TitleTextStyle(
+                          style: AppTextStyle.h12TitleTextStyle(
                               color: AppColor.primaryColor,
                               fontWeight: FontWeight.w500
                           ),
@@ -138,7 +138,7 @@ class HomeAppBar extends StatelessWidget {
                         child: Text(
                           "CATEGORY",
                           textAlign: TextAlign.center,
-                          style: AppTextStyle.h7TitleTextStyle(
+                          style: AppTextStyle.h12TitleTextStyle(
                               color: AppColor.primaryColor,
                               fontWeight: FontWeight.w500
                           ),

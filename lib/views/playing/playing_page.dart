@@ -16,6 +16,7 @@ import 'package:flutter_hopper/views/playing/player_controllers.dart';
 import 'package:flutter_hopper/views/playing/publish_by_item.dart';
 import 'package:flutter_hopper/widgets/empty/empty_playing.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:stacked/stacked.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
@@ -53,6 +54,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
   void initState() {
     // TODO: implement initState
     super.initState();
+
     AudioConstant.sleeperActiveTime=AuthBloc.getSleeperTime();
     AudioConstant.isSleeperActive=AuthBloc.isSleeperActive();
 
@@ -84,7 +86,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
     if(HomeBloc.postID!=0){
        pageBody=ViewModelBuilder<PlayingViewModel>.reactive(
           viewModelBuilder: () => PlayingViewModel(context),
-          onModelReady: (model) => model.getPlayingDetails(),
+          onModelReady: (model) => AudioConstant.OFFLINE?model.getOffLinePlayer():model.getPlayingDetails(),
           builder: (context, model, child) {
             if(ADDED){
                model.myPlayList[model.currentPlayingIndex].isAdded=true;
@@ -157,13 +159,37 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                       child:Container(
                                         alignment: Alignment.centerRight,
                                         padding: EdgeInsets.only(right: 20,top: 10),
-                                        child: InkWell(child: Icon(
+                                        child: InkWell(child:
+                                        model.startDownLoad?
+                                        SleekCircularSlider(
+                                          appearance: CircularSliderAppearance(
+                                            angleRange: 360,
+                                            startAngle: 270,
+                                            customColors: CustomSliderColors(
+                                              trackColor: Colors.black54,
+                                              progressBarColor: AppColor.accentColor,
+                                            ),
+                                            customWidths: CustomSliderWidths(
+                                              progressBarWidth: 4,
+                                              trackWidth: 3,
+                                            ),
+                                            size: 24,
+                                          ),
+                                          min: 0,
+                                          initialValue: model.progressDownload,
+                                          max: model.totalDownLoad,
+                                          innerWidget: (checkVakue){
+
+                                          },
+                                        )
+                                        :Icon(
                                           Icons.download_sharp,
                                           size: 24,
                                           color: Colors.white,
-                                        ),
+                                         ),
                                           onTap: (){
-                                            model.addToDownload(postId: model.myPlayList[model.currentPlayingIndex].id);
+                                            !model.startDownLoad?
+                                            model.addToDownload(postId: model.myPlayList[model.currentPlayingIndex].id):null;
                                           },
                                         ),
                                       )

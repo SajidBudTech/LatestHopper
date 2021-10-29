@@ -6,8 +6,6 @@ import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
 import 'package:flutter_hopper/viewmodels/hopper.viewmodel.dart';
-import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
-import 'package:flutter_hopper/viewmodels/playing.viewmodel.dart';
 import 'package:flutter_hopper/views/hopper/hopper_bottom_sheet_page.dart';
 import 'package:flutter_hopper/views/hopper/list_header_widget.dart';
 import 'package:flutter_hopper/widgets/appbar/home_appbar.dart';
@@ -74,15 +72,17 @@ class _HopperPageState extends State<HopperPage>
                             child: model.myHopperLoadingState == LoadingState.Loading
                                 ? Padding(padding: EdgeInsets.only(left: 20,right: 20),child:VendorShimmerListViewItem())
                                 : model.myHopperLoadingState == LoadingState.Failed
-                                ? LoadingStateDataView(
+                                ? EmptyHopper(title: "No My Hopper to show")/*LoadingStateDataView(
                               stateDataModel: StateDataModel(
                                 showActionButton: true,
+                                title: "Internet Connectivity",
+                                description: "Please check your internet connectivity and try again.",
                                 actionButtonStyle: AppTextStyle.h4TitleTextStyle(
                                   color: Colors.red,
                                 ),
                                 actionFunction: model.initialise,
                               ),
-                            ) : model.myHopperList.length==0
+                            )*/ : model.myHopperList.length==0
                                 ?EmptyHopper(title: "Nothing Added to My Hopper")
                                 : ReorderableListView.builder(
                               scrollDirection: Axis.vertical,
@@ -105,19 +105,25 @@ class _HopperPageState extends State<HopperPage>
                                   hopper: model.myHopperList[index],
                                   showDownload: true,
                                   showAddTOPlayer: false,
+                                  model: model,
                                   onPressed: (){
                                       if(AudioConstant.audioIsPlaying){
                                         AudioConstant.audioViewModel.player.stop();
                                       }
-                                      AudioConstant.FROM_BOTTOM=false;
+                                      if(HomeBloc.postID==model.myHopperList[index].post.iD){
+                                        AudioConstant.FROM_BOTTOM=true;
+                                      }else{
+                                        AudioConstant.FROM_BOTTOM=false;
+                                      }
+                                      AudioConstant.OFFLINE=false;
                                       HomeBloc.switchPageToPalying(model.myHopperList[index].post.iD);
-                                  },
+                                   },
                                   onThreeDotPressed: (){
                                     showSortBottomSheetDialog(model.myHopperList[index],true,model);
                                   },
-                                  onDownloadPressed: (){
-                                    model.addToDownload(postId:model.myHopperList[index].post.iD,hopper: model.myHopperList[index]);
-                                  },
+                                  /*onDownloadPressed: (){
+                                    model.addToDownload(postId:model.myHopperList[index].post.iD,hopper: model.myHopperList[index],);
+                                  },*/
                                 );
                               },
                               itemCount: model.myHopperList.length>3?3:model.myHopperList.length,
@@ -134,7 +140,7 @@ class _HopperPageState extends State<HopperPage>
                             child: model.recentlyViewedLoadingState == LoadingState.Loading
                                 ? Padding(padding: EdgeInsets.only(left: 20,right: 20),child:VendorShimmerListViewItem())
                                 : model.recentlyViewedLoadingState == LoadingState.Failed
-                                ? LoadingStateDataView(
+                                ? EmptyHopper(title: "No Recently Viewed to show")/*LoadingStateDataView(
                               stateDataModel: StateDataModel(
                                 showActionButton: true,
                                 actionButtonStyle: AppTextStyle.h4TitleTextStyle(
@@ -142,7 +148,7 @@ class _HopperPageState extends State<HopperPage>
                                 ),
                                 actionFunction: model.initialise,
                               ),
-                            ) : model.recentlyViewedList.length==0
+                            ) */: model.recentlyViewedList.length==0
                                 ?EmptyHopper(title: "Nothing Added to Recently Viewed")
                                 :ListView.builder(
                               scrollDirection: Axis.vertical,
@@ -154,19 +160,27 @@ class _HopperPageState extends State<HopperPage>
                                   hopper: model.recentlyViewedList[index],
                                   showDownload: true,
                                   showAddTOPlayer: true,
+                                  model: model,
                                   onPressed: (){
                                     if(AudioConstant.audioIsPlaying){
                                        AudioConstant.audioViewModel.player.stop();
                                     }
-                                    AudioConstant.FROM_BOTTOM=false;
+                                    if(HomeBloc.postID==model.recentlyViewedList[index].post.iD){
+                                      AudioConstant.FROM_BOTTOM=true;
+                                    }else{
+                                      AudioConstant.FROM_BOTTOM=false;
+                                    }
+
+                                    AudioConstant.OFFLINE=false;
                                     HomeBloc.switchPageToPalying(model.recentlyViewedList[index].post.iD);
+
                                   },
                                   onThreeDotPressed: (){
                                     showSortBottomSheetDialog(model.recentlyViewedList[index],false,model);
                                   },
-                                  onDownloadPressed: (){
+                                  /*onDownloadPressed: (){
                                     model.addToDownload(postId:model.recentlyViewedList[index].post.iD,hopper: model.recentlyViewedList[index]);
-                                  },
+                                  },*/
                                 );
                               },
                               /*separatorBuilder: (context, index) => Divider(
@@ -206,19 +220,26 @@ class _HopperPageState extends State<HopperPage>
                                   hopper: model.downloadedList[index],
                                   showDownload: false,
                                   showAddTOPlayer: true,
+                                  model: model,
                                   onPressed: (){
+
                                     if(AudioConstant.audioIsPlaying){
                                       AudioConstant.audioViewModel.player.stop();
                                     }
+
                                     AudioConstant.FROM_BOTTOM=false;
+                                    AudioConstant.OFFLINE=true;
+                                    AudioConstant.OFFLINECHANGE=true;
+                                    AudioConstant.HOMEPOST=model.savedDownLoads[index];
                                     HomeBloc.switchPageToPalying(model.downloadedList[index].post.iD);
+
                                   },
                                   onThreeDotPressed: (){
                                     showSortBottomSheetDialog(model.downloadedList[index],false,model);
                                   },
-                                  onDownloadPressed: (){
+                                 /* onDownloadPressed: (){
 
-                                  },
+                                  },*/
                                 );
                               },
                               /* separatorBuilder: (context, index) => Divider(

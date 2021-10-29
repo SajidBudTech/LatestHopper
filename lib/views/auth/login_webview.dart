@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hopper/bloc/base.bloc.dart';
 import 'package:flutter_hopper/bloc/login.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class LoginWebView extends StatefulWidget {
   LoginWebView({Key key}) : super(key: key);
@@ -27,7 +26,7 @@ class _LoginPageState extends State<LoginWebView> {
   final passwordFocusNode = new FocusNode();
 
   String fileHtmlContents = "<a href=\"https://lookwhatwemadeyou.com/audiohopper/wp-login.php?loginSocial=facebook\" data-plugin=\"nsl\" data-action=\"connect\" data-redirect=\"current\" data-provider=\"facebook\" data-popupwidth=\"475\" data-popupheight=\"175\">Click here to login or register</a>";
-  WebViewController _webViewController;
+ // WebViewController _webViewController;
   @override
   void initState() {
     super.initState();
@@ -77,14 +76,14 @@ class _LoginPageState extends State<LoginWebView> {
         body: SafeArea(
             child:Column(
               children: [
-              Expanded(child: WebView(
+              /*Expanded(child: WebView(
               initialUrl: '',
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (WebViewController webViewController){
                 _webViewController=webViewController;
                  loadAsset();
               },
-              )),
+              )),*/
               ],
             )
         ),
@@ -94,9 +93,9 @@ class _LoginPageState extends State<LoginWebView> {
   }
   loadAsset() async {
     //String fileHtmlContents = await rootBundle.loadString('assets/demo.html');
-    _webViewController.loadUrl(Uri.dataFromString(fileHtmlContents,
+   /* _webViewController.loadUrl(Uri.dataFromString(fileHtmlContents,
         mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
-        .toString());
+        .toString());*/
   }
 
 

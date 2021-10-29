@@ -46,11 +46,11 @@ class _HomePageState extends State<HomePage> {
     HomeBloc.initiBloc();
     HomeBloc.currentPageIndex.listen((currentPageIndex) {
       //_updateCurrentPageIndex(currentPageIndex);
-      if(AudioConstant.FROM_MINI_PLAYER){
+      /*if(AudioConstant.FROM_MINI_PLAYER){
         AudioConstant.FROM_BOTTOM=true;
       }else {
         AudioConstant.FROM_BOTTOM = false;
-      }
+      }*/
       _showPage(currentPageIndex);
 
     });
@@ -124,6 +124,7 @@ class _HomePageState extends State<HomePage> {
               currentPageIndex: currentPageNumber,
               onItemTap: (index){
                 AudioConstant.FROM_BOTTOM=true;
+                AudioConstant.OFFLINECHANGE=false;
                _showPage(index);
               },
             )

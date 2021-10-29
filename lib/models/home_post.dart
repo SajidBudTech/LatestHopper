@@ -30,6 +30,7 @@ class HomePost{
   String subHeader;
   String url;
   bool isAdded=false;
+  String localFilePath;
 
   HomePost(
       {this.id,
@@ -62,7 +63,8 @@ class HomePost{
         this.coverImageUrl,
         this.subHeader,
         this.url,
-        this.isAdded});
+        this.isAdded,
+        this.localFilePath});
 
   HomePost.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -87,7 +89,7 @@ class HomePost{
     sticky = json['sticky'];
     template = json['template'];
     format = json['format'];
-    categories = json['categories'].cast<int>();
+    categories = json['categories']!=null?json['categories'].cast<int>():null;
     narrator = json['narrator'];
     publication = json['publication'];
     publicationDate = json['publication_date'];
@@ -97,42 +99,51 @@ class HomePost{
     coverImageUrl = json['cover_image_url'];
     subHeader = json['sub_header'];
     url = json['url'];
+    localFilePath = json['localFilePath'];
+
   }
 
-  Map<String, dynamic> toJson() {
+  static Map<String, dynamic> toJson(HomePost homePost) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['date'] = this.date;
-    data['date_gmt'] = this.dateGmt;
-    if (this.guid != null) {
-      data['guid'] = this.guid.toJson();
+    data['id'] = homePost.id;
+    data['date'] = homePost.date;
+    data['date_gmt'] = homePost.dateGmt;
+    if (homePost.guid != null) {
+      data['guid'] = homePost.guid.toJson();
     }
-    data['modified'] = this.modified;
-    data['modified_gmt'] = this.modifiedGmt;
-    data['slug'] = this.slug;
-    data['status'] = this.status;
-    data['type'] = this.type;
-    data['link'] = this.link;
-    if (this.title != null) {
-      data['title'] = this.title.toJson();
+    data['modified'] = homePost.modified;
+    data['modified_gmt'] = homePost.modifiedGmt;
+    data['slug'] = homePost.slug;
+    data['status'] = homePost.status;
+    data['type'] = homePost.type;
+    data['link'] = homePost.link;
+    if (homePost.title != null) {
+      data['title'] = homePost.title.toJson();
     }
-    if (this.content != null) {
-      data['content'] = this.content.toJson();
+    if (homePost.content != null) {
+      data['content'] = homePost.content.toJson();
     }
-    if (this.excerpt != null) {
-      data['excerpt'] = this.excerpt.toJson();
+    if (homePost.excerpt != null) {
+      data['excerpt'] = homePost.excerpt.toJson();
     }
-    data['author'] = this.author;
-    data['featured_media'] = this.featuredMedia;
-    data['comment_status'] = this.commentStatus;
-    data['ping_status'] = this.pingStatus;
-    data['sticky'] = this.sticky;
-    data['template'] = this.template;
-    data['format'] = this.format;
-    data['categories'] = this.categories;
-    data['narrator'] = this.narrator;
-    data['publication'] = this.publication;
-    data['url'] = this.url;
+    data['author'] = homePost.author;
+    data['featured_media'] = homePost.featuredMedia;
+    data['comment_status'] = homePost.commentStatus;
+    data['ping_status'] = homePost.pingStatus;
+    data['sticky'] = homePost.sticky;
+    data['template'] = homePost.template;
+    data['format'] = homePost.format;
+    data['categories'] = homePost.categories;
+    data['narrator'] = homePost.narrator;
+    data['publication'] = homePost.publication;
+    data['publication_date']= homePost.publicationDate;
+    data['post_description']= homePost.postDescription;
+    data['audio_file_duration']=homePost.audioFileDuration;
+    data['audio_file']=homePost.audioFile;
+    data['cover_image_url']=homePost.coverImageUrl;
+    data['sub_header']= homePost.subHeader;
+    data['url'] = homePost.url;
+    data['localFilePath'] = homePost.localFilePath;
     return data;
   }
 

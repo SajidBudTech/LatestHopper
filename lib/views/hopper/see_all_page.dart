@@ -71,14 +71,12 @@ class _SeeAllPageState extends State<SeeAllPagePage>{
                                         onPressed: (){
                                           showSortBottomSheetDialog(widget.title=="My Hopper"?widget.model.myHopperList[index]:(widget.title=="RECENTLY VIEWED"?widget.model.recentlyViewedList[index]:widget.model.downloadedList[index]),widget.title=="My Hopper"?true:false,widget.model);
                                         },
-                                        onDownloadPressed: (){
+                                        /*onDownloadPressed: (){
                                           widget.model.addToDownload(postId:widget.hopperList[index].post.iD,hopper: widget.title=="My Hopper"?widget.model.myHopperList[index]:(widget.title=="RECENTLY VIEWED"?widget.model.recentlyViewedList[index]:widget.model.downloadedList[index]));
-                                        },
+                                        },*/
                                       );
                                     },
-                                    /* separatorBuilder: (context, index) => Container(
-                          height: 8,
-                        ),*/
+
                                     itemCount: widget.title=="My Hopper"?widget.model.myHopperList.length:(widget.title=="RECENTLY VIEWED"?widget.model.recentlyViewedList.length:widget.model.downloadedList.length),
                                   ),
                                 ),

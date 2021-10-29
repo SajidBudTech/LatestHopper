@@ -86,7 +86,9 @@ class _BottomDialogSheetPageState extends State<BottomDialogSheetPage> {
                     AudioConstant.sleeperActiveTime=value;
                     if (value == "Off") {
                       AuthBloc.prefs.setBool(AppStrings.isSleeperActive, false);
+                      AuthBloc.prefs.setString(AppStrings.sleepTimerText, "");
                       AudioConstant.isSleeperActive=false;
+                      AudioConstant.sleeperActiveTime="";
                       widget.model.stopPlayerAfter(Duration.zero);
                     } else if (value == "In 5 mins") {
                       AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);

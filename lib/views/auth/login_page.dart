@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -40,10 +42,13 @@ class _LoginPageState extends State<LoginPage> {
   //password focus node
   final passwordFocusNode = new FocusNode();
 
+  bool isAndroid=false;
+
   @override
   void initState() {
     super.initState();
     _loginBloc.initBloc();
+    isAndroid=Platform.isAndroid;
     //listen to the need to show a dialog alert or a normal snackbar alert type
     _loginBloc.showAlert.listen((show) {
       //when asked to show an alert
@@ -287,7 +292,9 @@ class _LoginPageState extends State<LoginPage> {
                                               width: 72,
                                             )
                                         ),
-                                        InkWell(
+                                        Visibility(
+                                          visible: Platform.isIOS,
+                                          child:InkWell(
                                             highlightColor: Colors.white,
                                             splashColor: Colors.white,
                                             onTap: (){
@@ -296,7 +303,7 @@ class _LoginPageState extends State<LoginPage> {
                                             child: Image.asset("assets/images/apple.png",
                                               height: 72,
                                               width: 72,)
-                                        )
+                                        ))
 
                                       ],
                                     ),

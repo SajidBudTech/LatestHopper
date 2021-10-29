@@ -1,29 +1,56 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:device_info/device_info.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/auth.bloc.dart';
+import 'package:flutter_hopper/constants/api.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
+import 'package:flutter_hopper/models/dialog_data.dart';
+import 'package:flutter_hopper/models/home_post.dart';
+import 'package:flutter_hopper/utils/custom_dialog.dart';
+import 'package:flutter_hopper/utils/file_download.dart';
+import 'package:flutter_hopper/utils/flash_alert.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
+import 'package:flutter_hopper/viewmodels/hopper.viewmodel.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class MyHopperListViewItem extends StatefulWidget {
-  MyHopperListViewItem({Key key, this.onPressed,this.onThreeDotPressed, this.hopper,this.onDownloadPressed,this.showDownload,this.showAddTOPlayer})
+  MyHopperListViewItem({Key key, this.onPressed,this.onThreeDotPressed, this.hopper,this.showDownload,
+    this.showAddTOPlayer,this.model})
       : super(key: key);
 
   final Function onPressed;
   final Function onThreeDotPressed;
-  final Function onDownloadPressed;
+  //final Function onDownloadPressed;
   final Hopper hopper;
   final bool showDownload;
   final bool showAddTOPlayer;
+  final HopperViewModel model;
   @override
   _MyHopperListViewItemState createState() => _MyHopperListViewItemState();
 }
 
 class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
+
+  bool _permissionReady = false;
+  String _localPath="";
+  bool startDownLoad=false;
+  double totalDownLoad=1.0;
+  double progressDownload=0.0;
+  Dio dio=Dio();
+  FileDownload fileDownload;
+
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -157,27 +184,41 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                           width: 16,
                         ),*/
                         widget.showDownload?
+                        (startDownLoad?
+                        SleekCircularSlider(
+                          appearance: CircularSliderAppearance(
+                            angleRange: 360,
+                            startAngle: 270,
+                            customColors: CustomSliderColors(
+                              trackColor: Colors.black54,
+                              progressBarColor: AppColor.accentColor,
+                            ),
+                            customWidths: CustomSliderWidths(
+                              progressBarWidth: 4,
+                              trackWidth: 3,
+                            ),
+                            size: 24,
+                          ),
+                          min: 0,
+                          initialValue: progressDownload,
+                          max: totalDownLoad,
+                          innerWidget: (checkVakue){
+
+                          },
+                        ):
                          InkWell(
-                            onTap: widget.onDownloadPressed,
+                            onTap: (){
+                              !startDownLoad?
+                              checkDownload():null;
+                            },
                             child:Image.asset(
                               "assets/images/download _ic.png",
                               width: 20,
                               height: 20,
                               color: Colors.grey,
-                            )):SizedBox.shrink(),
-                        /*Visibility(
-                        visible: widget.showDownload,
-                        child:InkWell(
-                         onTap: widget.onDownloadPressed,
-                        child:Image.asset(
-                          "assets/images/download _ic.png",
-                          width: 20,
-                          height: 20,
-                          color: Colors.grey,
-                        ))),*/
-                       /* SizedBox(
-                          width: 16,
-                        ),*/
+                            )))
+                            :SizedBox.shrink(),
+
                         widget.showAddTOPlayer?InkWell(
                             onTap:(){
 
@@ -219,5 +260,231 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
     String newDate = year + "/" + mm + "/" + dd;
 
     return DateFormat("MMMM dd, yyyy").format(DateFormat("yyyy/MM/dd").parse(newDate));
+  }
+
+
+  downloadFile(String url,Hopper hopper) async {
+
+    _permissionReady = await _checkPermission();
+
+    if (_permissionReady) {
+      await _prepareSaveDir();
+    }
+
+
+    startDownLoad=true;
+
+    String fileName=url.split("/").last;
+    File saveFile=File(_localPath+"/"+fileName);
+
+    try {
+
+      await dio.downloadUri(Uri.parse(url), saveFile.path,
+          onReceiveProgress: (downloaded, totalSize) {
+        setState(() {
+          progressDownload = downloaded / totalSize;
+          if (downloaded == totalSize) {
+            startDownLoad = false;
+          }
+        });
+      });
+
+      /*fileDownload=FileDownload(context: context,url: url,path: saveFile.path,onReceiveProgress:DownloadRecevier);
+      await fileDownload.startDownload();*/
+
+       HomePost _homePost=HomePost();
+      _homePost.id=hopper.post.iD;
+      _homePost.coverImageUrl=hopper.postCustom.coverImageUrl[0]??"";
+      _homePost.author=hopper.postCustom.author[0]??"";
+      _homePost.isAdded=true;
+      _homePost.publication=hopper.postCustom.publication[0]??"";
+      _homePost.publicationDate=hopper.postCustom.publicationDate[0]??"";
+      _homePost.narrator=hopper.postCustom.narrator[0]??"";
+      _homePost.audioFile=hopper.postCustom.audioFile[0]??"";
+      _homePost.audioFileDuration=hopper.postCustom.audioFileDuration[0]??"";
+      _homePost.title=Guid();
+      _homePost.title.rendered=hopper.post.postTitle??"";
+      _homePost.subHeader=hopper.postCustom.subHeader[0]??"";
+      _homePost.postDescription=hopper.postCustom.postDescription[0]??"";
+      _homePost.url=hopper.postCustom.url[0]??"";
+      _homePost.localFilePath=saveFile.path;
+
+      await AuthBloc.addUserDownloadFile(_homePost,saveFile.path);
+
+      setState(() {
+         widget.model.downloadedList.add(hopper);
+         widget.model.notify();
+      });
+
+
+
+    }catch(e){
+
+      ShowFlash(context,
+          title: "Error in file downloading....",
+          message: "Please try again!",
+          flashType: FlashType.failed)
+          .show();
+
+      setState(() {
+        startDownLoad = false;
+      });
+
+    }
+  }
+
+  Future<bool> _checkPermission() async {
+    if (Platform.isAndroid) {
+
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      final storageStatus = await Permission.storage.status;
+
+      final accessStatus = androidInfo.version.sdkInt >= 30?await Permission.accessMediaLocation.status:true;
+      final manageStatus = androidInfo.version.sdkInt >= 30?await Permission.manageExternalStorage.status:true;
+
+
+      if (storageStatus != PermissionStatus.granted && accessStatus!=PermissionStatus.granted && manageStatus!=PermissionStatus.granted) {
+        final result = await Permission.storage.request();
+        final result2 = androidInfo.version.sdkInt >= 30?await Permission.accessMediaLocation.request():PermissionStatus.granted;
+        final result3 = androidInfo.version.sdkInt >= 30?await Permission.manageExternalStorage.request():PermissionStatus.granted;
+
+        if (result == PermissionStatus.granted && result2 == PermissionStatus.granted && result3 == PermissionStatus.granted) {
+          return true;
+        }
+
+      } else {
+        return true;
+      }
+    } else if(Platform.isIOS){
+      final status = await Permission.photos.status;
+      if (status != PermissionStatus.granted) {
+        final result = await Permission.photos.request();
+        if (result == PermissionStatus.granted) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /*Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
+
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+  }*/
+  Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath());
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create(recursive: true);
+    }
+  }
+
+  /* Future<String> _findLocalPath() async {
+    final directory = Platform.isAndroid
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    return directory?.path;
+  }*/
+  Future<String> _findLocalPath() async {
+    var externalStorageDirPath;
+    Directory directory;
+    if (Platform.isAndroid) {
+      /*try {
+        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+      } catch (e) {
+        final directory = await getExternalStorageDirectory();
+        externalStorageDirPath = directory?.path;
+      }*/
+
+      directory = await getExternalStorageDirectory();
+      String newPath="";
+      List<String> folders=directory.path.split("/");
+      for(int i=1;i<folders.length;i++){
+        String folder=folders[i];
+        if(folder!="Android"){
+          newPath+="/"+folder;
+        }else{
+          break;
+        }
+      }
+      newPath=newPath+"/AudioHopperApp";
+      directory=Directory(newPath);
+
+
+    } else if (Platform.isIOS) {
+      // directory = await getTemporaryDirectory();
+      directory=await getApplicationDocumentsDirectory();
+      //externalStorageDirPath = (await getApplicationDocumentsDirectory()).absolute.path;
+    }
+
+    externalStorageDirPath=directory.path;
+    return externalStorageDirPath;
+
+  }
+
+  void checkDownload() async{
+
+    bool check=false;
+    widget.model.savedDownLoads.forEach((key) {
+      if(widget.hopper.post.iD==key.id){
+        check=true;
+      }
+    });
+    if(!check) {
+
+      final int userId = AuthBloc.getUserId();
+
+      var dialogData = DialogData();
+      dialogData.title = "Add To Download";
+      dialogData.body = "Please wait.......";
+      dialogData.dialogType = DialogType.loading;
+      dialogData.isDismissible = false;
+
+      //preparing data to be sent to server
+      CustomDialog.showAlertDialog(context, dialogData);
+      // setUiState(UiState.loading);
+      dialogData = await widget.model.homePageRepository.addToDownload(userId, widget.hopper.post.iD);
+      CustomDialog.dismissDialog(context);
+      //update ui state after operation
+      // setUiState(UiState.done);
+      //checking if operation was successful before either showing an error or redirect to home page
+      if (dialogData.dialogType == DialogType.success) {
+        /* dialogData.isDismissible = true;
+      dialogData.dialogType = DialogType.success;
+      //notify the ui with the newly gotten dialogdata model
+      CustomDialog.showAlertDialog(viewContext, dialogData,onDismissAction: (){
+        myHopperList.add(hopper);
+        notifyListeners();
+      });*/
+        downloadFile(widget.hopper.postCustom.audioFile[0] ?? "",widget.hopper);
+
+      } else {
+        //prepare the data model to be used to show the alert on the view
+        dialogData.isDismissible = true;
+        dialogData.dialogType = DialogType.failed;
+        //notify the ui with the newly gotten dialogdata model
+        CustomDialog.showAlertDialog(context, dialogData,
+            onDismissAction: () {
+              CustomDialog.dismissDialog(context);
+            });
+      }
+    }else{
+      ShowFlash(context,
+          title: "Already added in Download",
+          message: "Please try with some other articles.",
+          flashType: FlashType.failed)
+          .show();
+    }
+
   }
 }

@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -313,7 +315,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                         height: 72,
                                         width: 72,)
                                   ),
-                                  InkWell(
+                                  Visibility(
+                                    visible: Platform.isIOS,
+                                      child: InkWell(
                                       highlightColor: Colors.white,
                                       splashColor: Colors.white,
                                       onTap: (){
@@ -322,7 +326,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       child: Image.asset("assets/images/apple.png",
                                         height: 72,
                                         width: 72,)
-                                  )
+                                  ))
 
                                 ],
                               ),

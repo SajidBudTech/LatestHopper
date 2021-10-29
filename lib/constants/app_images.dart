@@ -23,7 +23,7 @@ class AppImages {
   static const ic_location = "assets/images/ic_delivery_boy.png";
   static const ic_doctor = "assets/images/doctor.png";
 
-  static const onboardingimage = "assets/images/welcome.png";
+  static const onboardingimage = "assets/images/welcome_two.png";
   static const onboardingimageone = "assets/images/welcome_one.png";
 
 

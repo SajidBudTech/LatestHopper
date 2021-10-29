@@ -102,6 +102,18 @@ class AppTextStyle {
       decoration: decoration,
     );
   }
+  static TextStyle h12TitleTextStyle({
+    Color color = Colors.grey,
+    FontWeight fontWeight = FontWeight.w400,
+    TextDecoration decoration,
+  }) {
+    return GoogleFonts.montserrat(
+      fontSize: 12,
+      fontWeight: fontWeight,
+      color: color,
+      decoration: decoration,
+    );
+  }
 
   static TextStyle h6TitleTextStyle(
       {Color color = Colors.black, FontWeight fontWeight = FontWeight.w300,TextDecoration decoration,FontStyle fontStyle = FontStyle.normal}) {

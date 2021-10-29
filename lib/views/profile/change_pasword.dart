@@ -43,6 +43,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             _changePasswordBloc.dialogData,
             isDismissible: _changePasswordBloc.dialogData.isDismissible,
           );
+          Future.delayed(Duration(milliseconds: 1500), (){
+             CustomDialog.dismissDialog(context);
+          });
+
         } else {
           CustomDialog.dismissDialog(context);
         }

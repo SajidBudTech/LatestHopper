@@ -4,6 +4,7 @@ import 'package:flutter_hopper/constants/app_animations.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_images.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
+import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/onboarding.strings.dart';
 import 'package:flutter_hopper/widgets/cool_onboarding.dart';
 import 'package:flutter_hopper/widgets/onboarding_slide.dart';
@@ -41,12 +42,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
             title: OnboardingStrings.onboarding1Title,
             description: OnboardingStrings.onboarding1Body,
             backgroundColor: Colors.white,
+            titleTextStyle: AppTextStyle.h2TitleTextStyle(
+                fontWeight:FontWeight.w600,
+                color: Colors.black
+            ),
+            descriptionTextStyle: AppTextStyle.h4TitleTextStyle(
+                fontWeight:FontWeight.w300
+            ),
           ),
           OnboardingSlide(
             asset: AppImages.onboardingimage,
             title: OnboardingStrings.onboarding2Title,
             description: OnboardingStrings.onboarding2Body,
             backgroundColor: Colors.white,
+            titleTextStyle: AppTextStyle.h4TitleTextStyle(
+                fontWeight:FontWeight.w600,
+                color: Colors.black
+            ),
+            descriptionTextStyle: AppTextStyle.h6TitleTextStyle(
+                fontWeight:FontWeight.w300
+            ),
           ),
         ],
       ),

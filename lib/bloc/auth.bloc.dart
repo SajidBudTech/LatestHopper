@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter_hopper/bloc/base.bloc.dart';
 import 'package:flutter_hopper/constants/app_strings.dart';
 import 'package:flutter_hopper/constants/strings/prefrence_key.string.dart';
+import 'package:flutter_hopper/models/download_item.dart';
+import 'package:flutter_hopper/models/home_post.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -74,6 +78,37 @@ class AuthBloc extends BaseBloc {
     prefs.setString(PreferenceString.UserLink,userDetails["link"]??"");
 
   }
+
+  static void addUserDownloadFile(HomePost post,String filePath) async{
+
+    List<HomePost> downloadList=await getUserDownloadedFiles();
+    if(downloadList==null){
+      downloadList=[];
+    }
+    downloadList.add(post);
+
+    saveUserDownloadedFiles(downloadList);
+  }
+
+  static List<HomePost> getUserDownloadedFiles(){
+    String encoded=prefs.getString(PreferenceString.UserDownloadFilesMap)??"";
+    List<HomePost> decodedList=[];
+    if(encoded!=""){
+      decodedList=decode(encoded);
+    }
+    return decodedList;
+  }
+
+  static void saveUserDownloadedFiles(List<HomePost> downloadList){
+     String encodedMap = encode(downloadList);
+     prefs.setString(PreferenceString.UserDownloadFilesMap,encodedMap);
+  }
+
+  static String encode(List<HomePost> posts) => json.encode(
+    posts.map<Map<String, dynamic>>((post) => HomePost.toJson(post)).toList(),
+  );
+
+  static List<HomePost> decode(String musics) => (json.decode(musics) as List<dynamic>).map<HomePost>((item) => HomePost.fromJson(item)).toList();
 
 
 

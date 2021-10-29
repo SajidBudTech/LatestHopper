@@ -47,7 +47,10 @@ class _OnboardingSlideState extends State<OnboardingSlide> {
                 widget.title,
                 textAlign: TextAlign.center,
                 textDirection: AppTextDirection.defaultDirection,
-                style: widget.titleTextStyle ?? AppTextStyle.h2TitleTextStyle(),
+                style: widget.titleTextStyle ?? AppTextStyle.h4TitleTextStyle(
+                  fontWeight:FontWeight.w600,
+                  color: Colors.black
+                ),
               ),
             ),
             SizedBox(
@@ -60,13 +63,13 @@ class _OnboardingSlideState extends State<OnboardingSlide> {
                 textAlign: TextAlign.center,
                 textDirection: AppTextDirection.defaultDirection,
                 style: widget.descriptionTextStyle ??
-                    AppTextStyle.h4TitleTextStyle(
+                    AppTextStyle.h6TitleTextStyle(
                       fontWeight: FontWeight.w300,
                     ),
               ),
             ),
             Visibility(
-              visible: widget.title=="TITLE 02",
+              visible: widget.title=="Why are American Movies Underperforming at the Chinese Box Office?",
               child:Container(
                 width: double.infinity,
                 margin: EdgeInsets.only(top: 30),
@@ -88,7 +91,7 @@ class _OnboardingSlideState extends State<OnboardingSlide> {
                   fontWeight: FontWeight.w400
                 ),
               ),
-            ),
+             ),
             ))
           ],
         ),

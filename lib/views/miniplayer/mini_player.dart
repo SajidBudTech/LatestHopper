@@ -26,6 +26,8 @@ class _MiniPlayerState extends State<MiniPlayer> {
       child: InkWell(
       onTap: (){
         AudioConstant.FROM_MINI_PLAYER=true;
+       // AudioConstant.OFFLINE=false;
+        AudioConstant.FROM_BOTTOM=true;
         HomeBloc.currentPageIndex.add(1);
       },
       child:Container(

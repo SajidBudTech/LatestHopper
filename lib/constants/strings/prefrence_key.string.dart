@@ -7,4 +7,6 @@ class PreferenceString{
   static String UserToken = "UserToken";
   static String UserUrl = "UserUrl";
   static String UserLink = "UserLink";
+
+  static String UserDownloadFilesMap = "UserDownloadFiles";
 }
