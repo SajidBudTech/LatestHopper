@@ -557,7 +557,7 @@ class LoginBloc extends BaseBloc {
       dialogData.iconData = FlutterIcons.error_mdi;
       //notify listners to show show alert
       setShowAlert(true);
-    }
+      }
     }
   }
 
