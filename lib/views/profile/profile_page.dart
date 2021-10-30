@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                       onPressed: () {
                         _showLogoutDialog(viewcontext);
                       },
-                    ),
+                     ),
 
                      ],
                    ))
@@ -119,12 +119,18 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
   }
 
   void _processLogout(BuildContext viewcontext) async {
+
+    if(AudioConstant.audioIsPlaying){
+      await AudioConstant.audioViewModel.player.stop();
+    }
+
     await AuthBloc.prefs.setBool(AppStrings.authenticated, false);
     Navigator.pushNamedAndRemoveUntil(
       viewcontext,
       AppRoutes.loginRoute,
           (route) => false,
     );
+
   }
 
   Future<bool> _showLogoutDialog(BuildContext context) {

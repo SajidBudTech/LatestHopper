@@ -252,7 +252,7 @@ class _LoginPageState extends State<LoginPage> {
                           )),
                             UiSpacer.verticalSpace(space: AppSizes.getScreenheight(context)*0.14),
                             Container(
-                                padding: EdgeInsets.only(left: 40,right: 40),
+                                padding: EdgeInsets.only(left: 20,right: 20),
                                 child: Column(
                                   children: [
                                     Container(
@@ -267,7 +267,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                     UiSpacer.verticalSpace(space: 30),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         InkWell(
                                             highlightColor: Colors.white,
@@ -280,6 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                                               width: 72,
                                               fit: BoxFit.cover,)
                                         ),
+                                        UiSpacer.horizontalSpace(),
                                         InkWell(
                                             highlightColor: Colors.white,
                                             splashColor: Colors.white,
@@ -292,9 +293,10 @@ class _LoginPageState extends State<LoginPage> {
                                               width: 72,
                                             )
                                         ),
-                                        Visibility(
-                                          visible: Platform.isIOS,
-                                          child:InkWell(
+                                        Platform.isIOS?
+                                        Padding(
+                                            padding: EdgeInsets.only(left: 20),
+                                            child:InkWell(
                                             highlightColor: Colors.white,
                                             splashColor: Colors.white,
                                             onTap: (){
@@ -303,7 +305,7 @@ class _LoginPageState extends State<LoginPage> {
                                             child: Image.asset("assets/images/apple.png",
                                               height: 72,
                                               width: 72,)
-                                        ))
+                                        )):SizedBox.shrink()
 
                                       ],
                                     ),

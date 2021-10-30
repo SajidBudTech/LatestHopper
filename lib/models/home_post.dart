@@ -31,6 +31,7 @@ class HomePost{
   String url;
   bool isAdded=false;
   String localFilePath;
+  int userBy;
 
   HomePost(
       {this.id,
@@ -64,7 +65,8 @@ class HomePost{
         this.subHeader,
         this.url,
         this.isAdded,
-        this.localFilePath});
+        this.localFilePath,
+        this.userBy});
 
   HomePost.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -100,6 +102,7 @@ class HomePost{
     subHeader = json['sub_header'];
     url = json['url'];
     localFilePath = json['localFilePath'];
+    userBy = json['userBy'];
 
   }
 
@@ -144,6 +147,8 @@ class HomePost{
     data['sub_header']= homePost.subHeader;
     data['url'] = homePost.url;
     data['localFilePath'] = homePost.localFilePath;
+    data['userBy'] = homePost.userBy;
+
     return data;
   }
 

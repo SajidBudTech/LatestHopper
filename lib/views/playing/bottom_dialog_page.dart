@@ -82,37 +82,42 @@ class _BottomDialogSheetPageState extends State<BottomDialogSheetPage> {
                     }
                   } else {
                     //"Off","In 5 mins","In 15 mins","In 30 mins","In an hour","When current article ends","Cancel";
-                    AuthBloc.prefs.setString(AppStrings.sleepTimerText, value);
+                   // AuthBloc.prefs.setString(AppStrings.sleepTimerText, value);
                     AudioConstant.sleeperActiveTime=value;
                     if (value == "Off") {
-                      AuthBloc.prefs.setBool(AppStrings.isSleeperActive, false);
-                      AuthBloc.prefs.setString(AppStrings.sleepTimerText, "");
+                     // AuthBloc.prefs.setBool(AppStrings.isSleeperActive, false);
+                      //AuthBloc.prefs.setString(AppStrings.sleepTimerText, "");
                       AudioConstant.isSleeperActive=false;
                       AudioConstant.sleeperActiveTime="";
+                      AudioConstant.sleeperCloseTime=null;
                       widget.model.stopPlayerAfter(Duration.zero);
+
                     } else if (value == "In 5 mins") {
-                      AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                      //AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                      AudioConstant.sleeperCloseTime=DateTime.now().add(Duration(minutes: 5));
                       AudioConstant.isSleeperActive=true;
                       widget.model.stopPlayerAfter(Duration(minutes: 5));
                     } else if (value == "In 15 mins") {
-                      AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                     // AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                      AudioConstant.sleeperCloseTime=DateTime.now().add(Duration(minutes: 15));
                       AudioConstant.isSleeperActive=true;
                       widget.model.stopPlayerAfter(Duration(minutes: 15));
                     } else if (value == "In 30 mins") {
-                      AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                     // AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                      AudioConstant.sleeperCloseTime=DateTime.now().add(Duration(minutes: 30));
                       AudioConstant.isSleeperActive=true;
                       widget.model.stopPlayerAfter(Duration(minutes: 30));
                     } else if (value == "In an hour") {
-                      AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                      //AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                      AudioConstant.sleeperCloseTime=DateTime.now().add(Duration(hours: 1));
                       AudioConstant.isSleeperActive=true;
                       widget.model.stopPlayerAfter(Duration(hours: 1));
                     } else if (value == "When current article ends") {
-                      AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
+                     // AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
                       AudioConstant.isSleeperActive=true;
                       if(widget.model.totalDuration!=null) {
-                        widget.model.stopPlayerAfter(Duration(
-                            seconds: widget.model.totalDuration.inSeconds -
-                                widget.model.currentPostion.inSeconds));
+                        AudioConstant.sleeperCloseTime=DateTime.now().add(Duration(seconds: widget.model.totalDuration.inSeconds - widget.model.currentPostion.inSeconds));
+                        widget.model.stopPlayerAfter(Duration(seconds: widget.model.totalDuration.inSeconds - widget.model.currentPostion.inSeconds));
                       }
                     }
                   }

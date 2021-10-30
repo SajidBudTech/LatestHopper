@@ -39,7 +39,8 @@ class HopperViewModel extends MyBaseViewModel {
   double totalDownLoad=1.0;
   double progressDownload=0.0;
   Dio dio=Dio();
-  List<HomePost> savedDownLoads;
+  List<HomePost> savedDownLoads=[];
+  int userId;
 
   HopperViewModel(BuildContext context) {
     this.viewContext = context;
@@ -105,39 +106,45 @@ class HopperViewModel extends MyBaseViewModel {
     downloadLoadingState = LoadingState.Loading;
     notifyListeners();
 
-    savedDownLoads= await AuthBloc.getUserDownloadedFiles();
-    savedDownLoads.forEach((key) {
+    userId=await AuthBloc.getUserId();
 
-      Hopper hopper=Hopper();
-      hopper.post=Post();
-      hopper.post.iD=key.id;
-      hopper.post.postTitle=key.title.rendered;
-      hopper.postCustom=PostCustom();
-      hopper.postCustom.subHeader=[];
-      hopper.postCustom.subHeader.add(key.subHeader);
-      hopper.postCustom.author=[];
-      hopper.postCustom.author.add(key.author);
-      hopper.postCustom.narrator=[];
-      hopper.postCustom.narrator.add(key.narrator);
-      hopper.postCustom.publication=[];
-      hopper.postCustom.publication.add(key.publication);
-      hopper.postCustom.publicationDate=[];
-      hopper.postCustom.publicationDate.add(key.publicationDate);
-      hopper.postCustom.url=[];
-      hopper.postCustom.url.add(key.url);
-      hopper.postCustom.audioFile=[];
-      hopper.postCustom.audioFile.add(key.audioFile);
-      hopper.postCustom.audioFileDuration=[];
-      hopper.postCustom.audioFileDuration.add(key.audioFileDuration);
-      hopper.postCustom.postDescription=[];
-      hopper.postCustom.postDescription.add(key.postDescription);
-      hopper.postCustom.coverImageUrl=[];
-      hopper.postCustom.coverImageUrl.add(key.coverImageUrl);
-      hopper.postCustom.postReadedBy=[];
+    List<HomePost> downloads= await AuthBloc.getUserDownloadedFiles();
+    downloads.forEach((key) {
+      if(key.userBy==userId) {
+
+        savedDownLoads.add(key);
+
+        Hopper hopper = Hopper();
+        hopper.post = Post();
+        hopper.post.iD = key.id;
+        hopper.post.postTitle = key.title.rendered;
+        hopper.postCustom = PostCustom();
+        hopper.postCustom.subHeader = [];
+        hopper.postCustom.subHeader.add(key.subHeader);
+        hopper.postCustom.author = [];
+        hopper.postCustom.author.add(key.author);
+        hopper.postCustom.narrator = [];
+        hopper.postCustom.narrator.add(key.narrator);
+        hopper.postCustom.publication = [];
+        hopper.postCustom.publication.add(key.publication);
+        hopper.postCustom.publicationDate = [];
+        hopper.postCustom.publicationDate.add(key.publicationDate);
+        hopper.postCustom.url = [];
+        hopper.postCustom.url.add(key.url);
+        hopper.postCustom.audioFile = [];
+        hopper.postCustom.audioFile.add(key.audioFile);
+        hopper.postCustom.audioFileDuration = [];
+        hopper.postCustom.audioFileDuration.add(key.audioFileDuration);
+        hopper.postCustom.postDescription = [];
+        hopper.postCustom.postDescription.add(key.postDescription);
+        hopper.postCustom.coverImageUrl = [];
+        hopper.postCustom.coverImageUrl.add(key.coverImageUrl);
+        hopper.postCustom.postReadedBy = [];
 
 
+        downloadedList.add(hopper);
 
-      downloadedList.add(hopper);
+      }
 
     });
 
@@ -333,15 +340,6 @@ class HopperViewModel extends MyBaseViewModel {
       }
 
       if (AudioConstant.audioViewModel != null) {
-          //List<HomePost> toRemove = [];
-
-         /* AudioConstant.audioViewModel.myPlayList.forEach((element) {
-          if (element.id == postId) {
-            //myHopperList.remove(element);
-            //notifyListeners();
-            toRemove.add(element);
-          }
-        });*/
           int index=0;
          for(int i=0;i<AudioConstant.audioViewModel.myPlayList.length;i++){
            if (AudioConstant.audioViewModel.myPlayList[i].id == postId) {
@@ -356,6 +354,7 @@ class HopperViewModel extends MyBaseViewModel {
 
           if(HomeBloc.postID==postId){
             AudioConstant.audioViewModel.player.stop();
+            AudioConstant.audioIsPlaying=false;
             if(AudioConstant.audioViewModel.myPlayList.length>0){
               HomeBloc.postID=AudioConstant.audioViewModel.myPlayList[0].id;
             }
@@ -387,6 +386,7 @@ class HopperViewModel extends MyBaseViewModel {
 
         myHopperList.removeWhere((e) => toRemove.contains(e));
         notifyListeners();
+
       });
 
       Future.delayed(const Duration(milliseconds: 1500), () {

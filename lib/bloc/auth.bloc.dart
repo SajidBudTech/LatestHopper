@@ -65,6 +65,12 @@ class AuthBloc extends BaseBloc {
   static void setUserFullName(String name){
     prefs.setString(PreferenceString.UserFullName,name??"");
   }
+  static void setLoginDownloadUser(int userId){
+    prefs.setInt(PreferenceString.DownloadLoginUser,userId);
+  }
+  static void getLoginDownloadUser(){
+    prefs.getInt(PreferenceString.DownloadLoginUser)??0;
+  }
 
 
   static void saveUserData(Map userDetails,String passwrod) {

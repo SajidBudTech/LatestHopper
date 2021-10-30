@@ -9,4 +9,6 @@ class PreferenceString{
   static String UserLink = "UserLink";
 
   static String UserDownloadFilesMap = "UserDownloadFiles";
+
+  static String DownloadLoginUser = "DownloadLoginUser";
 }

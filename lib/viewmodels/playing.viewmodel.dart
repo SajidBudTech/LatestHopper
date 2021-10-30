@@ -54,33 +54,41 @@ class PlayingViewModel extends MyBaseViewModel {
   List<HomePost> savedDownLoad=[];
   bool offLine=false;
   FileDownload fileDownload;
+  int userId;
 
   PlayingViewModel(BuildContext context) {
     this.viewContext = context;
-    if(!AudioConstant.FROM_BOTTOM){
+   /* if(!AudioConstant.FROM_BOTTOM){
        AudioConstant.audioViewModel=this;
-    }
+    }*/
     getDownloads();
   }
 
   void getDownloads()async{
-     savedDownLoad=await AuthBloc.getUserDownloadedFiles();
+     userId=await AuthBloc.getUserId();
+     List<HomePost> downloads=await AuthBloc.getUserDownloadedFiles();
+     downloads.forEach((element) {
+       if(element.userBy==userId){
+           savedDownLoad.add(element);
+        }
+     });
   }
 
    _checkTimer()async{
      if(AudioConstant.isSleeperActive){
+       var diff=AudioConstant.sleeperCloseTime.difference(DateTime.now()).inSeconds;
+       Duration duration=Duration(seconds: diff);
        if(AudioConstant.sleeperActiveTime=="In 5 mins"){
-         stopPlayerAfter(Duration(minutes: 5));
+         stopPlayerAfter(duration);
        }else if(AudioConstant.sleeperActiveTime=="In 15 mins"){
-         stopPlayerAfter(Duration(minutes: 15));
+         stopPlayerAfter(duration);
        }else if(AudioConstant.sleeperActiveTime=="In 30 mins"){
-         stopPlayerAfter(Duration(minutes: 30));
+         stopPlayerAfter(duration);
        }else if(AudioConstant.sleeperActiveTime=="In an hour"){
-         stopPlayerAfter(Duration(hours: 1));
+         stopPlayerAfter(duration);
        }else if(AudioConstant.sleeperActiveTime=="When current article ends"){
          if(totalDuration!=null) {
-           stopPlayerAfter(Duration(
-               seconds:totalDuration.inSeconds - currentPostion.inSeconds));
+           stopPlayerAfter(Duration(seconds:totalDuration.inSeconds - currentPostion.inSeconds));
          }
        }
      }
@@ -120,6 +128,7 @@ class PlayingViewModel extends MyBaseViewModel {
         }
       });
 
+
       myHopperList.removeWhere( (e) => toRemove.contains(e));
 
       initAudio();
@@ -146,6 +155,7 @@ class PlayingViewModel extends MyBaseViewModel {
      if(AudioConstant.OFFLINECHANGE) {
 
         player = AudioPlayer();
+
         player.playbackEventStream.listen((event) {
          currentPostion = event.updatePosition;
          bufferedDuration = event.bufferedPosition;
@@ -156,6 +166,10 @@ class PlayingViewModel extends MyBaseViewModel {
            });
        // Try to load audio from a source and catch any errors.
        try {
+
+         allPlayingArticleList.clear();
+         myPlayList.clear();
+
          allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile ?? "")));
          myPlayList.add(playingData);
 
@@ -176,15 +190,9 @@ class PlayingViewModel extends MyBaseViewModel {
          bufferedDuration = buffered;
        });
 
-       /*player.currentIndexStream.listen((currentIndex) {
-       previousPlayingIndex=currentPlayingIndex;
-       currentPlayingIndex=currentIndex;
-       HomeBloc.postID=myPlayList[currentPlayingIndex].id;
-       notifyListeners();
-       //addToRecentlyViewed();
-
-     });*/
-       player.play();
+        if(!player.playing){
+          player.play();
+        }
 
      }else{
 
@@ -195,6 +203,7 @@ class PlayingViewModel extends MyBaseViewModel {
        bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
        playerSpeed=AudioConstant.audioViewModel.playerSpeed;
        _localPath=AudioConstant.audioViewModel._localPath;
+       userId=AudioConstant.audioViewModel.userId;
        currentPlayingIndex=AudioConstant.audioViewModel.currentPlayingIndex;
        allPlayingArticleList=AudioConstant.audioViewModel.allPlayingArticleList;
        myPlayList=AudioConstant.audioViewModel.myPlayList;
@@ -210,14 +219,22 @@ class PlayingViewModel extends MyBaseViewModel {
          bufferedDuration = buffered;
        });
 
+       if(!player.playing){
+         player.play();
+       }
+
        playingLoadingState = LoadingState.Done;
        notifyListeners();
 
      }
 
-     Future.delayed(Duration(seconds: 2), (){
+    // AudioConstant.audioViewModel=this;
+    /* Future.delayed(Duration(seconds: 2), (){
        _checkTimer();
-     });
+     });*/
+     _checkTimer();
+     AudioConstant.audioIsPlaying=true;
+     AudioConstant.audioViewModel=this;
 
    }
 
@@ -236,36 +253,22 @@ class PlayingViewModel extends MyBaseViewModel {
   ConcatenatingAudioSource concatenatingAudioSource;
 
 
- /* @override
-  void dispose() {
-    // Release decoders and buffers back to the operating system making them
-    // available for other apps to use.
-    player.dispose();
-    super.dispose();
-  }*/
-
- /* @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      // Release the player's resources when not in use. We use "stop" so that
-      // if the app resumes later, it will still remember what position to
-      // resume from.
-      player.stop();
-    }
-  }*/
-
    initAudio()async{
+
      if(!AudioConstant.FROM_BOTTOM){
 
         player=AudioPlayer();
        _init();
 
      }else{
-      // myPlayList=AudioConstant.audioViewModel.myPlayList;
-       currentPlayingIndex=AudioConstant.audioViewModel.currentPlayingIndex;
-       //allPlayingArticleList=AudioConstant.audioViewModel.allPlayingArticleList;
+
+
+       allPlayingArticleList.clear();
+       myPlayList.clear();
+
        allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile??"")));
        myPlayList.add(playingData);
+
        myHopperList.forEach((element) {
          allPlayingArticleList.add(AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??"")));
 
@@ -289,19 +292,48 @@ class PlayingViewModel extends MyBaseViewModel {
        });
 
 
-       for(int i=1;i<allPlayingArticleList.length;i++){
+       for(int i=1;i<AudioConstant.audioViewModel.allPlayingArticleList.length;i++){
          if(AudioConstant.audioViewModel.concatenatingAudioSource!=null) {
            AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(i);
-           AudioConstant.audioViewModel.concatenatingAudioSource.insert(
-               i, allPlayingArticleList[i]);
          }
        }
 
-
-       player=AudioConstant.audioViewModel.player;
+       for(int i=1;i<allPlayingArticleList.length;i++){
+         if(AudioConstant.audioViewModel.concatenatingAudioSource!=null) {
+           AudioConstant.audioViewModel.concatenatingAudioSource.insert(i, allPlayingArticleList[i]);
+         }
+       }
 
        currentPostion=AudioConstant.audioViewModel.currentPostion;
        totalDuration=AudioConstant.audioViewModel.totalDuration;
+
+
+       currentPlayingIndex=0;
+       previousPlayingIndex=0;
+
+       player=AudioConstant.audioViewModel.player;
+
+       concatenatingAudioSource= await ConcatenatingAudioSource(
+         // Start loading next item just before reaching it.
+         useLazyPreparation: true, // default
+         // Customise the shuffle algorithm.
+         shuffleOrder: DefaultShuffleOrder(), // default
+         // Specify the items in the playlist.
+         children: allPlayingArticleList,
+       );
+
+       await player.setAudioSource(
+         concatenatingAudioSource,
+         // Playback will be prepared to start from track1.mp3
+         initialIndex: currentPlayingIndex, // default
+         // Playback will be prepared to start from position zero.
+         initialPosition: Duration.zero, // default
+       );
+
+       player.seek(currentPostion,index: currentPlayingIndex);
+
+
+
        bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
        playerSpeed=AudioConstant.audioViewModel.playerSpeed;
        _localPath=AudioConstant.audioViewModel._localPath;
@@ -310,68 +342,71 @@ class PlayingViewModel extends MyBaseViewModel {
        progressDownload=AudioConstant.audioViewModel.progressDownload;
        dio=AudioConstant.audioViewModel.dio;
        fileDownload=AudioConstant.audioViewModel.fileDownload;
-
-
-       /*await dio.downloadUri(Uri.parse(playingData.audioFile), _localPath,
-           onReceiveProgress: (downloaded, totalSize) {
-             progressDownload = downloaded / totalSize;
-             if (downloaded == totalSize) {
-               startDownLoad = false;
-             }
-             notifyListeners();
-
-           });*/
-
        offLine=AudioConstant.audioViewModel.offLine;
 
-       player.currentIndexStream.listen((currentIndex) {
-         previousPlayingIndex=currentPlayingIndex;
-         currentPlayingIndex=currentIndex;
-         HomeBloc.postID=myPlayList[currentPlayingIndex].id;
-         notifyListeners();
-         addToRecentlyViewed();
+
+       player.playbackEventStream.listen((event) {
+         currentPostion=event.updatePosition;
+         bufferedDuration=event.bufferedPosition;
+         totalDuration=event.duration;
+           },
+           onError: (Object e, StackTrace stackTrace) {
+             print('A stream error occurred: $e');
+           });
+
+       player.positionStream.listen((position) {
+         currentPostion=position;
        });
 
-       player.play();
+       player.bufferedPositionStream.listen((buffered) {
+         bufferedDuration=buffered;
+       });
+
+       player.currentIndexStream.listen((currentIndex) {
+         if(currentIndex < myPlayList.length) {
+           previousPlayingIndex = currentPlayingIndex;
+           currentPlayingIndex = currentIndex;
+           HomeBloc.postID = myPlayList[currentPlayingIndex].id;
+           notifyListeners();
+           addToRecentlyViewed();
+         }
+       });
+
+       if(!player.playing){
+         player.play();
+       }
+
        AudioConstant.audioIsPlaying=true;
 
        playingLoadingState = LoadingState.Done;
        notifyListeners();
 
 
-       try{
-          fileDownload.onReceiveProgress=DownloadRecevier;
-         }catch(e){
-         ShowFlash(viewContext,
-             title: "Error in file downloading...",
-             message: "please try again",
-             flashType: FlashType.failed)
-             .show();
-
-
-         startDownLoad = false;
-         notifyListeners();
-
+       if(fileDownload!=null) {
+         try {
+           fileDownload.onReceiveProgress = DownloadRecevier;
+         } catch (e) {
+           ShowFlash(viewContext,
+               title: "Error in file downloading...",
+               message: "please try again",
+               flashType: FlashType.failed)
+               .show();
+           startDownLoad = false;
+           notifyListeners();
+         }
        }
 
-       Future.delayed(Duration(milliseconds: 1500), (){
-         _checkTimer();
-       });
+
+
      }
+
+     _checkTimer();
+     AudioConstant.audioViewModel=this;
+     print("TOTAL Lenght........."+myPlayList.length.toString());
+
    }
 
   Future<void> _init() async {
-    // Inform the operating system of our app's audio attributes etc.
-    // We pick a reasonable default for an app that plays speech.
-   // final session = await AudioSession.instance;
-   // await session.configure(AudioSessionConfiguration.speech());
-    // Listen to errors during playback.
-
-    //player.stop();
-
-   /* player.positionStream.listen((event) {
-        currentPostion=event;
-    });*/
 
      player.playbackEventStream.listen((event) {
            currentPostion=event.updatePosition;
@@ -384,18 +419,16 @@ class PlayingViewModel extends MyBaseViewModel {
     // Try to load audio from a source and catch any errors.
     try {
 
-        /* AudioItem audioItem=AudioItem();
-         audioItem.trackId=playingData.id;
-         audioItem.audioSource=AudioSource.uri(Uri.parse(playingData.audioFile??""));
-         audioItem.trackDescription=playingData.title.rendered??"";
-         audioItem.trackImage=playingData.coverImageUrl??"";*/
+         allPlayingArticleList.clear();
+         myPlayList.clear();
+
          allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile??"")));
 
 
          myPlayList.add(playingData);
 
 
-         myHopperList.forEach((element) {
+          myHopperList.forEach((element) {
           /*AudioItem audioItem=AudioItem();
           audioItem.trackId=element.post.iD;
           audioItem.audioSource=AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??""));
@@ -423,8 +456,6 @@ class PlayingViewModel extends MyBaseViewModel {
 
          });
 
-         playingLoadingState = LoadingState.Done;
-         notifyListeners();
          concatenatingAudioSource= await ConcatenatingAudioSource(
            // Start loading next item just before reaching it.
            useLazyPreparation: true, // default
@@ -441,6 +472,10 @@ class PlayingViewModel extends MyBaseViewModel {
           // Playback will be prepared to start from position zero.
           initialPosition: Duration.zero, // default
         );
+
+         playingLoadingState = LoadingState.Done;
+         notifyListeners();
+
     } catch (e) {
       print("Error loading audio source: $e");
     }
@@ -455,19 +490,24 @@ class PlayingViewModel extends MyBaseViewModel {
     });
 
     player.currentIndexStream.listen((currentIndex) {
-      previousPlayingIndex=currentPlayingIndex;
-      currentPlayingIndex=currentIndex;
-      HomeBloc.postID=myPlayList[currentPlayingIndex].id;
-      notifyListeners();
-
-      addToRecentlyViewed();
+      if(currentIndex < myPlayList.length) {
+        previousPlayingIndex = currentPlayingIndex;
+        currentPlayingIndex = currentIndex;
+        HomeBloc.postID = myPlayList[currentPlayingIndex].id;
+        notifyListeners();
+        addToRecentlyViewed();
+      }
     });
 
-     player.play();
+     if(!player.playing){
+       player.play();
+     }
+
      AudioConstant.audioIsPlaying=true;
-     Future.delayed(Duration(seconds: 2), (){
+
+    /* Future.delayed(Duration(seconds: 2), (){
        _checkTimer();
-     });
+     });*/
   }
 
 
@@ -477,14 +517,20 @@ class PlayingViewModel extends MyBaseViewModel {
 
 
   stopPlayerAfter(Duration duration){
-    Future.delayed(duration, (){
-       player.stop();
-       AudioConstant.isSleeperActive=false;
-       AudioConstant.sleeperActiveTime="";
-       AuthBloc.prefs.setString(AppStrings.sleepTimerText, "");
-       AuthBloc.prefs.setBool(AppStrings.isSleeperActive, false);
-       notifyListeners();
-    });
+
+   if(duration!=Duration.zero) {
+     Future.delayed(duration, () {
+       if (AudioConstant.isSleeperActive) {
+         player.stop();
+         AudioConstant.isSleeperActive = false;
+         AudioConstant.sleeperActiveTime = "";
+         AudioConstant.sleeperCloseTime = null;
+         //AuthBloc.prefs.setString(AppStrings.sleepTimerText, "");
+         //AuthBloc.prefs.setBool(AppStrings.isSleeperActive, false);
+         notifyListeners();
+       }
+     });
+   }
     notifyListeners();
   }
 
@@ -512,6 +558,7 @@ class PlayingViewModel extends MyBaseViewModel {
     });
 
     if(!check) {
+
       final int userId = AuthBloc.getUserId();
 
       var dialogData = DialogData();
@@ -529,7 +576,7 @@ class PlayingViewModel extends MyBaseViewModel {
       // setUiState(UiState.done);
       //checking if operation was successful before either showing an error or redirect to home page
       if (dialogData.dialogType == DialogType.success) {
-        downloadFile(playingData.audioFile);
+        downloadFile(playingData.audioFile,userId);
       } else {
         //prepare the data model to be used to show the alert on the view
         dialogData.isDismissible = true;
@@ -592,7 +639,7 @@ class PlayingViewModel extends MyBaseViewModel {
 
   }
 
-  downloadFile(String url)async{
+  downloadFile(String url, int userId)async{
     _permissionReady = await _checkPermission();
 
     if (_permissionReady) {
@@ -605,6 +652,7 @@ class PlayingViewModel extends MyBaseViewModel {
     //_localPath=_localPath+"/"+fileName;
     File saveFile=File(_localPath+"/"+fileName);
     try {
+
 
        fileDownload=FileDownload(context: viewContext,url: url,path: saveFile.path,onReceiveProgress:DownloadRecevier);
        await fileDownload.startDownload();
@@ -622,6 +670,7 @@ class PlayingViewModel extends MyBaseViewModel {
 
 
        playingData.localFilePath=saveFile.path;
+       playingData.userBy=userId;
        await AuthBloc.addUserDownloadFile(playingData,saveFile.path);
 
 
@@ -734,9 +783,9 @@ class PlayingViewModel extends MyBaseViewModel {
   }
 
 
-  void DownloadRecevier(int downloaded,int totalSize){
+  void DownloadRecevier(int downloaded,int totalSize,bool status){
     progressDownload = downloaded / totalSize;
-    if (downloaded == totalSize) {
+    if (status) {
       startDownLoad = false;
     }
     notifyListeners();

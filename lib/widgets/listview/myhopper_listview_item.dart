@@ -308,6 +308,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
       _homePost.postDescription=hopper.postCustom.postDescription[0]??"";
       _homePost.url=hopper.postCustom.url[0]??"";
       _homePost.localFilePath=saveFile.path;
+      _homePost.userBy=widget.model.userId;
 
       await AuthBloc.addUserDownloadFile(_homePost,saveFile.path);
 
@@ -435,11 +436,13 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
   void checkDownload() async{
 
     bool check=false;
+
     widget.model.savedDownLoads.forEach((key) {
       if(widget.hopper.post.iD==key.id){
         check=true;
       }
     });
+
     if(!check) {
 
       final int userId = AuthBloc.getUserId();

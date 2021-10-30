@@ -8,11 +8,12 @@ import 'package:open_file/open_file.dart';
 class FileDownload{
   String url;
   String path;
+  bool downloadStatus=false;
   Options options=Options(
     responseType: ResponseType.bytes,
   );
   Dio _dio=Dio();
-  Function(int,int) onReceiveProgress;
+  Function(int,int,bool) onReceiveProgress;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   BuildContext context;
 
@@ -41,7 +42,12 @@ class FileDownload{
       final response = await _dio.download(
           url,
           path,
-          onReceiveProgress: onReceiveProgress,
+          onReceiveProgress: (downloaded,totalSize){
+            if(downloaded==totalSize){
+              downloadStatus=true;
+            }
+            onReceiveProgress(downloaded,totalSize,downloadStatus??false);
+          },
           options: options,
           deleteOnError: true
       );
@@ -53,6 +59,7 @@ class FileDownload{
       result['error'] = ex.toString();
       throw ex;
     } finally {
+      downloadStatus=true;
       await _showNotification(result);
     }
   }

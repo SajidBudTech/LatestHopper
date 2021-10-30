@@ -291,9 +291,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             UiSpacer.verticalSpace(space: 30),
                             Container(
-                              padding: EdgeInsets.only(left: 40,right: 20),
+                              padding: EdgeInsets.only(left: 20,right: 20),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                //crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   InkWell(
                                       highlightColor: Colors.white,
@@ -305,6 +306,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         height: 72,
                                         width: 72,)
                                   ),
+                                  UiSpacer.horizontalSpace(),
                                   InkWell(
                                       highlightColor: Colors.white,
                                       splashColor: Colors.white,
@@ -315,9 +317,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                         height: 72,
                                         width: 72,)
                                   ),
-                                  Visibility(
-                                    visible: Platform.isIOS,
-                                      child: InkWell(
+                                  Platform.isIOS?
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 20),
+                                      child:InkWell(
                                       highlightColor: Colors.white,
                                       splashColor: Colors.white,
                                       onTap: (){
@@ -326,7 +329,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       child: Image.asset("assets/images/apple.png",
                                         height: 72,
                                         width: 72,)
-                                  ))
+                                  )):SizedBox.shrink()
 
                                 ],
                               ),

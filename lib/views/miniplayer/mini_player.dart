@@ -25,8 +25,8 @@ class _MiniPlayerState extends State<MiniPlayer> {
       duration: Duration(seconds: 1),
       child: InkWell(
       onTap: (){
-        AudioConstant.FROM_MINI_PLAYER=true;
-       // AudioConstant.OFFLINE=false;
+        //AudioConstant.FROM_MINI_PLAYER=true;
+        //AudioConstant.OFFLINE=false;
         AudioConstant.FROM_BOTTOM=true;
         HomeBloc.currentPageIndex.add(1);
       },
@@ -54,7 +54,8 @@ class _MiniPlayerState extends State<MiniPlayer> {
                             Flexible(
                                 child: InkWell(
                                   onTap: (){
-                                    AudioConstant.FROM_MINI_PLAYER=true;
+                                    //AudioConstant.FROM_MINI_PLAYER=true;
+                                    AudioConstant.FROM_BOTTOM=true;
                                     HomeBloc.currentPageIndex.add(1);
                                   },
                                   child:CurrentlyPlayingThumbnail(
@@ -66,7 +67,8 @@ class _MiniPlayerState extends State<MiniPlayer> {
                               flex: 3,
                               child: InkWell(
                                 onTap: (){
-                                  AudioConstant.FROM_MINI_PLAYER=true;
+                                  //AudioConstant.FROM_MINI_PLAYER=true;
+                                  AudioConstant.FROM_BOTTOM=true;
                                   HomeBloc.currentPageIndex.add(1);
                                 },
                                 child:Padding(

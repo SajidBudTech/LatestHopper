@@ -13,6 +13,7 @@ class AudioConstant{
   static bool FROM_UPDATE_PROFILE=false;
   static bool isSleeperActive=false;
   static String sleeperActiveTime="";
+  static DateTime sleeperCloseTime;
   static bool OFFLINE=false;
   static bool OFFLINECHANGE=false;
 

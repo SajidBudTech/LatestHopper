@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -473,23 +474,24 @@ class LoginBloc extends BaseBloc {
           clientId:'com.application.audiohopper',
           //'com.aboutyou.dart_packages.sign_in_with_apple.example',
           redirectUri: Uri.parse(
-            'https://little-aeolian-gander.glitch.me/callbacks/sign_in_with_apple',
-            //'https://hopperaudio-ae4eb.firebaseapp.com/__/auth/handler'
+            //'https://little-aeolian-gander.glitch.me/callbacks/sign_in_with_apple',
+            'https://hopperaudio-ae4eb.firebaseapp.com/__/auth/handler'
           ),
         ),
         // TODO: Remove these if you have no need for them
         nonce: 'example-nonce',
-        state: 'example-state',
+        state: 'hopper-state',
+
       );
 
       print(credential);
 
       final signInWithAppleEndpoint = Uri(
         scheme: 'https',
-        host: 'little-aeolian-gander.glitch.me',
-        path: '/sign_in_with_apple',
-        //host: 'hopperaudio-ae4eb.firebaseapp.com',
-        //path: '/__/auth/handler',
+        //host: 'little-aeolian-gander.glitch.me',
+        //path: '/sign_in_with_apple',
+        host: 'hopperaudio-ae4eb.firebaseapp.com',
+        path: '/__/auth/handler',
         queryParameters: <String, String>{
           'code': credential.authorizationCode,
           if (credential.givenName != null)
@@ -509,8 +511,9 @@ class LoginBloc extends BaseBloc {
       print(session);
 
       if(session.statusCode==200){
-         var response=json.decode(session.body);
-         _initiateSocialAccountAppleLogin(userProfile: response["user"]["name"],context: context);
+          //var response=json.decode(session.body);
+         _initiateSocialAccountAppleLogin(emailid: credential.email,fullname: credential.givenName,context: context);
+
       }else{
         setUiState(UiState.done);
         //show dialog with error message
@@ -595,21 +598,23 @@ class LoginBloc extends BaseBloc {
 
   }
 
-  void _initiateSocialAccountAppleLogin({
-    Map userProfile,BuildContext context
-  }) async {
+  void _initiateSocialAccountAppleLogin({String emailid,String fullname,BuildContext context}) async {
 
-    socialDisplayName = userProfile['firstName']+userProfile['lastName'];
-    socialEmail = userProfile['email'];
+    socialDisplayName = fullname??"";
+    socialEmail = emailid;
 
-    var name=socialDisplayName.toString().split(" ");
+    var name=socialDisplayName!=null?socialDisplayName.toString().split(" "):[];
     for(int i=0;i<name.length;i++){
       socialUserName=socialUserName+name[i].toLowerCase();
       socialPassword = socialPassword+name[i].toLowerCase();
     }
 
-    String email="appleuser"+socialUserName+"@gmail.com";
-    generateSocialLoginToken(email: email,password: socialPassword);
+    var random = Random();
+    var n1 = random.nextInt(10000);
+
+
+    String email="appleuser"+((socialUserName.isEmpty)?n1.toString():socialUserName)+"@gmail.com";
+    generateSocialLoginToken(email: email,password: socialPassword.isEmpty?"apple{$n1}":socialPassword);
 
 
   }

@@ -55,8 +55,8 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
     // TODO: implement initState
     super.initState();
 
-    AudioConstant.sleeperActiveTime=AuthBloc.getSleeperTime();
-    AudioConstant.isSleeperActive=AuthBloc.isSleeperActive();
+   // AudioConstant.sleeperActiveTime=AuthBloc.getSleeperTime();
+    //AudioConstant.isSleeperActive=AuthBloc.isSleeperActive();
 
     _homeBloc.showAlert.listen((show) {
       //when asked to show an alert
@@ -111,7 +111,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                     Center(
                       // padding: EdgeInsets.only(),
                         child: EmptyPlayingPage()
-                    )
+                     )
                         :Column(
                       children: [
                         Stack(
