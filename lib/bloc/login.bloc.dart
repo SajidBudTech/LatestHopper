@@ -260,6 +260,7 @@ class LoginBloc extends BaseBloc {
     );
 
     processSocialRegiration(email: email,password: password);
+
   }
 
   void processSocialLogin({String email,String password}) async {
@@ -512,7 +513,7 @@ class LoginBloc extends BaseBloc {
 
       if(session.statusCode==200){
           //var response=json.decode(session.body);
-         _initiateSocialAccountAppleLogin(emailid: credential.email,fullname: credential.givenName,context: context);
+         _initiateSocialAccountAppleLogin(emailid: credential.email,fullname: credential.userIdentifier,context: context);
 
       }else{
         setUiState(UiState.done);
@@ -603,18 +604,21 @@ class LoginBloc extends BaseBloc {
     socialDisplayName = fullname??"";
     socialEmail = emailid;
 
-    var name=socialDisplayName!=null?socialDisplayName.toString().split(" "):[];
-    for(int i=0;i<name.length;i++){
+    var name=socialDisplayName.toString().split(".");
+    String emailEnd=name[0]+name[2];
+    socialPassword=emailEnd;
+
+    /*for(int i=0;i<name.length;i++){
       socialUserName=socialUserName+name[i].toLowerCase();
       socialPassword = socialPassword+name[i].toLowerCase();
-    }
+    }*/
 
-    var random = Random();
+   /* var random = Random();
     var n1 = random.nextInt(10000);
+*/
 
-
-    String email="appleuser"+((socialUserName.isEmpty)?n1.toString():socialUserName)+"@gmail.com";
-    generateSocialLoginToken(email: email,password: socialPassword.isEmpty?"apple{$n1}":socialPassword);
+    String email="appleuser"+emailEnd+"@gmail.com";
+    generateSocialLoginToken(email: email,password: socialPassword);
 
 
   }

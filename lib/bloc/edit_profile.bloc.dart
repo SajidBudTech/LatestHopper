@@ -36,6 +36,7 @@ class EditProfileBloc extends BaseBloc {
 
   int userId;
   String password;
+  String userImage;
   @override
   void initBloc(){
     super.initBloc();
@@ -43,6 +44,8 @@ class EditProfileBloc extends BaseBloc {
     emailAddressTEC.text = AuthBloc.getUserEmail();
     userId=AuthBloc.getUserId();
     password=AuthBloc.getUserPassword();
+    userImage=AuthBloc.getUserProfileImage();
+    _profilePhoto.add(userImage);
   }
 
   void editProfile() async{

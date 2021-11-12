@@ -35,6 +35,7 @@ class ProfileBloc extends BaseBloc {
   RegisterToken registerToken;
   String userFullName="";
   String userEmail="";
+  String userImage="";
 
   @override
   void initBloc() async {
@@ -44,6 +45,7 @@ class ProfileBloc extends BaseBloc {
   void getUsetData() async{
     userFullName=AuthBloc.getUserFullName();
     userEmail=AuthBloc.getUserEmail();
+    userImage=AuthBloc.getUserProfileImage();
   }
 
   //as user enters name, we are doing name validation, error if its empty of less than 3 words

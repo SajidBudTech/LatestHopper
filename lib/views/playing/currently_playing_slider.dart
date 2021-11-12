@@ -27,21 +27,20 @@ class _CurrentlyPlayingSliderState extends State<CurrentlyPlayingSlider> {
         Expanded(
           flex: 15,
           child: StreamBuilder<Duration>(
-                    stream: widget.model.player.positionStream,
+                    stream: widget.model.audioHopperHandler.player.positionStream,
                     builder: (context, snapshot) {
                       if (snapshot.data != null) {
-                        widget.model.currentPostion = snapshot.data;
+                        widget.model.audioHopperHandler.currentPosition = snapshot.data;
                       }
                       return Padding(
                         padding: EdgeInsets.only(top:14),
-
                       child: ProgressBar(
-                progress: widget.model.currentPostion != null
-                    ? widget.model.currentPostion
+                      progress: widget.model.audioHopperHandler.currentPosition != null
+                    ? widget.model.audioHopperHandler.currentPosition
                     : Duration.zero,
                 //buffered: buffered,
-                total: widget.model.totalDuration != null
-                    ? widget.model.totalDuration
+                total: widget.model.audioHopperHandler.totalDuration != null
+                    ? widget.model.audioHopperHandler.totalDuration
                     : Duration.zero,
                 progressBarColor: AppColor.accentColor,
                 baseBarColor: Colors.grey[500],
@@ -59,8 +58,8 @@ class _CurrentlyPlayingSliderState extends State<CurrentlyPlayingSlider> {
                 ),
                 onSeek: (duration) {
                   setState(() {
-                    widget.model.currentPostion = duration;
-                    widget.model.player.seek(widget.model.currentPostion);
+                    widget.model.audioHopperHandler.currentPosition = duration;
+                    widget.model.audioHopperHandler.seek(widget.model.audioHopperHandler.currentPosition);
                   });
                 },
               ));

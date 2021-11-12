@@ -62,7 +62,7 @@ class SearchGroupedVendorsListView extends StatelessWidget {
                   onPressed: (){
                       Navigator.pop(context);
                       if(AudioConstant.audioIsPlaying){
-                        AudioConstant.audioViewModel.player.stop();
+                        AudioConstant.audioViewModel.audioHopperHandler.stop();
                       }
                       AudioConstant.FROM_BOTTOM=false;
                       HomeBloc.switchPageToPalying(searchPosts[index].id);

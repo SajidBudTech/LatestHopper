@@ -22,7 +22,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
   @override
   Widget build(BuildContext context) {
     return  StreamBuilder<PlayerState>(
-        stream: widget.model.player.playerStateStream,
+        stream: widget.model.audioHopperHandler.player.playerStateStream,
         builder: (context, snapshot) {
           if(snapshot.data!=null){
             final playerState = snapshot.data;
@@ -34,10 +34,10 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
               isPlaying = false;
               completed=true;
               widget.model.addToRecentlyViewed();
-              if(widget.model.player.hasNext){
-                widget.model.totalDuration=Duration.zero;
-                widget.model.currentPostion=Duration.zero;
-                widget.model.player.seekToNext();
+              if(widget.model.audioHopperHandler.player.hasNext){
+                widget.model.audioHopperHandler.totalDuration=Duration.zero;
+                widget.model.audioHopperHandler.currentPosition=Duration.zero;
+                widget.model.audioHopperHandler.skipToNext();
               }
             }
           }
@@ -58,10 +58,10 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                         //size: 48,
                       ),
                       onPressed: () {
-                        if(widget.model.player.hasPrevious){
+                        if(widget.model.audioHopperHandler.player.hasPrevious){
                           setState(() {
-                            widget.model.currentPostion=Duration.zero;
-                            widget.model.player.seekToPrevious();
+                            widget.model.audioHopperHandler.currentPosition=Duration.zero;
+                            widget.model.audioHopperHandler.skipToPrevious();
                           });
                         }
                       }
@@ -70,7 +70,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                 highlightColor: Colors.white,
                 splashColor: Colors.white,
                 onTap: (){
-                  widget.model.seekAudio(Duration(milliseconds: (widget.model.currentPostion.inMilliseconds-15000).isNegative?0:(widget.model.currentPostion.inMilliseconds-15000)));
+                  widget.model.audioHopperHandler.seek(Duration(milliseconds: (widget.model.audioHopperHandler.currentPosition.inMilliseconds-15000).isNegative?0:(widget.model.audioHopperHandler.currentPosition.inMilliseconds-15000)));
                 },
                 child: Image.asset("assets/images/back15.png",
                   width: 65,
@@ -82,11 +82,11 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                 splashColor: Colors.white,
                 onTap: (){
                   if(isPlaying){
-                    widget.model.player.pause();
+                    widget.model.audioHopperHandler.pause();
                   }else if(completed){
-                    widget.model.seekAudio(Duration.zero);
+                    widget.model.audioHopperHandler.seek(Duration.zero);
                   }else{
-                    widget.model.player.play();
+                    widget.model.audioHopperHandler.play();
                   }
                   setState(() {
                     isPlaying=!isPlaying;
@@ -106,7 +106,7 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                 highlightColor: Colors.white,
                 splashColor: Colors.white,
                 onTap: (){
-                  widget.model.seekAudio(Duration(milliseconds: (widget.model.currentPostion.inMilliseconds+15000)>widget.model.totalDuration.inMilliseconds?widget.model.totalDuration.inMilliseconds:widget.model.currentPostion.inMilliseconds+15000));
+                  widget.model.audioHopperHandler.seek(Duration(milliseconds: (widget.model.audioHopperHandler.currentPosition.inMilliseconds+15000)>widget.model.audioHopperHandler.totalDuration.inMilliseconds?widget.model.audioHopperHandler.totalDuration.inMilliseconds:widget.model.audioHopperHandler.currentPosition.inMilliseconds+15000));
                 },
                 child: Image.asset("assets/images/forward15.png",
                   width: 65,
@@ -126,10 +126,10 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        if(widget.model.player.hasNext){
+                        if(widget.model.audioHopperHandler.player.hasNext){
                           setState(() {
-                            widget.model.currentPostion=Duration.zero;
-                            widget.model.player.seekToNext();
+                            widget.model.audioHopperHandler.currentPosition=Duration.zero;
+                            widget.model.audioHopperHandler.skipToNext();
                           });
                         }
                       }

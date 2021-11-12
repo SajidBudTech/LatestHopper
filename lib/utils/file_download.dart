@@ -23,7 +23,7 @@ class FileDownload{
   Future<void> startDownload() async {
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    final android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final android = AndroidInitializationSettings('@drawable/ic_notification');
     final iOS = IOSInitializationSettings();
     final initSettings = InitializationSettings(android: android, iOS: iOS);
 

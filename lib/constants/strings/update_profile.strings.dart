@@ -5,6 +5,6 @@ class UpdateProfileStrings {
   static const String buttonTitle = "Submit";
 
   static const String processTitle = "Authenticating";
-  static const String processCompleteTitle = "Profile Update";
-  static const String processFailedTitle = "Profile Update Failed!";
+  static const String processCompleteTitle = "Profile Updated";
+  static const String processFailedTitle = "Profile Updated Failed!";
 }

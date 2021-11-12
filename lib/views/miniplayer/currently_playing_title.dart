@@ -29,7 +29,7 @@ class _CurrentlyPlayingTextState extends State<CurrentlyPlayingText> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-        stream: widget.model.player.currentIndexStream,
+        stream: widget.model.audioHopperHandler.player.currentIndexStream,
         builder: (context, snapshot){
         if (snapshot.data != null) {
          description=widget.model.myPlayList[snapshot.data].title.rendered??"";

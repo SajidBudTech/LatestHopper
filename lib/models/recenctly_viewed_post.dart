@@ -100,7 +100,7 @@ class PostCustom {
      //   json['pms-content-restrict-custom-non-member-redirect-url']
      //       .cast<String>();
  //   pmsContentRestrictMessageLoggedOut =
-        json['pms-content-restrict-message-logged_out'].cast<String>();
+       // json['pms-content-restrict-message-logged_out'].cast<String>();
    // pmsContentRestrictMessageNonMembers =
     //    json['pms-content-restrict-message-non_members'].cast<String>();
     subHeader = json['sub_header']!=null?json['sub_header'].cast<String>():null;
@@ -113,7 +113,7 @@ class PostCustom {
     //lPublication = json['_publication'].cast<String>();
     publicationDate = json['publication_date']!=null?json['publication_date'].cast<String>():null;
   //  lPublicationDate = json['_publication_date'].cast<String>();
-    url = json['url'].cast<String>();
+    url = json['url']!=null?json['url'].cast<String>():null;
    // lUrl = json['_url'].cast<String>();
     audioFile = json['audio_file']!=null?json['audio_file'].cast<String>():null;
    // lAudioFile = json['_audio_file'].cast<String>();

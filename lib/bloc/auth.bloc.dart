@@ -65,12 +65,22 @@ class AuthBloc extends BaseBloc {
   static void setUserFullName(String name){
     prefs.setString(PreferenceString.UserFullName,name??"");
   }
+
+  static void setUserProfileImage(String name){
+    prefs.setString(PreferenceString.UserProifleImage,name??"");
+  }
+  static String getUserProfileImage(){
+    return prefs.getString(PreferenceString.UserProifleImage)??"";
+  }
+
   static void setLoginDownloadUser(int userId){
     prefs.setInt(PreferenceString.DownloadLoginUser,userId);
   }
   static void getLoginDownloadUser(){
     prefs.getInt(PreferenceString.DownloadLoginUser)??0;
   }
+
+
 
 
   static void saveUserData(Map userDetails,String passwrod) {
@@ -109,6 +119,23 @@ class AuthBloc extends BaseBloc {
      String encodedMap = encode(downloadList);
      prefs.setString(PreferenceString.UserDownloadFilesMap,encodedMap);
   }
+
+  static void removeUserDownloadedFiles(int postId){
+    List<HomePost> myList= getUserDownloadedFiles();
+    List<HomePost> toRemove = [];
+    myList.forEach((element) {
+      if (element.id == postId) {
+        //myHopperList.remove(element);
+        //notifyListeners();
+        toRemove.add(element);
+      }
+    });
+
+    myList.removeWhere((e) => toRemove.contains(e));
+    saveUserDownloadedFiles(myList);
+  }
+
+
 
   static String encode(List<HomePost> posts) => json.encode(
     posts.map<Map<String, dynamic>>((post) => HomePost.toJson(post)).toList(),

@@ -4,6 +4,8 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:android_path_provider/android_path_provider.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -24,6 +26,7 @@ import 'package:flutter_hopper/utils/file_download.dart';
 import 'package:flutter_hopper/utils/flash_alert.dart';
 import 'package:flutter_hopper/utils/other_utils.dart';
 import 'package:flutter_hopper/viewmodels/base.viewmodel.dart';
+import 'package:flutter_hopper/views/playing/hopper_handler.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -44,7 +47,7 @@ class PlayingViewModel extends MyBaseViewModel {
   List<String> homeList=[];
   List<Hopper> myHopperList=[];
   HomePost playingData;
-
+  List<MediaItem> allMediaItems=[];
   bool _permissionReady=false;
   String _localPath;
   bool startDownLoad=false;
@@ -55,6 +58,15 @@ class PlayingViewModel extends MyBaseViewModel {
   bool offLine=false;
   FileDownload fileDownload;
   int userId;
+
+  AudioHopperHandler audioHopperHandler;
+  String playerSpeed="1x";
+  int currentPlayingIndex=0;
+  int previousPlayingIndex=0;
+  List<HomePost> myPlayList=[];
+  List<AudioSource> allPlayingArticleList=[];
+  ConcatenatingAudioSource concatenatingAudioSource;
+
 
   PlayingViewModel(BuildContext context) {
     this.viewContext = context;
@@ -87,30 +99,35 @@ class PlayingViewModel extends MyBaseViewModel {
        }else if(AudioConstant.sleeperActiveTime=="In an hour"){
          stopPlayerAfter(duration);
        }else if(AudioConstant.sleeperActiveTime=="When current article ends"){
-         if(totalDuration!=null) {
-           stopPlayerAfter(Duration(seconds:totalDuration.inSeconds - currentPostion.inSeconds));
+         if(audioHopperHandler.totalDuration!=null) {
+           stopPlayerAfter(Duration(seconds:audioHopperHandler.totalDuration.inSeconds - audioHopperHandler.currentPosition.inSeconds));
          }
        }
      }
   }
 
-  void getPlayingDetails() async{
+  void getPlayingDetails() async {
     //add null data so listener can show shimmer widget to indicate loading
-
-    playingLoadingState = LoadingState.Loading;
-    notifyListeners();
-    try {
-
-      if(HomeBloc.postID!=0){
-         playingData = await _homePageRepository.getPostDetails(HomeBloc.postID);
-         getMyHopperList();
-         //initAudio();
-      }
-      //playingLoadingState = LoadingState.Done;
-     // notifyListeners();
-    } catch (error) {
-      playingLoadingState = LoadingState.Failed;
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      playingLoadingState = LoadingState.Loading;
       notifyListeners();
+      try {
+        if (HomeBloc.postID != 0) {
+          playingData =
+          await _homePageRepository.getPostDetails(HomeBloc.postID);
+          getMyHopperList();
+          //initAudio();
+        }
+        //playingLoadingState = LoadingState.Done;
+        // notifyListeners();
+      } catch (error) {
+        playingLoadingState = LoadingState.Failed;
+        notifyListeners();
+      }
+    } else{
+       playingLoadingState = LoadingState.NoIntenet;
+       notifyListeners();
     }
   }
 
@@ -154,12 +171,30 @@ class PlayingViewModel extends MyBaseViewModel {
 
      if(AudioConstant.OFFLINECHANGE) {
 
-        player = AudioPlayer();
+       if(AudioConstant.audioViewModel!=null){
+         audioHopperHandler=AudioConstant.audioViewModel.audioHopperHandler;
+         for(int i=0;i<AudioConstant.audioViewModel.allMediaItems.length;i++){
+           await AudioConstant.audioViewModel.audioHopperHandler.removeQueueItem(AudioConstant.audioViewModel.allMediaItems[i]);
+           AudioConstant.audioViewModel.audioHopperHandler.removePlaylist(0);
+         }
+       }else{
+         audioHopperHandler= await AudioService.init(
+           builder: () => AudioHopperHandler(),
+           config: AudioServiceConfig(
+               androidNotificationChannelId: 'com.application.audiohopper',
+               androidNotificationChannelName: 'Audio Hopper Service',
+               androidNotificationOngoing: true,
+               androidStopForegroundOnPause: true,
+               androidNotificationIcon: "@drawable/ic_notification",
+               notificationColor:Color(0xFF008080)
+           ),
+         );
+       }
 
-        player.playbackEventStream.listen((event) {
-         currentPostion = event.updatePosition;
-         bufferedDuration = event.bufferedPosition;
-         totalDuration = event.duration;
+        audioHopperHandler.player.playbackEventStream.listen((event) {
+         audioHopperHandler.currentPosition = event.updatePosition;
+         //bufferedDuration = event.bufferedPosition;
+         audioHopperHandler.totalDuration = event.duration;
          },
            onError: (Object e, StackTrace stackTrace) {
              print('A stream error occurred: $e');
@@ -169,11 +204,14 @@ class PlayingViewModel extends MyBaseViewModel {
 
          allPlayingArticleList.clear();
          myPlayList.clear();
-
+         allMediaItems.clear();
          allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile ?? "")));
          myPlayList.add(playingData);
+         MediaItem mediaItem=MediaItem(id:playingData.localFilePath,album: playingData.publication,title: playingData.publication??"",artist: playingData.title.rendered??""/*,duration: Duration(milliseconds: element.dURATION)*/,artUri: Uri.parse(playingData.coverImageUrl??""),extras: {'local': true});
+         allMediaItems.add(mediaItem);
+         await audioHopperHandler.addQueueItems(allMediaItems);
+         //await audioHopperHandler.player.setFilePath(playingData.localFilePath);
 
-         await player.setFilePath(playingData.localFilePath);
        } catch (e) {
          print("Error loading audio source: $e");
        }
@@ -181,26 +219,22 @@ class PlayingViewModel extends MyBaseViewModel {
        playingLoadingState = LoadingState.Done;
        notifyListeners();
 
-       player.positionStream.listen((position) {
-         currentPostion = position;
+       audioHopperHandler.player.positionStream.listen((position) {
+         audioHopperHandler.currentPosition = position;
          //notifyListeners();
        });
 
-       player.bufferedPositionStream.listen((buffered) {
-         bufferedDuration = buffered;
-       });
-
-        if(!player.playing){
-          player.play();
+        if(!audioHopperHandler.player.playing){
+          audioHopperHandler.play();
         }
 
      }else{
 
-       player=AudioConstant.audioViewModel.player;
+       audioHopperHandler=AudioConstant.audioViewModel.audioHopperHandler;
 
-       currentPostion=AudioConstant.audioViewModel.currentPostion;
-       totalDuration=AudioConstant.audioViewModel.totalDuration;
-       bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
+       audioHopperHandler.currentPosition=AudioConstant.audioViewModel.audioHopperHandler.currentPosition;
+       audioHopperHandler.totalDuration=AudioConstant.audioViewModel.audioHopperHandler.totalDuration;
+       //bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
        playerSpeed=AudioConstant.audioViewModel.playerSpeed;
        _localPath=AudioConstant.audioViewModel._localPath;
        userId=AudioConstant.audioViewModel.userId;
@@ -210,17 +244,17 @@ class PlayingViewModel extends MyBaseViewModel {
 
 
 
-       player.positionStream.listen((position) {
-         currentPostion = position;
+       audioHopperHandler.player.positionStream.listen((position) {
+         audioHopperHandler.currentPosition = position;
          //notifyListeners();
        });
 
-       player.bufferedPositionStream.listen((buffered) {
+       /*player.bufferedPositionStream.listen((buffered) {
          bufferedDuration = buffered;
-       });
+       });*/
 
-       if(!player.playing){
-         player.play();
+       if(!audioHopperHandler.player.playing){
+         audioHopperHandler.play();
        }
 
        playingLoadingState = LoadingState.Done;
@@ -228,10 +262,6 @@ class PlayingViewModel extends MyBaseViewModel {
 
      }
 
-    // AudioConstant.audioViewModel=this;
-    /* Future.delayed(Duration(seconds: 2), (){
-       _checkTimer();
-     });*/
      _checkTimer();
      AudioConstant.audioIsPlaying=true;
      AudioConstant.audioViewModel=this;
@@ -241,79 +271,90 @@ class PlayingViewModel extends MyBaseViewModel {
 
   // Playing part............
 
-  AudioPlayer player;
+  /*AudioPlayer player;
   Duration currentPostion;
   Duration totalDuration;
-  Duration bufferedDuration;
-  String playerSpeed="1x";
-  int currentPlayingIndex=0;
-  int previousPlayingIndex=0;
-  List<HomePost> myPlayList=[];
-  List<AudioSource> allPlayingArticleList=[];
-  ConcatenatingAudioSource concatenatingAudioSource;
+  Duration bufferedDuration;*/
 
 
-   initAudio()async{
 
-     if(!AudioConstant.FROM_BOTTOM){
-
-        player=AudioPlayer();
-       _init();
-
-     }else{
-
-
-       allPlayingArticleList.clear();
-       myPlayList.clear();
-
-       allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile??"")));
-       myPlayList.add(playingData);
-
-       myHopperList.forEach((element) {
-         allPlayingArticleList.add(AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??"")));
-
-          HomePost _homePost=HomePost();
-         _homePost.id=element.post.iD;
-         _homePost.coverImageUrl=element.postCustom.coverImageUrl[0]??"";
-         _homePost.author=element.postCustom.author[0]??"";
-         _homePost.isAdded=true;
-         _homePost.publication=element.postCustom.publication[0]??"";
-         _homePost.publicationDate=element.postCustom.publicationDate[0]??"";
-         _homePost.narrator=element.postCustom.narrator[0]??"";
-         _homePost.audioFile=element.postCustom.audioFile[0]??"";
-         _homePost.audioFileDuration=element.postCustom.audioFileDuration[0]??"";
-         _homePost.title=Guid();
-         _homePost.title.rendered=element.post.postTitle??"";
-         _homePost.subHeader=element.postCustom.subHeader[0]??"";
-         _homePost.postDescription=element.postCustom.postDescription[0]??"";
-         _homePost.url=element.postCustom.url[0]??"";
-          myPlayList.add(_homePost);
-
-       });
-
-
-       for(int i=1;i<AudioConstant.audioViewModel.allPlayingArticleList.length;i++){
-         if(AudioConstant.audioViewModel.concatenatingAudioSource!=null) {
-           AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(i);
-         }
+   initAudio()async {
+     if (!AudioConstant.FROM_BOTTOM) {
+       //player=AudioPlayer();
+       if(AudioConstant.audioViewModel==null) {
+         _init();
+       }else{
+         AudioConstant.audioViewModel.audioHopperHandler.currentPosition=Duration.zero;
+         AudioConstant.audioViewModel.audioHopperHandler.totalDuration=Duration.zero;
+         _secondTimeCall();
        }
+     } else {
+       _secondTimeCall();
+     }
+   }
 
-       for(int i=1;i<allPlayingArticleList.length;i++){
+   void  _secondTimeCall() async{
+
+     allPlayingArticleList.clear();
+     myPlayList.clear();
+     allMediaItems.clear();
+
+     allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile??"")));
+     myPlayList.add(playingData);
+     MediaItem mediaItem=MediaItem(id: playingData.audioFile??"",album: playingData.publication,title: playingData.publication??"",artist: playingData.title.rendered??""/*,duration: Duration(milliseconds: element.dURATION)*/,artUri: Uri.parse(playingData.coverImageUrl??""));
+     allMediaItems.add(mediaItem);
+
+     myHopperList.forEach((element) {
+
+       MediaItem mediaItem=MediaItem(id: element.postCustom.audioFile[0]??"",album: element.postCustom.publication[0],title: element.postCustom.publication[0]??"",artist: element.post.postTitle??""/*,duration: Duration(milliseconds: element.dURATION)*/,artUri: Uri.parse(element.postCustom.coverImageUrl[0]??""));
+       allMediaItems.add(mediaItem);
+
+       allPlayingArticleList.add(AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??"")));
+
+       HomePost _homePost=HomePost();
+       _homePost.id=element.post.iD;
+       _homePost.coverImageUrl=element.postCustom.coverImageUrl[0]??"";
+       _homePost.author=element.postCustom.author[0]??"";
+       _homePost.isAdded=true;
+       _homePost.publication=element.postCustom.publication[0]??"";
+       _homePost.publicationDate=element.postCustom.publicationDate[0]??"";
+       _homePost.narrator=element.postCustom.narrator[0]??"";
+       _homePost.audioFile=element.postCustom.audioFile[0]??"";
+       _homePost.audioFileDuration=element.postCustom.audioFileDuration[0]??"";
+       _homePost.title=Guid();
+       _homePost.title.rendered=element.post.postTitle??"";
+       _homePost.subHeader=element.postCustom.subHeader[0]??"";
+       _homePost.postDescription=element.postCustom.postDescription[0]??"";
+       _homePost.url=element.postCustom.url[0]??"";
+       myPlayList.add(_homePost);
+
+     });
+
+
+     for(int i=0;i<AudioConstant.audioViewModel.allMediaItems.length;i++){
+       /*if(AudioConstant.audioViewModel.concatenatingAudioSource!=null) {
+           AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(i);
+         }*/
+       await AudioConstant.audioViewModel.audioHopperHandler.removeQueueItem(AudioConstant.audioViewModel.allMediaItems[i]);
+       AudioConstant.audioViewModel.audioHopperHandler.removePlaylist(0);
+
+     }
+
+     /*for(int i=1;i<allPlayingArticleList.length;i++){
          if(AudioConstant.audioViewModel.concatenatingAudioSource!=null) {
            AudioConstant.audioViewModel.concatenatingAudioSource.insert(i, allPlayingArticleList[i]);
          }
-       }
+       }*/
 
-       currentPostion=AudioConstant.audioViewModel.currentPostion;
-       totalDuration=AudioConstant.audioViewModel.totalDuration;
+     audioHopperHandler=AudioConstant.audioViewModel.audioHopperHandler;
+     audioHopperHandler.currentPosition=AudioConstant.audioViewModel.audioHopperHandler.currentPosition;
+     audioHopperHandler.totalDuration=AudioConstant.audioViewModel.audioHopperHandler.totalDuration;
+     currentPlayingIndex=0;
+     previousPlayingIndex=0;
 
-
-       currentPlayingIndex=0;
-       previousPlayingIndex=0;
-
-       player=AudioConstant.audioViewModel.player;
-
-       concatenatingAudioSource= await ConcatenatingAudioSource(
+     //audioHopperHandler.player=AudioConstant.audioViewModel.audioHopperHandler.player;
+     await audioHopperHandler.addQueueItems(allMediaItems);
+     /*concatenatingAudioSource= await ConcatenatingAudioSource(
          // Start loading next item just before reaching it.
          useLazyPreparation: true, // default
          // Customise the shuffle algorithm.
@@ -328,113 +369,117 @@ class PlayingViewModel extends MyBaseViewModel {
          initialIndex: currentPlayingIndex, // default
          // Playback will be prepared to start from position zero.
          initialPosition: Duration.zero, // default
-       );
+       );*/
 
-       player.seek(currentPostion,index: currentPlayingIndex);
-
-
-
-       bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
-       playerSpeed=AudioConstant.audioViewModel.playerSpeed;
-       _localPath=AudioConstant.audioViewModel._localPath;
-       startDownLoad=AudioConstant.audioViewModel.startDownLoad;
-       totalDownLoad=AudioConstant.audioViewModel.totalDownLoad;
-       progressDownload=AudioConstant.audioViewModel.progressDownload;
-       dio=AudioConstant.audioViewModel.dio;
-       fileDownload=AudioConstant.audioViewModel.fileDownload;
-       offLine=AudioConstant.audioViewModel.offLine;
+     await audioHopperHandler.player.seek(audioHopperHandler.currentPosition,index: currentPlayingIndex);
 
 
-       player.playbackEventStream.listen((event) {
-         currentPostion=event.updatePosition;
-         bufferedDuration=event.bufferedPosition;
-         totalDuration=event.duration;
+
+     // bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
+     playerSpeed=AudioConstant.audioViewModel.playerSpeed;
+     _localPath=AudioConstant.audioViewModel._localPath;
+     startDownLoad=AudioConstant.audioViewModel.startDownLoad;
+     totalDownLoad=AudioConstant.audioViewModel.totalDownLoad;
+     progressDownload=AudioConstant.audioViewModel.progressDownload;
+     dio=AudioConstant.audioViewModel.dio;
+     fileDownload=AudioConstant.audioViewModel.fileDownload;
+     offLine=AudioConstant.audioViewModel.offLine;
+
+
+     /* audioHopperHandler.player.playbackEventStream.listen((event) {
+             audioHopperHandler.currentPosition=event.updatePosition;
+             audioHopperHandler.totalDuration=event.duration;
            },
            onError: (Object e, StackTrace stackTrace) {
              print('A stream error occurred: $e');
-           });
+           });*/
 
-       player.positionStream.listen((position) {
+     /* player.positionStream.listen((position) {
          currentPostion=position;
        });
 
        player.bufferedPositionStream.listen((buffered) {
          bufferedDuration=buffered;
-       });
+       });*/
 
-       player.currentIndexStream.listen((currentIndex) {
-         if(currentIndex < myPlayList.length) {
-           previousPlayingIndex = currentPlayingIndex;
-           currentPlayingIndex = currentIndex;
-           HomeBloc.postID = myPlayList[currentPlayingIndex].id;
-           notifyListeners();
-           addToRecentlyViewed();
-         }
-       });
-
-       if(!player.playing){
-         player.play();
+     audioHopperHandler.player.currentIndexStream.listen((currentIndex) {
+       if(currentIndex < myPlayList.length) {
+         previousPlayingIndex = currentPlayingIndex;
+         currentPlayingIndex = currentIndex;
+         HomeBloc.postID = myPlayList[currentPlayingIndex].id;
+         notifyListeners();
+         addToRecentlyViewed();
        }
-
-       AudioConstant.audioIsPlaying=true;
-
-       playingLoadingState = LoadingState.Done;
-       notifyListeners();
+     });
 
 
-       if(fileDownload!=null) {
-         try {
-           fileDownload.onReceiveProgress = DownloadRecevier;
-         } catch (e) {
-           ShowFlash(viewContext,
-               title: "Error in file downloading...",
-               message: "please try again",
-               flashType: FlashType.failed)
-               .show();
-           startDownLoad = false;
-           notifyListeners();
-         }
-       }
-
-
-
+     if(!audioHopperHandler.player.playing){
+       audioHopperHandler.play();
      }
+
+     // AudioConstant.audioIsPlaying=true;
+
+     playingLoadingState = LoadingState.Done;
+     notifyListeners();
+
+
+     if(fileDownload!=null) {
+       try {
+         fileDownload.onReceiveProgress = DownloadRecevier;
+       } catch (e) {
+         ShowFlash(viewContext,
+             title: "Error in file downloading...",
+             message: "please try again",
+             flashType: FlashType.failed)
+             .show();
+         startDownLoad = false;
+         notifyListeners();
+       }
+     }
+
 
      _checkTimer();
      AudioConstant.audioViewModel=this;
      print("TOTAL Lenght........."+myPlayList.length.toString());
-
    }
+
 
   Future<void> _init() async {
 
-     player.playbackEventStream.listen((event) {
-           currentPostion=event.updatePosition;
-           bufferedDuration=event.bufferedPosition;
-           totalDuration=event.duration;
-        },
-        onError: (Object e, StackTrace stackTrace) {
-          print('A stream error occurred: $e');
-        });
     // Try to load audio from a source and catch any errors.
     try {
 
+        audioHopperHandler= await AudioService.init(
+        builder: () => AudioHopperHandler(),
+        config: AudioServiceConfig(
+            androidNotificationChannelId: 'com.application.audiohopper',
+            androidNotificationChannelName: 'Audio Hopper Service',
+            androidNotificationOngoing: true,
+            androidStopForegroundOnPause: true,
+            androidNotificationIcon: "drawable/ic_notification",
+            notificationColor:Color(0xFF008080)
+        ),
+       );
+
          allPlayingArticleList.clear();
          myPlayList.clear();
-
+         allMediaItems.clear();
          allPlayingArticleList.add(AudioSource.uri(Uri.parse(playingData.audioFile??"")));
-
-
          myPlayList.add(playingData);
+         MediaItem mediaItem=MediaItem(id: playingData.audioFile??"",album: playingData.publication,title: playingData.publication??"",artist: playingData.title.rendered??""/*,duration: Duration(milliseconds: element.dURATION)*/,artUri: Uri.parse(playingData.coverImageUrl??""));
+         allMediaItems.add(mediaItem);
 
 
-          myHopperList.forEach((element) {
+        myHopperList.forEach((element) {
           /*AudioItem audioItem=AudioItem();
           audioItem.trackId=element.post.iD;
           audioItem.audioSource=AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??""));
           audioItem.trackDescription=element.post.postTitle??"";
           audioItem.trackImage=element.postCustom.coverImageUrl[0]??"";
           myPlayList.add(audioItem);*/
+          MediaItem mediaItem=MediaItem(id: element.postCustom.audioFile[0]??"",album: element.postCustom.publication[0],title: element.postCustom.publication[0]??"",artist: element.post.postTitle??""/*,duration: Duration(milliseconds: element.dURATION)*/,artUri: Uri.parse(element.postCustom.coverImageUrl[0]??""));
+          allMediaItems.add(mediaItem);
+
           allPlayingArticleList.add(AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??"")));
 
            HomePost _homePost=HomePost();
@@ -456,7 +501,9 @@ class PlayingViewModel extends MyBaseViewModel {
 
          });
 
-         concatenatingAudioSource= await ConcatenatingAudioSource(
+        await audioHopperHandler.addQueueItems(allMediaItems);
+
+         /*concatenatingAudioSource= await ConcatenatingAudioSource(
            // Start loading next item just before reaching it.
            useLazyPreparation: true, // default
            // Customise the shuffle algorithm.
@@ -471,49 +518,69 @@ class PlayingViewModel extends MyBaseViewModel {
           initialIndex: currentPlayingIndex, // default
           // Playback will be prepared to start from position zero.
           initialPosition: Duration.zero, // default
-        );
-
-         playingLoadingState = LoadingState.Done;
-         notifyListeners();
+        );*/
 
     } catch (e) {
       print("Error loading audio source: $e");
     }
 
-    player.positionStream.listen((position) {
+    playingLoadingState = LoadingState.Done;
+    notifyListeners();
+
+
+   /* player.positionStream.listen((position) {
       currentPostion=position;
       //notifyListeners();
     });
 
      player.bufferedPositionStream.listen((buffered) {
       bufferedDuration=buffered;
+    });*/
+
+    /*audioHopperHandler.player.playbackEventStream.listen((event) {
+      audioHopperHandler.currentPosition=event.updatePosition;
+           //bufferedDuration=event.bufferedPosition;
+      audioHopperHandler.totalDuration=event.duration;
+        },
+        onError: (Object e, StackTrace stackTrace) {
+          print('A stream error occurred: $e');
+        });*/
+
+    audioHopperHandler.player.playbackEventStream.listen((event) {
+         audioHopperHandler.currentPosition=event.updatePosition;
+         audioHopperHandler.totalDuration=event.duration;
+        },
+        onError: (Object e, StackTrace stackTrace) {
+          print('A stream error occurred: $e');
+        });
+
+    audioHopperHandler.player.currentIndexStream.listen((currentIndex) {
+         if(currentIndex!=null) {
+           if (currentIndex < myPlayList.length) {
+             previousPlayingIndex = currentPlayingIndex;
+             currentPlayingIndex = currentIndex;
+             HomeBloc.postID = myPlayList[currentPlayingIndex].id;
+             notifyListeners();
+             addToRecentlyViewed();
+           }
+         }
     });
 
-    player.currentIndexStream.listen((currentIndex) {
-      if(currentIndex < myPlayList.length) {
-        previousPlayingIndex = currentPlayingIndex;
-        currentPlayingIndex = currentIndex;
-        HomeBloc.postID = myPlayList[currentPlayingIndex].id;
-        notifyListeners();
-        addToRecentlyViewed();
-      }
-    });
-
-     if(!player.playing){
-       player.play();
+     if(!audioHopperHandler.player.playing){
+       audioHopperHandler.play();
      }
 
-     AudioConstant.audioIsPlaying=true;
-
+    AudioConstant.audioViewModel=this;
+     //AudioConstant.audioIsPlaying=true;
     /* Future.delayed(Duration(seconds: 2), (){
        _checkTimer();
      });*/
   }
 
 
-  seekAudio(Duration duration){
+  /*seekAudio(Duration duration){
     player.seek(duration);
-  }
+  }*/
 
 
   stopPlayerAfter(Duration duration){
@@ -521,7 +588,7 @@ class PlayingViewModel extends MyBaseViewModel {
    if(duration!=Duration.zero) {
      Future.delayed(duration, () {
        if (AudioConstant.isSleeperActive) {
-         player.stop();
+         audioHopperHandler.player.stop();
          AudioConstant.isSleeperActive = false;
          AudioConstant.sleeperActiveTime = "";
          AudioConstant.sleeperCloseTime = null;
@@ -543,7 +610,7 @@ class PlayingViewModel extends MyBaseViewModel {
        playerSpeed="1.5x";
      }
      notifyListeners();
-     player.setSpeed(speed);
+     audioHopperHandler.player.setSpeed(speed);
   }
 
   void addToDownload({int postId}) async {
@@ -707,6 +774,7 @@ class PlayingViewModel extends MyBaseViewModel {
 
       final storageStatus = await Permission.storage.status;
 
+
       final accessStatus = androidInfo.version.sdkInt >= 30?await Permission.accessMediaLocation.status:true;
       final manageStatus = androidInfo.version.sdkInt >= 30?await Permission.manageExternalStorage.status:true;
 
@@ -724,7 +792,7 @@ class PlayingViewModel extends MyBaseViewModel {
         return true;
       }
     } else if(Platform.isIOS){
-      final status = await Permission.photos.status;
+      /*final status = await Permission.photos.status;
       if (status != PermissionStatus.granted) {
         final result = await Permission.photos.request();
         if (result == PermissionStatus.granted) {
@@ -732,7 +800,8 @@ class PlayingViewModel extends MyBaseViewModel {
         }
       } else {
         return true;
-      }
+      }*/
+      return true;
     }
     return false;
   }
@@ -768,6 +837,7 @@ class PlayingViewModel extends MyBaseViewModel {
           break;
         }
       }
+
       newPath=newPath+"/AudioHopperApp";
       directory=Directory(newPath);
 
@@ -780,6 +850,7 @@ class PlayingViewModel extends MyBaseViewModel {
 
     externalStorageDirPath=directory.path;
     return externalStorageDirPath;
+
   }
 
 

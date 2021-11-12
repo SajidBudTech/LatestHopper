@@ -79,6 +79,10 @@ class _SearchHopperPageState extends State<SearchHopperPage> {
                         return EmptyHopper(
                           title: "No Search Found, Please try again with another filter or keyword",
                         );
+                      }else if(snapshot.data==null || snapshot.data.length==0){
+                        return EmptyHopper(
+                          title: "No Search Found, Please try again with another filter or keyword",
+                        );
                       }
                       return SearchGroupedVendorsListView(
                         title: "Search Results",

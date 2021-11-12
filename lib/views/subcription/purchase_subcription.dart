@@ -15,6 +15,7 @@ import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/constants/strings/login.strings.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
+import 'package:flutter_hopper/viewmodels/payment.viewmodel.dart';
 import 'package:flutter_hopper/widgets/appbar/auth_appbar.dart';
 import 'package:flutter_hopper/widgets/appbar/subcription_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
@@ -22,6 +23,8 @@ import 'package:flutter_hopper/widgets/cool_radio_group/custom_radio_button_grou
 import 'package:flutter_hopper/widgets/inputs/custom_text_form_field.dart';
 import 'package:flutter_hopper/widgets/platform/platform_circular_progress_indicator.dart';
 import 'package:flutter_hopper/constants/app_sizes.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:stacked/stacked.dart';
 
 class SubcriptionPurchasePage extends StatefulWidget {
   SubcriptionPurchasePage({Key key}) : super(key: key);
@@ -34,11 +37,6 @@ class SubcriptionPurchasePage extends StatefulWidget {
 class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
   //login bloc
   LoginBloc _loginBloc = LoginBloc();
-  //email focus node
-  final emailFocusNode = new FocusNode();
-  //password focus node
-  final passwordFocusNode = new FocusNode();
-
   @override
   void initState() {
     super.initState();
@@ -85,8 +83,10 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<
-        SystemUiOverlayStyle>(
+    return ViewModelBuilder<PaymentViewModel>.reactive(
+    viewModelBuilder: () => PaymentViewModel(context),
+    onModelReady: (model) => model.initPayment(),
+    builder: (context, model, child) =>AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: AppColor.accentColor,
       ),
@@ -112,19 +112,6 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
                         backgroundColor: AppColor.accentColor,
                       ),
                     )
-                    /*Positioned(
-                        top: 100,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          //margin: EdgeInsets.only(top: 10),
-                            child:Image.asset("assets/images/subcrip_img.png",
-                              width: double.infinity,
-                              height: AppSizes.getScreenheight(context)*0.40,
-                              fit: BoxFit.cover,)
-                        )
-                    )*/
                   ],
                 ),
 
@@ -181,7 +168,11 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
                                 color: AppColor.accentColor,
                                 onPressed: uiState != UiState.loading
                                     ? (){
-                                       Navigator.pushNamed(context, AppRoutes.homeRoute);
+
+                                        //Navigator.pushNamed(context, AppRoutes.homeRoute);
+                                        ProductDetails productDetails = ProductDetails(title: "7 Day Free Trial",currencyCode: "USD",description: "Get Free 7 Days Trial",currencySymbol: "\$",price: "59.59",id: "7-day-free",rawPrice: 59.59);
+                                        model.purchaseSubcription(productDetails);
+
                                      }
                                     : null,
                                 child: uiState != UiState.loading
@@ -225,7 +216,7 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
             )
         ),
       ),
-    );
+    ));
 
   }
 }

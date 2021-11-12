@@ -90,12 +90,47 @@ class _HopperPageState extends State<HopperPage>
                               primary: false,
                               onReorder: (oldIndex,newIndex){
                                 setState(() {
-                                  final hopper=model.myHopperList.removeAt(oldIndex);
-                                  model.myHopperList.insert(newIndex, hopper);
-                                  if(AudioConstant.audioIsPlaying){
-                                    AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(oldIndex+1);
-                                    AudioConstant.audioViewModel.concatenatingAudioSource.insert(newIndex+1,AudioSource.uri(Uri.parse(model.myHopperList[newIndex].postCustom.audioFile[0]??"")));
+
+                                    /*final hopper = model.myHopperList.removeAt(oldIndex);
+                                    model.myHopperList.insert(newIndex, hopper);
+
+                                    if (AudioConstant.audioIsPlaying) {
+                                      AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(oldIndex + 1);
+                                      AudioConstant.audioViewModel.concatenatingAudioSource.insert(newIndex+1, AudioSource.uri(Uri.parse(model.myHopperList[newIndex].postCustom.audioFile[0] ?? "")));
+                                    }*/
+
+                                  if (oldIndex < newIndex) {
+                                    int end = newIndex - 1;
+                                    final startItem = model.myHopperList[oldIndex];
+                                    int i = 0;
+                                    int local = oldIndex;
+                                    do {
+                                      model.myHopperList[local] = model.myHopperList[++local];
+                                      i++;
+                                    } while (i < end - oldIndex);
+                                    model.myHopperList[end] = startItem;
+                                    if(AudioConstant.audioIsPlaying){
+                                        AudioConstant.audioViewModel.audioHopperHandler.removeQueueItem(AudioConstant.audioViewModel.allMediaItems[end]);
+                                        AudioConstant.audioViewModel.audioHopperHandler.insertQueueItem(end, AudioConstant.audioViewModel.allMediaItems[end]);
+                                        //AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(oldIndex);
+                                        //AudioConstant.audioViewModel.concatenatingAudioSource.insert(newIndex,AudioSource.uri(Uri.parse(model.myHopperList[newIndex].postCustom.audioFile[0]??"")));
+                                    }
                                   }
+                                  // dragging from bottom to top
+                                  else if (oldIndex > newIndex) {
+                                    final startItem = model.myHopperList[oldIndex];
+                                    for (int i = oldIndex; i > newIndex; i--) {
+                                      model.myHopperList[i] = model.myHopperList[i - 1];
+                                    }
+                                    model.myHopperList[newIndex] = startItem;
+                                    if(AudioConstant.audioIsPlaying){
+                                      AudioConstant.audioViewModel.audioHopperHandler.removeQueueItem(AudioConstant.audioViewModel.allMediaItems[newIndex]);
+                                      AudioConstant.audioViewModel.audioHopperHandler.insertQueueItem(newIndex, AudioConstant.audioViewModel.allMediaItems[newIndex]);
+                                      //AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(oldIndex);
+                                      //AudioConstant.audioViewModel.concatenatingAudioSource.insert(newIndex,AudioSource.uri(Uri.parse(model.myHopperList[newIndex].postCustom.audioFile[0]??"")));
+                                    }
+                                  }
+
                                 });
                               },
                               padding: AppPaddings.defaultPadding(),
@@ -108,18 +143,22 @@ class _HopperPageState extends State<HopperPage>
                                   model: model,
                                   onPressed: (){
                                       if(AudioConstant.audioIsPlaying){
-                                        AudioConstant.audioViewModel.player.stop();
+                                        AudioConstant.audioViewModel.audioHopperHandler.stop();
                                       }
                                       if(HomeBloc.postID==model.myHopperList[index].post.iD){
                                         AudioConstant.FROM_BOTTOM=true;
                                       }else{
                                         AudioConstant.FROM_BOTTOM=false;
+                                        if(AudioConstant.audioViewModel!=null) {
+                                          AudioConstant.audioViewModel.audioHopperHandler.currentPosition = Duration.zero;
+                                          AudioConstant.audioViewModel.audioHopperHandler.totalDuration = Duration.zero;
+                                        }
                                       }
                                       AudioConstant.OFFLINE=false;
                                       HomeBloc.switchPageToPalying(model.myHopperList[index].post.iD);
                                    },
                                   onThreeDotPressed: (){
-                                    showSortBottomSheetDialog(model.myHopperList[index],true,model);
+                                    showSortBottomSheetDialog(model.myHopperList[index],true,false,model);
                                   },
                                   /*onDownloadPressed: (){
                                     model.addToDownload(postId:model.myHopperList[index].post.iD,hopper: model.myHopperList[index],);
@@ -163,12 +202,16 @@ class _HopperPageState extends State<HopperPage>
                                   model: model,
                                   onPressed: (){
                                     if(AudioConstant.audioIsPlaying){
-                                       AudioConstant.audioViewModel.player.stop();
+                                       AudioConstant.audioViewModel.audioHopperHandler.stop();
                                     }
                                     if(HomeBloc.postID==model.recentlyViewedList[index].post.iD){
                                       AudioConstant.FROM_BOTTOM=true;
                                     }else{
                                       AudioConstant.FROM_BOTTOM=false;
+                                      if(AudioConstant.audioViewModel!=null) {
+                                        AudioConstant.audioViewModel.audioHopperHandler.currentPosition = Duration.zero;
+                                        AudioConstant.audioViewModel.audioHopperHandler.totalDuration = Duration.zero;
+                                      }
                                     }
 
                                     AudioConstant.OFFLINE=false;
@@ -176,7 +219,7 @@ class _HopperPageState extends State<HopperPage>
 
                                   },
                                   onThreeDotPressed: (){
-                                    showSortBottomSheetDialog(model.recentlyViewedList[index],false,model);
+                                    showSortBottomSheetDialog(model.recentlyViewedList[index],false,false,model);
                                   },
                                   /*onDownloadPressed: (){
                                     model.addToDownload(postId:model.recentlyViewedList[index].post.iD,hopper: model.recentlyViewedList[index]);
@@ -224,9 +267,13 @@ class _HopperPageState extends State<HopperPage>
                                   onPressed: (){
 
                                     if(AudioConstant.audioIsPlaying){
-                                      AudioConstant.audioViewModel.player.stop();
+                                      AudioConstant.audioViewModel.audioHopperHandler.stop();
                                     }
 
+                                    if(AudioConstant.audioViewModel!=null) {
+                                      AudioConstant.audioViewModel.audioHopperHandler.currentPosition = Duration.zero;
+                                      AudioConstant.audioViewModel.audioHopperHandler.totalDuration = Duration.zero;
+                                    }
                                     AudioConstant.FROM_BOTTOM=false;
                                     AudioConstant.OFFLINE=true;
                                     AudioConstant.OFFLINECHANGE=true;
@@ -235,7 +282,7 @@ class _HopperPageState extends State<HopperPage>
 
                                   },
                                   onThreeDotPressed: (){
-                                    showSortBottomSheetDialog(model.downloadedList[index],false,model);
+                                    showSortBottomSheetDialog(model.downloadedList[index],false,true,model);
                                   },
                                  /* onDownloadPressed: (){
 
@@ -263,13 +310,14 @@ class _HopperPageState extends State<HopperPage>
     ]))));
   }
 
-  void showSortBottomSheetDialog(Hopper hopper,bool fromMyhopper, HopperViewModel model) {
+  void showSortBottomSheetDialog(Hopper hopper,bool fromMyhopper,bool fromDownload, HopperViewModel model) {
     CustomDialog.showCustomBottomSheet(
         context,
         backgroundColor: Colors.white,
         content:HopperBottomSheetPage(
           hopper: hopper,
           fromMyHopper: fromMyhopper,
+          fromDownload: fromDownload,
           model: model,
           fromSeeAll: false,
         )

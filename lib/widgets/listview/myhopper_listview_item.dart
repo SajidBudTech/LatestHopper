@@ -53,14 +53,14 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-        onTap: widget.onPressed,
-        child: Container(
+    return  Container(
             margin: EdgeInsets.only(bottom: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+              InkWell(
+              onTap: widget.onPressed,
+              child:Row(
                   children: [
                     Expanded(
                         flex: 3,
@@ -138,7 +138,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                           ],
                         ))
                   ],
-                ),
+                )),
                 UiSpacer.verticalSpace(space: 10),
                 Row(
                   children: [
@@ -163,21 +163,21 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                         Visibility(
                             visible: (widget.showDownload && !widget.showAddTOPlayer),
                             child:Container(
-                            margin:EdgeInsets.only(right: 16),
+                            margin:EdgeInsets.only(right: 24),
                             child:InkWell(
                                 onTap: widget.onThreeDotPressed,
                                 child: Icon(
                                   FlutterIcons.three_bars_oct,
-                                  size: 20,
+                                  size: 22,
                                   color: Colors.grey,
                                 )))),
                         Container(
-                            margin:EdgeInsets.only(right: 16),
+                            margin:EdgeInsets.only(right: 24),
                             child:InkWell(
                             onTap: widget.onThreeDotPressed,
                             child: Icon(
                               FlutterIcons.dots_three_horizontal_ent,
-                              size: 20,
+                              size: 22,
                               color: Colors.grey,
                             ))),
                        /* SizedBox(
@@ -213,22 +213,39 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                             },
                             child:Image.asset(
                               "assets/images/download _ic.png",
-                              width: 20,
-                              height: 20,
+                              width: 22,
+                              height: 22,
                               color: Colors.grey,
                             )))
                             :SizedBox.shrink(),
 
                         widget.showAddTOPlayer?InkWell(
                             onTap:(){
+                                 bool check=false;
+                                 widget.model.myHopperList.forEach((element) {
+                                 if(element.post.iD==widget.hopper.post.iD){
+                                   check=true;
+                                  }
+                                });
+                                 if(!check){
+                                   widget.model.addToMyHooper(postId: widget.hopper.post.iD,hopper: widget.hopper);
+                                 }else{
+                                   ShowFlash(context,
+                                       title:
+                                       "Already Added In MyHopper",
+                                       message:
+                                       "Please try with some other article!",
+                                       flashType: FlashType.failed)
+                                       .show();
+                                 }
 
                             },
                             child:Container(
-                              margin: EdgeInsets.only(left: (widget.showAddTOPlayer && widget.showDownload)?16:0),
+                              margin: EdgeInsets.only(left: (widget.showAddTOPlayer && widget.showDownload)?24:0),
                                 child:Image.asset(
                               "assets/images/play_ic.png",
-                              width: 20,
-                              height: 20,
+                              width: 24,
+                              height: 24,
                               color: Colors.grey,
                             ))):SizedBox.shrink(),
 
@@ -249,7 +266,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                   ],
                 )
               ],
-            )));
+            ));
   }
 
   String parseDate(String date) {
@@ -279,7 +296,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
 
     try {
 
-      await dio.downloadUri(Uri.parse(url), saveFile.path,
+      /*await dio.downloadUri(Uri.parse(url), saveFile.path,
           onReceiveProgress: (downloaded, totalSize) {
         setState(() {
           progressDownload = downloaded / totalSize;
@@ -287,10 +304,10 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
             startDownLoad = false;
           }
         });
-      });
+      });*/
 
-      /*fileDownload=FileDownload(context: context,url: url,path: saveFile.path,onReceiveProgress:DownloadRecevier);
-      await fileDownload.startDownload();*/
+      fileDownload=FileDownload(context: context,url: url,path: saveFile.path,onReceiveProgress:DownloadRecevier);
+      await fileDownload.startDownload();
 
        HomePost _homePost=HomePost();
       _homePost.id=hopper.post.iD;
@@ -320,7 +337,6 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
 
 
     }catch(e){
-
       ShowFlash(context,
           title: "Error in file downloading....",
           message: "Please try again!",
@@ -359,7 +375,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
         return true;
       }
     } else if(Platform.isIOS){
-      final status = await Permission.photos.status;
+      /*final status = await Permission.photos.status;
       if (status != PermissionStatus.granted) {
         final result = await Permission.photos.request();
         if (result == PermissionStatus.granted) {
@@ -367,20 +383,12 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
         }
       } else {
         return true;
-      }
+      }*/
+      return true;
     }
     return false;
   }
 
-  /*Future<void> _prepareSaveDir() async {
-    _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
-
-    final savedDir = Directory(_localPath);
-    bool hasExisted = await savedDir.exists();
-    if (!hasExisted) {
-      savedDir.create();
-    }
-  }*/
   Future<void> _prepareSaveDir() async {
     _localPath = (await _findLocalPath());
     final savedDir = Directory(_localPath);
@@ -390,23 +398,10 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
     }
   }
 
-  /* Future<String> _findLocalPath() async {
-    final directory = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
-    return directory?.path;
-  }*/
   Future<String> _findLocalPath() async {
     var externalStorageDirPath;
     Directory directory;
     if (Platform.isAndroid) {
-      /*try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
-      } catch (e) {
-        final directory = await getExternalStorageDirectory();
-        externalStorageDirPath = directory?.path;
-      }*/
-
       directory = await getExternalStorageDirectory();
       String newPath="";
       List<String> folders=directory.path.split("/");
@@ -423,14 +418,23 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
 
 
     } else if (Platform.isIOS) {
-      // directory = await getTemporaryDirectory();
-      directory=await getApplicationDocumentsDirectory();
+       directory = await getTemporaryDirectory();
+      //directory=await getApplicationDocumentsDirectory();
       //externalStorageDirPath = (await getApplicationDocumentsDirectory()).absolute.path;
     }
 
     externalStorageDirPath=directory.path;
     return externalStorageDirPath;
 
+  }
+
+  void DownloadRecevier(int downloaded,int totalSize,bool status){
+    setState(() {
+      progressDownload = downloaded / totalSize;
+      if (status) {
+        startDownLoad = false;
+      }
+    });
   }
 
   void checkDownload() async{

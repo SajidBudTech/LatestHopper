@@ -115,9 +115,9 @@ class _BottomDialogSheetPageState extends State<BottomDialogSheetPage> {
                     } else if (value == "When current article ends") {
                      // AuthBloc.prefs.setBool(AppStrings.isSleeperActive, true);
                       AudioConstant.isSleeperActive=true;
-                      if(widget.model.totalDuration!=null) {
-                        AudioConstant.sleeperCloseTime=DateTime.now().add(Duration(seconds: widget.model.totalDuration.inSeconds - widget.model.currentPostion.inSeconds));
-                        widget.model.stopPlayerAfter(Duration(seconds: widget.model.totalDuration.inSeconds - widget.model.currentPostion.inSeconds));
+                      if(widget.model.audioHopperHandler.totalDuration!=null) {
+                        AudioConstant.sleeperCloseTime=DateTime.now().add(Duration(seconds: widget.model.audioHopperHandler.totalDuration.inSeconds - widget.model.audioHopperHandler.currentPosition.inSeconds));
+                        widget.model.stopPlayerAfter(Duration(seconds: widget.model.audioHopperHandler.totalDuration.inSeconds - widget.model.audioHopperHandler.currentPosition.inSeconds));
                       }
                     }
                   }

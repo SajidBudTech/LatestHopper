@@ -98,15 +98,28 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                     child: model.playingLoadingState == LoadingState.Loading?
                     Padding(padding:AppPaddings.defaultPadding(),child:VendorShimmerListViewItem())
                         : model.playingLoadingState == LoadingState.Failed?
-                    Padding(padding:AppPaddings.defaultPadding(),child:LoadingStateDataView(
-                      stateDataModel: StateDataModel(
+                    Padding(padding:AppPaddings.defaultPadding(),
+                        child:LoadingStateDataView(
+                       stateDataModel: StateDataModel(
                         showActionButton: true,
                         actionButtonStyle: AppTextStyle.h4TitleTextStyle(
                           color: Colors.red,
                         ),
                         actionFunction: model.getPlayingDetails,
                       ),
-                    ))
+                    )):model.playingLoadingState == LoadingState.NoIntenet?
+                    Padding(padding:AppPaddings.defaultPadding(),
+                        child:LoadingStateDataView(
+                          stateDataModel: StateDataModel(
+                            title: "Internet Connnectivity",
+                            description: "Please check your internet connectivity and try again.",
+                            showActionButton: true,
+                            actionButtonStyle: AppTextStyle.h4TitleTextStyle(
+                              color: Colors.red,
+                            ),
+                            actionFunction: model.getPlayingDetails,
+                          ),
+                        ))
                         :model.myPlayList.length==0?
                     Center(
                       // padding: EdgeInsets.only(),
@@ -435,7 +448,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
   }
 
   void _share() async{
-    Share.share("Check out this article from Hopper Audio! ${dynamicShortLink}");
+    Share.share("Check out this article from Audio Hopper! ${dynamicShortLink}");
   }
 
   void _generateDynamicLink() async{
@@ -443,12 +456,17 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
     final DynamicLinkParameters parameters = DynamicLinkParameters(
       uriPrefix: 'https://audiohopper.page.link',
       link: Uri.parse('https://audiohopper.com/article?postID=${HomeBloc.postID}'),
-      navigationInfoParameters: NavigationInfoParameters(),
+      navigationInfoParameters: NavigationInfoParameters(
+        forcedRedirectEnabled: true,
+      ),
       androidParameters: AndroidParameters(
         packageName: 'com.application.audiohopper',
+        fallbackUrl:Uri.parse("https://play.google.com/store/apps/details?id=com.application.audiohopper"),
       ),
       iosParameters: IosParameters(
         bundleId: 'com.audiohopper',
+        fallbackUrl:Uri.parse("https://itunes.apple.com/app/id1572322656"),
+        appStoreId: "id1572322656"
       ),
     );
 

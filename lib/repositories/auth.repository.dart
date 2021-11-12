@@ -402,7 +402,7 @@ class AuthRepository extends HttpService {
         );
 
         bodyPayload.addAll({
-          "avatar": photoFile,
+          "pic_url": photoFile,
         });
       }
 
@@ -416,7 +416,7 @@ class AuthRepository extends HttpService {
        resultDialogData.title = UpdateProfileStrings.processCompleteTitle;
        resultDialogData.body = "";
        resultDialogData.dialogType = DialogType.successThenClosePage;
-       //AuthBloc.setUserFullName(name);
+       AuthBloc.setUserProfileImage(apiResponse.body[0]['profile_img_url']);
      } else {
        //the error message
        var errorMessage = apiResponse.message;

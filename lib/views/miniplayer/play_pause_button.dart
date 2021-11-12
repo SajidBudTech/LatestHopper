@@ -35,10 +35,10 @@ class _PlayPauseButtonState extends State<PlayPauseButton> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Duration>(
-        stream: widget.model.player.positionStream,
+        stream: widget.model.audioHopperHandler.player.positionStream,
         builder: (context, snapshot){
       if (snapshot.data != null) {
-        widget.model.currentPostion = snapshot.data;
+        widget.model.audioHopperHandler.currentPosition = snapshot.data;
       }
      return SleekCircularSlider(
           appearance: CircularSliderAppearance(
@@ -60,11 +60,11 @@ class _PlayPauseButtonState extends State<PlayPauseButton> {
                 print(value);
               },*/
           min: 0,
-          initialValue: widget.model.currentPostion!=null?widget.model.currentPostion.inSeconds.toDouble():0,
-          max: widget.model.totalDuration!=null?widget.model.totalDuration.inSeconds.toDouble():0,
+          initialValue: widget.model.audioHopperHandler.currentPosition!=null?widget.model.audioHopperHandler.currentPosition.inSeconds.toDouble():0,
+          max: widget.model.audioHopperHandler.totalDuration!=null?widget.model.audioHopperHandler.totalDuration.inSeconds.toDouble():0,
           innerWidget: (checkVakue) {
             return StreamBuilder<PlayerState>(
-                stream: widget.model.player.playerStateStream,
+                stream: widget.model.audioHopperHandler.player.playerStateStream,
                 builder: (context, snapshot){
               if (snapshot.data != null) {
                 final playerState = snapshot.data;
@@ -76,9 +76,9 @@ class _PlayPauseButtonState extends State<PlayPauseButton> {
                   isPlaying = false;
                   completed = true;
                   widget.model.addToRecentlyViewed();
-                  if(widget.model.player.hasNext){
-                    widget.model.currentPostion=Duration.zero;
-                    widget.model.player.seekToNext();
+                  if(widget.model.audioHopperHandler.player.hasNext){
+                    widget.model.audioHopperHandler.currentPosition=Duration.zero;
+                    widget.model.audioHopperHandler.skipToNext();
                   }
                 }
               }
@@ -90,12 +90,12 @@ class _PlayPauseButtonState extends State<PlayPauseButton> {
                 ),
                 onTap: () {
                   if(isPlaying){
-                    widget.model.player.pause();
+                    widget.model.audioHopperHandler.pause();
                   }else if(completed){
-                    widget.model.seekAudio(Duration.zero);
+                    widget.model.audioHopperHandler.seek(Duration.zero);
                   }else{
                     if(widget.model.myPlayList.length>0){
-                      widget.model.player.play();
+                      widget.model.audioHopperHandler.play();
                     }
                   }
                   setState(() {

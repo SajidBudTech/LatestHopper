@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_hopper/utils/router.dart' as router;
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/app_strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 void main() async {
 
@@ -20,6 +22,10 @@ void main() async {
   //Initialize App Database
   //await AppDatabaseSingleton().prepareDatabase();
   //start notification listening
+  if(Platform.isAndroid){
+    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+  }
+
   AppNotification.setUpFirebaseMessaging();
 
   //initiating tellam
@@ -63,7 +69,7 @@ void main() async {
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
-    runApp(
+      runApp(
       new MaterialApp(
         debugShowCheckedModeBanner: false,
         title: AppStrings.appName,

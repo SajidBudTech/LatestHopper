@@ -20,12 +20,13 @@ class _CustomRadioGroupState extends State<CustomRadioGroup> {
 
 
   // Default Radio Button Item
-  String radioItem = 'Credit Card';
+  String radioItem = '\$6.99/month';
 
   // Group Value for Radio Button.
   int id = 1;
 
   int selected_index=1;
+
   List<PaymentList> fList = [
     PaymentList(
       index: 1,

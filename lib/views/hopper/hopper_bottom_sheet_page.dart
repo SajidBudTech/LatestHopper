@@ -23,12 +23,14 @@ class HopperBottomSheetPage extends StatefulWidget {
     Key key,
     this.hopper,
     this.fromMyHopper,
+    this.fromDownload,
     this.model,
     this.fromSeeAll
   }) : super(key: key);
 
   Hopper hopper;
   bool fromMyHopper;
+  bool fromDownload;
   HopperViewModel model;
   bool fromSeeAll;
   @override
@@ -51,11 +53,12 @@ class _HopperBottomSheetPageState extends State<HopperBottomSheetPage> {
     }else{
       sortlist.add("Add to my hopper");
     }
+    if(widget.fromDownload){
+      sortlist.add("Remove from Download");
+    }
     sortlist.add("Share track");
     sortlist.add("Read along");
     sortlist.add("Cancel");
-
-
 
   }
 
@@ -153,14 +156,16 @@ class _HopperBottomSheetPageState extends State<HopperBottomSheetPage> {
                                 .show();
                           }
                         }
-                      }else if(index==1){
+                      }else if(sortlist[index]=="Share track"){
                         _generateDynamicLink();
                         // Navigator.pop(context);
-                      }else if(index==2){
+                      }else if(sortlist[index]=="Read along"){
                         Terms.lunchReadAlong(widget.hopper.postCustom.url[0]??"");
                         //Navigator.pop(context);
-                      }else if(index==3){
+                      }else if(sortlist[index]=="Cancel"){
                        // Navigator.pop(context);
+                      }else if(sortlist[index]=="Remove from Download"){
+                        widget.model.removeFromDownload(postId: widget.hopper.post.iD,hopper: widget.hopper);
                       }
                     },
                  );
@@ -175,7 +180,7 @@ class _HopperBottomSheetPageState extends State<HopperBottomSheetPage> {
   }
 
   void _share() async{
-    Share.share("Check out this article from Hopper Audio! ${dynamicShortLink}");
+    Share.share("Check out this article from Audio Hopper! ${dynamicShortLink}");
   }
 
   void _generateDynamicLink() async{

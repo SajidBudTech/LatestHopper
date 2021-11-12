@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
-import 'package:flutter_hopper/constants/strings/general.strings.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter_hopper/models/home_category.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
@@ -10,6 +10,7 @@ import 'package:flutter_hopper/models/notification.dart';
 import 'package:flutter_hopper/models/recenctly_viewed_post.dart';
 import 'package:flutter_hopper/repositories/home.repository.dart';
 import 'package:flutter_hopper/viewmodels/base.viewmodel.dart';
+import 'package:intl/intl.dart';
 
 class MainHomeViewModel extends MyBaseViewModel {
 
@@ -53,9 +54,15 @@ class MainHomeViewModel extends MyBaseViewModel {
     getHomeList();
   }
 
-  initHomeValue(){
-    getHomePostDetails();
-    getHomeCategoryDetails();
+  initHomeValue()async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi){
+      getHomePostDetails();
+      getHomeCategoryDetails();
+    }else{
+      mainHomeLoadingState = LoadingState.NoIntenet;
+      notifyListeners();
+    }
   }
 
   void getHomePostDetails() async{
@@ -257,6 +264,11 @@ class MainHomeViewModel extends MyBaseViewModel {
     try {
 
       notificationList = await _homePageRepository.getNotifications(userId);
+      notificationList.sort((a,b){
+        var adate = DateFormat("dd-MM-yyyy HH:mm:ss").parse(a.notificationSentOn); //before -> var adate = a.expiry;
+        var bdate = DateFormat("dd-MM-yyyy HH:mm:ss").parse(b.notificationSentOn); //before -> var bdate = b.expiry;
+        return bdate.compareTo(adate);
+      });
 
       mainNotificationLoadingState = LoadingState.Done;
       notifyListeners();

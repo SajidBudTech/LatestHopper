@@ -87,7 +87,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               title: "Edit Profile",
               backgroundColor: AppColor.accentColor,
               onPressed: () {
-                Navigator.pop(context, false);
+                Navigator.pop(context, true);
               },
             ),
             UiSpacer.verticalSpace(space: 40),
@@ -182,7 +182,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           padding: AppPaddings.mediumButtonPadding(),
                           color: AppColor.accentColor,
                           onPressed: uiState != UiState.loading ? () {
-                             _editProfileBloc.editProfile();
+                                _editProfileBloc.editProfile();
                              } : (){},
                           child: uiState != UiState.loading
                               ? Text(

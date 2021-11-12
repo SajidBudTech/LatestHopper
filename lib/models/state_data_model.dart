@@ -30,7 +30,7 @@ class StateDataModel {
     this.description =
         "There was an error while processing your request. Please try again",
     this.descriptionStyle,
-    this.actionButtonTitle = "Re-try",
+    this.actionButtonTitle = "Retry",
     this.actionButtonStyle,
     this.showActionButton = false,
     this.actionFunction,

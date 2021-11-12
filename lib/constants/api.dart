@@ -12,7 +12,7 @@ class Api {
   static const register = "/wp/v2/users";
   static const userDetails = "/wp/v2/users";
   static const registerToken = "/api/v1/token";
-  static const homePagePost = "/wp/v2/posts";
+  static const homePagePost = "/wp/v2/posts/?per_page=100";
   static const filterCategory = "/wp/v2/categories";
   static const filterAuthor = "/wp/v2/post-filter-author";
   static const filterPublication = "/wp/v2/post-filter-publication";
@@ -20,7 +20,7 @@ class Api {
   static const forgotPasswordCheckEmail = "/bdpwr/v1/reset-password";
   static const forgotPasswordValidateCode = "/bdpwr/v1/validate-code";
   static const forgotPasswordReset = "/bdpwr/v1/set-password";
-  static const uploadUserAvatar = "/wp/v2/media";
+  static const uploadUserAvatar = "/wp/v2/update-users-profile-picture";
   static const notifications = "/wp/v2/users-notificatoon-list";
 
 

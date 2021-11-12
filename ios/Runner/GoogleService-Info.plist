@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>419595352820-pi7mm2p3ikojhvmlk5i08os0jp0ltda5.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.419595352820-pi7mm2p3ikojhvmlk5i08os0jp0ltda5</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>419595352820-ep05nqfhto4h1o0c890un91v4k2een8k.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCKsDAJS9a7tIKPXekA6vypbbdW6WmNkUo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>419595352820</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.audiohopper</string>
+	<key>PROJECT_ID</key>
+	<string>hopperaudio-ae4eb</string>
+	<key>STORAGE_BUCKET</key>
+	<string>hopperaudio-ae4eb.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:419595352820:ios:bd88c9e54f59e7bafefca1</string>
+</dict>
+</plist>

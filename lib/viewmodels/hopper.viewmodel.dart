@@ -47,6 +47,7 @@ class HopperViewModel extends MyBaseViewModel {
   }
 
   initialise() async {
+
     getMyHopperList();
     getRecentlyViewedList();
     getDownloadList();
@@ -208,7 +209,7 @@ class HopperViewModel extends MyBaseViewModel {
         bool check=false;
         AudioConstant.audioViewModel.myPlayList.forEach((element) {
           if (element.id == postId) {
-            check=true;
+             check=true;
           }
         });
         if(!check){
@@ -230,18 +231,22 @@ class HopperViewModel extends MyBaseViewModel {
            AudioConstant.audioViewModel.myPlayList.add(_homePost);
            AudioConstant.audioViewModel.concatenatingAudioSource.insert(AudioConstant.audioViewModel.myPlayList.length-1, AudioSource.uri(Uri.parse(_homePost.audioFile??"")));
         }
+
+
         notifyListeners();
 
       }
 
       CustomDialog.showAlertDialog(viewContext, dialogData,
           onDismissAction: () {
-        myHopperList.add(hopper);
-        notifyListeners();
+          myHopperList.add(hopper);
+          notifyListeners();
       });
+
       Future.delayed(const Duration(milliseconds: 1500), () {
         CustomDialog.dismissDialog(viewContext);
       });
+
     } else {
       //prepare the data model to be used to show the alert on the view
       dialogData.isDismissible = true;
@@ -353,7 +358,7 @@ class HopperViewModel extends MyBaseViewModel {
          // AudioConstant.audioViewModel.myPlayList.removeWhere((e) => toRemove.contains(e));
 
           if(HomeBloc.postID==postId){
-            AudioConstant.audioViewModel.player.stop();
+            AudioConstant.audioViewModel.audioHopperHandler.stop();
             AudioConstant.audioIsPlaying=false;
             if(AudioConstant.audioViewModel.myPlayList.length>0){
               HomeBloc.postID=AudioConstant.audioViewModel.myPlayList[0].id;
@@ -453,7 +458,7 @@ class HopperViewModel extends MyBaseViewModel {
     }
   }
 
-  void removeFromDownload({int postId}) async {
+  void removeFromDownload({int postId,Hopper hopper}) async {
     //update ui state
     final int userId = AuthBloc.getUserId();
 
@@ -487,8 +492,15 @@ class HopperViewModel extends MyBaseViewModel {
         });
 
         downloadedList.removeWhere((e) => toRemove.contains(e));
+        AuthBloc.removeUserDownloadedFiles(postId);
         notifyListeners();
+
       });
+
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        CustomDialog.dismissDialog(viewContext);
+      });
+
     } else {
       //prepare the data model to be used to show the alert on the view
       dialogData.isDismissible = true;

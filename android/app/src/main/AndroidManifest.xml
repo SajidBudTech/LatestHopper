@@ -10,10 +10,9 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
 
 
@@ -23,7 +22,7 @@
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/launcher_icon">
         <activity
-            android:name=".MainActivity"
+            android:name="com.ryanheise.audioservice.AudioServiceActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:screenOrientation="portrait"
@@ -93,39 +92,41 @@
             </intent-filter>
         </activity>
 
-        <!--<service android:name="com.ryanheise.audioservice.AudioService"
+        <service android:name="com.ryanheise.audioservice.AudioService"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
+
+        <!-- ADD THIS "RECEIVER" element -->
         <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </receiver>-->
+        </receiver>
 
-      <!--  <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            android:exported="false"
-            tools:node="merge">
-            <meta-data
-                android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup"
-                tools:node="remove" />
-        </provider>
-        
-        <provider
-            android:name="vn.hunghd.flutterdownloader.FlutterDownloaderInitializer"
-            android:authorities="${applicationId}.flutter-downloader-init"
-            android:exported="false">
-            &lt;!&ndash; changes this number to configure the maximum number of concurrent tasks &ndash;&gt;
-            <meta-data
-                android:name="vn.hunghd.flutterdownloader.MAX_CONCURRENT_TASKS"
-                android:value="5" />
-        </provider>-->
+        <!--  <provider
+              android:name="androidx.startup.InitializationProvider"
+              android:authorities="${applicationId}.androidx-startup"
+              android:exported="false"
+              tools:node="merge">
+              <meta-data
+                  android:name="androidx.work.WorkManagerInitializer"
+                  android:value="androidx.startup"
+                  tools:node="remove" />
+          </provider>
+
+          <provider
+              android:name="vn.hunghd.flutterdownloader.FlutterDownloaderInitializer"
+              android:authorities="${applicationId}.flutter-downloader-init"
+              android:exported="false">
+              &lt;!&ndash; changes this number to configure the maximum number of concurrent tasks &ndash;&gt;
+              <meta-data
+                  android:name="vn.hunghd.flutterdownloader.MAX_CONCURRENT_TASKS"
+                  android:value="5" />
+          </provider>-->
 
         <provider
             android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"

@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
             var postID = deepLink.queryParameters['postID'];
             if(postID!=null) {
               if(AudioConstant.audioViewModel!=null){
-                AudioConstant.audioViewModel.player.stop();
+                AudioConstant.audioViewModel.audioHopperHandler.stop();
                 AudioConstant.FROM_BOTTOM=false;
               }
               HomeBloc.postID=int.parse(postID);
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
       var postID = deepLink.queryParameters['postID'];
       if(postID!=null) {
         if(AudioConstant.audioViewModel!=null){
-          AudioConstant.audioViewModel.player.stop();
+          AudioConstant.audioViewModel.audioHopperHandler.stop();
           AudioConstant.FROM_BOTTOM=false;
         }
         HomeBloc.postID=int.parse(postID);

@@ -415,7 +415,7 @@ class RegisterBloc extends BaseBloc {
 
         if(session.statusCode==200){
           //var response=json.decode(session.body);
-          _initiateSocialAccountAppleLogin(emailid: credential.email,fullname: credential.givenName,context: context);
+          _initiateSocialAccountAppleLogin(emailid: credential.email,fullname: credential.userIdentifier,context: context);
         }else{
           setUiState(UiState.done);
           //show dialog with error message
@@ -467,21 +467,21 @@ class RegisterBloc extends BaseBloc {
     String emailid,String fullname,BuildContext context
   }) async {
 
+
+
     socialDisplayName = fullname??"";
     socialEmail = emailid;
 
-    var name=socialDisplayName!=null?socialDisplayName.toString().split(" "):[];
-    for(int i=0;i<name.length;i++){
-      socialUserName=socialUserName+name[i].toLowerCase();
-      socialPassword = socialPassword+name[i].toLowerCase();
-    }
+    var name=socialDisplayName.toString().split(".");
+    String emailEnd=name[0]+name[2];
+    socialPassword=emailEnd;
 
-    var random = Random();
-    var n1 = random.nextInt(10000);
+   /* var random = Random();
+    var n1 = random.nextInt(10000);*/
 
 
-    String email="appleuser"+((socialUserName.isEmpty)?n1.toString():socialUserName)+"@gmail.com";
-    processSocialRegiration(email: email,password: socialPassword.isEmpty?"apple{$n1}":socialPassword);
+    String email="appleuser"+emailEnd+"@gmail.com";
+    processSocialRegiration(email: email,password: socialPassword);
 
   }
 

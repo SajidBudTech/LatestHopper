@@ -6,6 +6,7 @@ import 'package:flutter_hopper/models/loading_state.dart';
 import 'package:flutter_hopper/models/state_data_model.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
 import 'package:flutter_hopper/widgets/appbar/home_appbar.dart';
+import 'package:flutter_hopper/widgets/empty/hopper_empty.dart';
 import 'package:flutter_hopper/widgets/listview/animated_vendor_list_view_item.dart';
 import 'package:flutter_hopper/widgets/shimmers/vendor_shimmer_list_view_item.dart';
 import 'package:flutter_hopper/widgets/state/state_loading_data.dart';
@@ -69,9 +70,24 @@ class _MainHomePageState extends State<MainHomePage>
                                   actionFunction: model.initHomeValue,
                                 ),
                               ))
-                                  :
+                                  :model.mainHomeLoadingState == LoadingState.NoIntenet
+                                ?SliverToBoxAdapter(child:LoadingStateDataView(
+                                stateDataModel: StateDataModel(
+                                  title: "Internet Connnectivity",
+                                  description: "Please check your internet connectivity and try again.",
+                                  showActionButton: true,
+                                  actionButtonStyle: AppTextStyle.h4TitleTextStyle(
+                                    color: Colors.red,
+                                  ),
+                                  actionFunction: model.initHomeValue,
+                                ),
+                              ))
                               //listing type
-                              SliverList(
+                              :model.mainhomeList.length==0?
+                              SliverToBoxAdapter(
+                                child: EmptyHopper(title: "Oops, No Record Found!"),
+                              )
+                              :SliverList(
                                 delegate: SliverChildBuilderDelegate(
                                       (context, index) {
                                     return AnimatedVendorListViewItem(
@@ -80,12 +96,16 @@ class _MainHomePageState extends State<MainHomePage>
                                       OnPressed: (){
 
                                         if(AudioConstant.audioIsPlaying){
-                                          AudioConstant.audioViewModel.player.stop();
+                                          AudioConstant.audioViewModel.audioHopperHandler.stop();
                                         }
                                         if(HomeBloc.postID==model.mainhomeList[index].id){
                                           AudioConstant.FROM_BOTTOM=true;
                                         }else{
                                           AudioConstant.FROM_BOTTOM=false;
+                                          if(AudioConstant.audioViewModel!=null) {
+                                            AudioConstant.audioViewModel.audioHopperHandler.currentPosition = Duration.zero;
+                                            AudioConstant.audioViewModel.audioHopperHandler.totalDuration = Duration.zero;
+                                          }
                                         }
 
                                         AudioConstant.OFFLINE=false;

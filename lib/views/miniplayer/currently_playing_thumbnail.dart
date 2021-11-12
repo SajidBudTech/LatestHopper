@@ -28,7 +28,7 @@ class _CurrentlyPlayingThumbnailState extends State<CurrentlyPlayingThumbnail> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-        stream: widget.model.player.currentIndexStream,
+        stream: widget.model.audioHopperHandler.player.currentIndexStream,
         builder: (context, snapshot) {
           if (snapshot.data != null) {
               coverImage = widget.model.myPlayList[snapshot.data].coverImageUrl ?? "";

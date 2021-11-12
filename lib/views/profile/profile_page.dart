@@ -47,12 +47,12 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                         fit: BoxFit.fill)),
                 child:Column(
                   children: [
-
                     ProfileAppBar(
-                      imagePath: "assets/images/appbar_image.png",
+                      imagePath:"assets/images/appbar_image.png",
                       backgroundColor: AppColor.accentColor,
                       name: _profileBlo.userFullName??"",
                       email: _profileBlo.userEmail??"",
+                      userProfile: _profileBlo.userImage??"",
                       onPressed: (){
                         Navigator.pop(context, false);
                       },
@@ -121,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
   void _processLogout(BuildContext viewcontext) async {
 
     if(AudioConstant.audioIsPlaying){
-      await AudioConstant.audioViewModel.player.stop();
+      await AudioConstant.audioViewModel.audioHopperHandler.stop();
     }
 
     await AuthBloc.prefs.setBool(AppStrings.authenticated, false);
@@ -144,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
           ),
           textDirection: AppTextDirection.defaultDirection,
         ),
-        content: new Text('Logout of Hopper Audio?',
+        content: new Text('Logout of Audio Hopper?',
             style: AppTextStyle.h4TitleTextStyle(
               color: AppColor.textColor(context),
             ),
@@ -172,7 +172,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
         false;
   }
   void rebuildWidget() {
-    Future.delayed(const Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
         AudioConstant.FROM_UPDATE_PROFILE=false;
       });

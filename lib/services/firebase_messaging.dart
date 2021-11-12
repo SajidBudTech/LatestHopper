@@ -98,6 +98,12 @@ class AppNotification extends HttpService {
           builder: (context) => NotificationsPage()));
     }*/
     //Navigator.pushNamed(buildContext, AppRoutes.notificationsRoute);
+
+    await Navigator.pushNamed(
+      buildContext,
+      AppRoutes.notificationsRoute,
+    );
+
   }
 
   //
