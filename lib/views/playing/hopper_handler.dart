@@ -45,17 +45,7 @@ class AudioHopperHandler extends BaseAudioHandler with SeekHandler{
       AudioConstant.audioViewModel.audioHopperHandler.player.stop();
     }
 
-    /*if(AudioGloble.demoAudioPlayer!=null){
-      if(AudioGloble.demoAudioPlayer.playing){
-        AudioGloble.demoAudioPlayer.stop();
-      }
-    }*/
-
-
-
     player.play();
-
-    //AudioConstant.audioState=AudioPlayerState.Playing;
     AudioConstant.audioIsPlaying=true;
 
   }

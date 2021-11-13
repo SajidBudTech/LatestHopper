@@ -172,11 +172,21 @@ class PlayingViewModel extends MyBaseViewModel {
      if(AudioConstant.OFFLINECHANGE) {
 
        if(AudioConstant.audioViewModel!=null){
-         audioHopperHandler=AudioConstant.audioViewModel.audioHopperHandler;
+
+         if(AudioConstant.audioIsPlaying){
+           await AudioConstant.audioViewModel.audioHopperHandler.stop();
+         }
+
          for(int i=0;i<AudioConstant.audioViewModel.allMediaItems.length;i++){
            await AudioConstant.audioViewModel.audioHopperHandler.removeQueueItem(AudioConstant.audioViewModel.allMediaItems[i]);
            AudioConstant.audioViewModel.audioHopperHandler.removePlaylist(0);
          }
+         AudioConstant.audioViewModel.audioHopperHandler.currentPosition=Duration.zero;
+         AudioConstant.audioViewModel.audioHopperHandler.totalDuration=Duration.zero;
+         audioHopperHandler=AudioConstant.audioViewModel.audioHopperHandler;
+         audioHopperHandler.currentPosition=Duration.zero;
+         audioHopperHandler.totalDuration=Duration.zero;
+
        }else{
          audioHopperHandler= await AudioService.init(
            builder: () => AudioHopperHandler(),
@@ -185,20 +195,11 @@ class PlayingViewModel extends MyBaseViewModel {
                androidNotificationChannelName: 'Audio Hopper Service',
                androidNotificationOngoing: true,
                androidStopForegroundOnPause: true,
-               androidNotificationIcon: "@drawable/ic_notification",
+               androidNotificationIcon: "drawable/ic_notification",
                notificationColor:Color(0xFF008080)
            ),
          );
        }
-
-        audioHopperHandler.player.playbackEventStream.listen((event) {
-         audioHopperHandler.currentPosition = event.updatePosition;
-         //bufferedDuration = event.bufferedPosition;
-         audioHopperHandler.totalDuration = event.duration;
-         },
-           onError: (Object e, StackTrace stackTrace) {
-             print('A stream error occurred: $e');
-           });
        // Try to load audio from a source and catch any errors.
        try {
 
@@ -216,16 +217,32 @@ class PlayingViewModel extends MyBaseViewModel {
          print("Error loading audio source: $e");
        }
 
+
+
+       currentPlayingIndex=0;
+       previousPlayingIndex=0;
+
+       await audioHopperHandler.player.seek(audioHopperHandler.currentPosition,index: currentPlayingIndex);
+
        playingLoadingState = LoadingState.Done;
        notifyListeners();
 
-       audioHopperHandler.player.positionStream.listen((position) {
+       audioHopperHandler.player.playbackEventStream.listen((event) {
+        // audioHopperHandler.currentPosition = event.updatePosition;
+          audioHopperHandler.totalDuration = event.duration;
+
+         },
+           onError: (Object e, StackTrace stackTrace) {
+             print('A stream error occurred: $e');
+           });
+
+      /* audioHopperHandler.player.positionStream.listen((position) {
          audioHopperHandler.currentPosition = position;
          //notifyListeners();
-       });
+       });*/
 
         if(!audioHopperHandler.player.playing){
-          audioHopperHandler.play();
+          await audioHopperHandler.play();
         }
 
      }else{
@@ -244,17 +261,17 @@ class PlayingViewModel extends MyBaseViewModel {
 
 
 
-       audioHopperHandler.player.positionStream.listen((position) {
+       /*audioHopperHandler.player.positionStream.listen((position) {
          audioHopperHandler.currentPosition = position;
          //notifyListeners();
-       });
+       });*/
 
        /*player.bufferedPositionStream.listen((buffered) {
          bufferedDuration = buffered;
        });*/
 
        if(!audioHopperHandler.player.playing){
-         audioHopperHandler.play();
+         await audioHopperHandler.play();
        }
 
        playingLoadingState = LoadingState.Done;
@@ -295,6 +312,10 @@ class PlayingViewModel extends MyBaseViewModel {
 
    void  _secondTimeCall() async{
 
+     if(AudioConstant.audioIsPlaying){
+       await AudioConstant.audioViewModel.audioHopperHandler.stop();
+     }
+
      allPlayingArticleList.clear();
      myPlayList.clear();
      allMediaItems.clear();
@@ -311,7 +332,7 @@ class PlayingViewModel extends MyBaseViewModel {
 
        allPlayingArticleList.add(AudioSource.uri(Uri.parse(element.postCustom.audioFile[0]??"")));
 
-       HomePost _homePost=HomePost();
+        HomePost _homePost=HomePost();
        _homePost.id=element.post.iD;
        _homePost.coverImageUrl=element.postCustom.coverImageUrl[0]??"";
        _homePost.author=element.postCustom.author[0]??"";
@@ -338,6 +359,7 @@ class PlayingViewModel extends MyBaseViewModel {
        await AudioConstant.audioViewModel.audioHopperHandler.removeQueueItem(AudioConstant.audioViewModel.allMediaItems[i]);
        AudioConstant.audioViewModel.audioHopperHandler.removePlaylist(0);
 
+
      }
 
      /*for(int i=1;i<allPlayingArticleList.length;i++){
@@ -349,29 +371,17 @@ class PlayingViewModel extends MyBaseViewModel {
      audioHopperHandler=AudioConstant.audioViewModel.audioHopperHandler;
      audioHopperHandler.currentPosition=AudioConstant.audioViewModel.audioHopperHandler.currentPosition;
      audioHopperHandler.totalDuration=AudioConstant.audioViewModel.audioHopperHandler.totalDuration;
-     currentPlayingIndex=0;
-     previousPlayingIndex=0;
+
 
      //audioHopperHandler.player=AudioConstant.audioViewModel.audioHopperHandler.player;
      await audioHopperHandler.addQueueItems(allMediaItems);
-     /*concatenatingAudioSource= await ConcatenatingAudioSource(
-         // Start loading next item just before reaching it.
-         useLazyPreparation: true, // default
-         // Customise the shuffle algorithm.
-         shuffleOrder: DefaultShuffleOrder(), // default
-         // Specify the items in the playlist.
-         children: allPlayingArticleList,
-       );
 
-       await player.setAudioSource(
-         concatenatingAudioSource,
-         // Playback will be prepared to start from track1.mp3
-         initialIndex: currentPlayingIndex, // default
-         // Playback will be prepared to start from position zero.
-         initialPosition: Duration.zero, // default
-       );*/
+     currentPlayingIndex=0;
+     previousPlayingIndex=0;
+
 
      await audioHopperHandler.player.seek(audioHopperHandler.currentPosition,index: currentPlayingIndex);
+
 
 
 
@@ -402,22 +412,15 @@ class PlayingViewModel extends MyBaseViewModel {
          bufferedDuration=buffered;
        });*/
 
-     audioHopperHandler.player.currentIndexStream.listen((currentIndex) {
-       if(currentIndex < myPlayList.length) {
-         previousPlayingIndex = currentPlayingIndex;
-         currentPlayingIndex = currentIndex;
-         HomeBloc.postID = myPlayList[currentPlayingIndex].id;
-         notifyListeners();
-         addToRecentlyViewed();
-       }
-     });
-
-
      if(!audioHopperHandler.player.playing){
-       audioHopperHandler.play();
+       await audioHopperHandler.play();
      }
 
      // AudioConstant.audioIsPlaying=true;
+
+     /*if(!audioHopperHandler.player.playing){
+       await audioHopperHandler.play();
+     }*/
 
      playingLoadingState = LoadingState.Done;
      notifyListeners();
@@ -437,10 +440,35 @@ class PlayingViewModel extends MyBaseViewModel {
        }
      }
 
+     /*audioHopperHandler.player.playbackEventStream.listen((playbackEvent) {
+       if(playbackEvent.currentIndex!=null) {
+         if (playbackEvent.currentIndex < myPlayList.length) {
+           print("CURRENT INDEX-----------${playbackEvent.currentIndex}");
+           previousPlayingIndex = currentPlayingIndex;
+           currentPlayingIndex = playbackEvent.currentIndex;
+           HomeBloc.postID = myPlayList[currentPlayingIndex].id;
+           notifyListeners();
+           addToRecentlyViewed();
+         }
+       }
+     });*/
+
+       audioHopperHandler.player.currentIndexStream.listen((currentIndex) {
+         if(currentIndex < myPlayList.length) {
+           //currentIndex--;
+           print("CURRENT INDEX-----------${currentIndex}");
+           previousPlayingIndex = currentPlayingIndex;
+           currentPlayingIndex = currentIndex;
+           HomeBloc.postID = myPlayList[currentPlayingIndex].id;
+           notifyListeners();
+           addToRecentlyViewed();
+         }
+       });
 
      _checkTimer();
      AudioConstant.audioViewModel=this;
      print("TOTAL Lenght........."+myPlayList.length.toString());
+
    }
 
 
@@ -503,23 +531,6 @@ class PlayingViewModel extends MyBaseViewModel {
 
         await audioHopperHandler.addQueueItems(allMediaItems);
 
-         /*concatenatingAudioSource= await ConcatenatingAudioSource(
-           // Start loading next item just before reaching it.
-           useLazyPreparation: true, // default
-           // Customise the shuffle algorithm.
-           shuffleOrder: DefaultShuffleOrder(), // default
-           // Specify the items in the playlist.
-           children: allPlayingArticleList,
-         );
-
-        await player.setAudioSource(
-          concatenatingAudioSource,
-          // Playback will be prepared to start from track1.mp3
-          initialIndex: currentPlayingIndex, // default
-          // Playback will be prepared to start from position zero.
-          initialPosition: Duration.zero, // default
-        );*/
-
     } catch (e) {
       print("Error loading audio source: $e");
     }
@@ -547,8 +558,10 @@ class PlayingViewModel extends MyBaseViewModel {
         });*/
 
     audioHopperHandler.player.playbackEventStream.listen((event) {
-         audioHopperHandler.currentPosition=event.updatePosition;
+        // audioHopperHandler.currentPosition=event.updatePosition;
          audioHopperHandler.totalDuration=event.duration;
+        // print("FIRST CURRENT INDEX-----------${currentPlayingIndex}");
+         //notifyListeners();
         },
         onError: (Object e, StackTrace stackTrace) {
           print('A stream error occurred: $e');
@@ -557,6 +570,7 @@ class PlayingViewModel extends MyBaseViewModel {
     audioHopperHandler.player.currentIndexStream.listen((currentIndex) {
          if(currentIndex!=null) {
            if (currentIndex < myPlayList.length) {
+             print("FIRST CURRENT INDEX-----------${currentIndex}");
              previousPlayingIndex = currentPlayingIndex;
              currentPlayingIndex = currentIndex;
              HomeBloc.postID = myPlayList[currentPlayingIndex].id;
@@ -566,8 +580,10 @@ class PlayingViewModel extends MyBaseViewModel {
          }
     });
 
+
+
      if(!audioHopperHandler.player.playing){
-       audioHopperHandler.play();
+       await audioHopperHandler.play();
      }
 
     AudioConstant.audioViewModel=this;

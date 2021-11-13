@@ -46,8 +46,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           (show) {
         //when asked to show an alert
         if (show) {
-
-          AudioConstant.FROM_UPDATE_PROFILE=true;
           CustomDialog.showAlertDialog(
             context,
             _editProfileBloc.dialogData,

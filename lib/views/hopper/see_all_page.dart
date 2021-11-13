@@ -161,12 +161,9 @@ class _SeeAllPageState extends State<SeeAllPagePage>{
 
                                           if(widget.title=="RECENTLY VIEWED") {
                                             if (AudioConstant.audioIsPlaying) {
-                                              AudioConstant.audioViewModel
-                                                  .audioHopperHandler.stop();
+                                              AudioConstant.audioViewModel.audioHopperHandler.stop();
                                             }
-                                            if (HomeBloc.postID == widget.model
-                                                .recentlyViewedList[index].post
-                                                .iD) {
+                                            if (HomeBloc.postID == widget.model.recentlyViewedList[index].post.iD) {
                                               AudioConstant.FROM_BOTTOM = true;
                                             } else {
                                               AudioConstant.FROM_BOTTOM = false;
@@ -177,10 +174,7 @@ class _SeeAllPageState extends State<SeeAllPagePage>{
                                             }
 
                                             AudioConstant.OFFLINE = false;
-                                            HomeBloc.switchPageToPalying(
-                                                widget.model
-                                                    .recentlyViewedList[index]
-                                                    .post.iD);
+                                            HomeBloc.switchPageToPalying(widget.model.recentlyViewedList[index].post.iD);
                                           }else if(widget.title=="DOWNLOADED"){
                                             if(AudioConstant.audioIsPlaying){
                                               AudioConstant.audioViewModel.audioHopperHandler.stop();

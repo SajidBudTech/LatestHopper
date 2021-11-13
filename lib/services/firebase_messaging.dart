@@ -22,7 +22,7 @@ class AppNotification extends HttpService {
     //handling the notification process
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     // If you have skipped STEP 3 then change app_icon to @mipmap/ic_launcher
-    var initializationSettingsAndroid = new AndroidInitializationSettings('ic_notification');
+    var initializationSettingsAndroid = new AndroidInitializationSettings('@drawable/ic_notification');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
       android: initializationSettingsAndroid,

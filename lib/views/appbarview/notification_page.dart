@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'package:flutter_hopper/constants/app_paddings.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
 import 'package:flutter_hopper/models/state_data_model.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
@@ -81,7 +83,25 @@ class _NotificationPageState extends State<NotificationPage> {
                       return NotificationListViewItem(
                         notification: model.notificationList[index],
                         onPressed: (){
+                           if(model.notificationList[index].notificationArticleId!=null){
+                             if (AudioConstant.audioIsPlaying) {
+                               AudioConstant.audioViewModel.audioHopperHandler.stop();
+                             }
+                             if (HomeBloc.postID == model.notificationList[index].notificationArticleId) {
+                               AudioConstant.FROM_BOTTOM = true;
+                             } else {
+                               AudioConstant.FROM_BOTTOM = false;
+                               if(AudioConstant.audioViewModel!=null) {
+                                 AudioConstant.audioViewModel.audioHopperHandler.currentPosition = Duration.zero;
+                                 AudioConstant.audioViewModel.audioHopperHandler.totalDuration = Duration.zero;
+                               }
+                             }
 
+                             AudioConstant.OFFLINE = false;
+                             HomeBloc.switchPageToPalying(int.tryParse(model.notificationList[index].notificationArticleId)??0);
+                             Navigator.pop(context, false);
+
+                           }
                         },
                       );
                     },

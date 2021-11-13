@@ -267,7 +267,7 @@ class _HopperPageState extends State<HopperPage>
                                   onPressed: (){
 
                                     if(AudioConstant.audioIsPlaying){
-                                      AudioConstant.audioViewModel.audioHopperHandler.stop();
+                                       AudioConstant.audioViewModel.audioHopperHandler.stop();
                                     }
 
                                     if(AudioConstant.audioViewModel!=null) {

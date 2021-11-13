@@ -29,6 +29,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
         //AudioConstant.OFFLINE=false;
         AudioConstant.FROM_BOTTOM=true;
         HomeBloc.currentPageIndex.add(1);
+
       },
       child:Container(
         height: 62,

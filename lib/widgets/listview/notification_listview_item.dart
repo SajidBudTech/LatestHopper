@@ -102,8 +102,7 @@ class _NotificationListViewItemState extends State<NotificationListViewItem> {
                   //padding: EdgeInsets.only(left: 2,top: 0),
                   alignment: Alignment.centerRight,
                   child: Text(
-                    DateFormat("dd MMM yyyy hh:mm a").format(DateFormat("dd-MM-yyyy HH:mm:ss")
-                        .parse(widget.notification.notificationSentOn ?? "")),
+                    DateFormat("dd MMM yyyy hh:mm a").format(DateFormat("dd-MM-yyyy HH:mm:ss").parse(widget.notification.notificationSentOn ?? "",true).toLocal()),
                     style: AppTextStyle.h6TitleTextStyle(
                         fontWeight: FontWeight.w600,
                         color: Colors.black26,

@@ -67,10 +67,10 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                       title: "Edit Profile",
                       onPressed: () {
                         Navigator.pushNamed(context, AppRoutes.editProfileRoute).then((value) {
-                             if(AudioConstant.FROM_UPDATE_PROFILE){
+                             //if(AudioConstant.FROM_UPDATE_PROFILE){
                                _profileBlo.initBloc();
                                 rebuildWidget();
-                             }
+                            // }
                           }
                         );
                       },
@@ -172,9 +172,9 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
         false;
   }
   void rebuildWidget() {
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       setState(() {
-        AudioConstant.FROM_UPDATE_PROFILE=false;
+
       });
     });
   }
