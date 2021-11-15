@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/constants/audio_constant.dart';
+import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/viewmodels/playing.viewmodel.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -83,10 +84,13 @@ class _PlayerControllButtonsState extends State<PlayerControllButtons> {
                 onTap: (){
                   if(isPlaying){
                     widget.model.audioHopperHandler.pause();
+                    AudioConstant.audioState=AudioPlayerState.Pause;
                   }else if(completed){
                     widget.model.audioHopperHandler.seek(Duration.zero);
+                    AudioConstant.audioState=AudioPlayerState.Playing;
                   }else{
                     widget.model.audioHopperHandler.play();
+                    AudioConstant.audioState=AudioPlayerState.Playing;
                   }
                   setState(() {
                     isPlaying=!isPlaying;

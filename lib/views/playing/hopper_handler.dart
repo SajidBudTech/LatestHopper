@@ -1,4 +1,5 @@
 import 'package:flutter_hopper/constants/audio_constant.dart';
+import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_service/audio_service.dart';
 
@@ -46,6 +47,8 @@ class AudioHopperHandler extends BaseAudioHandler with SeekHandler{
     }
 
     player.play();
+
+    AudioConstant.audioState=AudioPlayerState.Playing;
     AudioConstant.audioIsPlaying=true;
 
   }

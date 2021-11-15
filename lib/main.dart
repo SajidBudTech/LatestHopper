@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/services/firebase_messaging.dart';
@@ -17,7 +19,7 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(debug: true);
+  //await FlutterDownloader.initialize(debug: true);
   await Firebase.initializeApp();
   //Initialize App Database
   //await AppDatabaseSingleton().prepareDatabase();
@@ -61,6 +63,15 @@ void main() async {
     //_startRoute = AppRoutes.homeRoute;
     if (AuthBloc.authenticated()) {
       _startRoute = AppRoutes.homeRoute;
+      var _message = await FirebaseMessaging.instance.getInitialMessage();
+      if(_message != null){
+        if(_message.data['post_id']==null){
+           HomeBloc.postID=_message.data['post_id'].toInt();
+          _startRoute = AppRoutes.playingRoute;
+        }else{
+          _startRoute = AppRoutes.notificationsRoute;
+        }
+      }
     }else{
       _startRoute = AppRoutes.loginRoute;
     }

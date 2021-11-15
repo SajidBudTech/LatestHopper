@@ -1,4 +1,5 @@
 // ViewModel
+import 'package:audio_service/audio_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/bloc/home.bloc.dart';
@@ -6,6 +7,7 @@ import 'dart:io';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
+import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
 import 'package:flutter_hopper/repositories/home.repository.dart';
@@ -229,7 +231,11 @@ class HopperViewModel extends MyBaseViewModel {
           _homePost.postDescription=hopper.postCustom.postDescription[0]??"";
           _homePost.url=hopper.postCustom.url[0]??"";
            AudioConstant.audioViewModel.myPlayList.add(_homePost);
-           AudioConstant.audioViewModel.concatenatingAudioSource.insert(AudioConstant.audioViewModel.myPlayList.length-1, AudioSource.uri(Uri.parse(_homePost.audioFile??"")));
+           MediaItem mediaItem=MediaItem(id: _homePost.audioFile??"",album: _homePost.publication,title: _homePost.publication??"",artist: _homePost.title.rendered??""/*,duration: Duration(milliseconds: element.dURATION)*/,artUri: Uri.parse(_homePost.coverImageUrl??""));
+           AudioConstant.audioViewModel.allMediaItems.add(mediaItem);
+           AudioConstant.audioViewModel.audioHopperHandler.addQueueItem(mediaItem);
+
+           //AudioConstant.audioViewModel.concatenatingAudioSource.insert(AudioConstant.audioViewModel.myPlayList.length-1, AudioSource.uri(Uri.parse(_homePost.audioFile??"")));
         }
 
 
@@ -366,11 +372,14 @@ class HopperViewModel extends MyBaseViewModel {
             AudioConstant.audioViewModel.currentPlayingIndex=0;
 
           }else{
-             AudioConstant.audioViewModel.concatenatingAudioSource.removeAt(index);
+            //MediaItem mediaItem=MediaItem(id: _homePost.audioFile??"",album: _homePost.publication,title: _homePost.publication??"",artist: _homePost.title.rendered??""/*,duration: Duration(milliseconds: element.dURATION)*/,artUri: Uri.parse(_homePost.coverImageUrl??""));
+            AudioConstant.audioViewModel.allMediaItems.removeAt(index);
+            AudioConstant.audioViewModel.audioHopperHandler.removeQueueItemAt(index);
           }
 
           if(AudioConstant.audioViewModel.myPlayList.length==0){
              AudioConstant.audioIsPlaying=false;
+             AudioConstant.audioState=AudioPlayerState.Completed;
              HomeBloc.postID=0;
            }
 

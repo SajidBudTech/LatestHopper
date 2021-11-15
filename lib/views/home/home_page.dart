@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/audio_constant.dart';
+import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/views/home/main_home_page.dart';
 import 'package:flutter_hopper/views/hopper/hopper_page.dart';
 import 'package:flutter_hopper/views/miniplayer/mini_player.dart';
@@ -118,7 +119,8 @@ class _HomePageState extends State<HomePage> {
                 visible: showing,
                 child:WarningPage()),
             Visibility(
-                visible: AudioConstant.audioIsPlaying && currentPageNumber!=1,
+                visible: (AudioConstant.audioState==AudioPlayerState.Playing ||
+                    AudioConstant.audioState==AudioPlayerState.Pause) && currentPageNumber!=1,
                 child:MiniPlayer(model: AudioConstant.audioViewModel)),
             CustomBottomNavigationBar(
               currentPageIndex: currentPageNumber,

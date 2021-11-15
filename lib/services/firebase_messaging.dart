@@ -3,6 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
+import 'package:flutter_hopper/views/appbarview/notification_page.dart';
+import 'package:flutter_hopper/views/home/main_home_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_hopper/constants/api.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
@@ -22,7 +25,10 @@ class AppNotification extends HttpService {
     //handling the notification process
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     // If you have skipped STEP 3 then change app_icon to @mipmap/ic_launcher
-    var initializationSettingsAndroid = new AndroidInitializationSettings('@drawable/ic_notification');
+    var token=await _firebaseMessaging.getToken();
+    print("FCM-TOKEN,,,,,,${token}");
+
+    var initializationSettingsAndroid = new AndroidInitializationSettings('ic_notification');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
       android: initializationSettingsAndroid,
@@ -88,21 +94,8 @@ class AppNotification extends HttpService {
 
   static Future selectNotification(String payload) async {
 
-    /*if(payload=='Appointment Started'){
-      Navigator.of(GlobalVariable.navigatorKey.currentContext)
-          .push(MaterialPageRoute(
-          builder: (context) => MyAppointmentPage()));
-    }else{
-      Navigator.of(GlobalVariable.navigatorKey.currentContext)
-          .push(MaterialPageRoute(
-          builder: (context) => NotificationsPage()));
-    }*/
-    //Navigator.pushNamed(buildContext, AppRoutes.notificationsRoute);
-
-    await Navigator.pushNamed(
-      buildContext,
-      AppRoutes.notificationsRoute,
-    );
+    await Navigator.of(AudioConstant.navigatorKey.currentContext).push(MaterialPageRoute(
+        builder: (context) => NotificationPage()));
 
   }
 

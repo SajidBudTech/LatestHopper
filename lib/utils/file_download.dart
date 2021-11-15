@@ -23,7 +23,7 @@ class FileDownload{
   Future<void> startDownload() async {
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    final android = AndroidInitializationSettings('@drawable/ic_notification');
+    final android = AndroidInitializationSettings('drawable/ic_notification');
     final iOS = IOSInitializationSettings();
     final initSettings = InitializationSettings(android: android, iOS: iOS);
 
@@ -87,7 +87,6 @@ class FileDownload{
 
   Future<void> _onSelectNotification(String json) async {
     final obj = jsonDecode(json);
-
     if (obj['isSuccess']) {
       OpenFile.open(obj['filePath']);
     } else {
