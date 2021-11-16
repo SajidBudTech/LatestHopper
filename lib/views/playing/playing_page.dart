@@ -6,6 +6,7 @@ import 'package:flutter_hopper/bloc/home.bloc.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_sizes.dart';
 import 'package:flutter_hopper/constants/audio_constant.dart';
+import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
 import 'package:flutter_hopper/utils/termandcondition_utils.dart';
 import 'package:flutter_hopper/viewmodels/main_home_viewmodel.dart';
@@ -173,7 +174,7 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
                                         alignment: Alignment.centerRight,
                                         padding: EdgeInsets.only(right: 20,top: 10),
                                         child: InkWell(child:
-                                        model.startDownLoad?
+                                        model.downloadingState==DownloadingState.Started?
                                         SleekCircularSlider(
                                           appearance: CircularSliderAppearance(
                                             angleRange: 360,
@@ -195,13 +196,19 @@ class _PlayingPageState extends State<PlayingPage> with AutomaticKeepAliveClient
 
                                           },
                                         )
-                                        :Icon(
+                                        :model.downloadingState==DownloadingState.Pending?
+                                            Icon(
                                           Icons.download_sharp,
                                           size: 24,
                                           color: Colors.white,
-                                         ),
+                                         ):
+                                        Icon(
+                                          Icons.clear_sharp,
+                                          size: 24,
+                                          color: Colors.white,
+                                        ),
                                           onTap: (){
-                                            !model.startDownLoad?
+                                            model.downloadingState==DownloadingState.Pending?
                                             model.addToDownload(postId: model.myPlayList[model.currentPlayingIndex].id):null;
                                           },
                                         ),

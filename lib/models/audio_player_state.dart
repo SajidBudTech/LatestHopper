@@ -4,3 +4,9 @@ enum AudioPlayerState {
   Completed,
   NotInitiate,
 }
+
+enum DownloadingState {
+  Pending,
+  Started,
+  Completed,
+}

@@ -1,14 +1,16 @@
 class Hopper{
   PostCustom postCustom;
   Post post;
+  bool downloaded;
 
-  Hopper({this.postCustom, this.post});
+  Hopper({this.postCustom, this.post,this.downloaded=false});
 
   Hopper.fromJson(Map<String, dynamic> json) {
     postCustom = json['post_custom'] != null
         ? new PostCustom.fromJson(json['post_custom'])
         : null;
     post = json['post'] != null ? new Post.fromJson(json['post']) : null;
+
   }
 
   Map<String, dynamic> toJson() {

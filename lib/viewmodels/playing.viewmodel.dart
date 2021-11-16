@@ -15,6 +15,7 @@ import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/models/audio_item.dart';
+import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/models/dialog_data.dart';
 import 'package:flutter_hopper/models/home_category.dart';
 import 'package:flutter_hopper/models/home_post.dart';
@@ -41,6 +42,10 @@ class PlayingViewModel extends MyBaseViewModel {
 
   //
   LoadingState playingLoadingState = LoadingState.Loading;
+
+  DownloadingState downloadingState = DownloadingState.Pending;
+
+
   int listingStyle = 2;
 
 
@@ -148,6 +153,12 @@ class PlayingViewModel extends MyBaseViewModel {
 
       myHopperList.removeWhere( (e) => toRemove.contains(e));
 
+      savedDownLoad.forEach((element) {
+        if(element.id==playingData.id){
+          downloadingState=DownloadingState.Completed;
+        }
+      });
+
       initAudio();
       //notifyListeners();
     } catch (error) {
@@ -161,6 +172,8 @@ class PlayingViewModel extends MyBaseViewModel {
     playingLoadingState = LoadingState.Loading;
     notifyListeners();
 
+    downloadingState=DownloadingState.Completed;
+    startDownLoad=false;
     playingData=AudioConstant.HOMEPOST;
     initOffLineAudio();
 
@@ -212,6 +225,17 @@ class PlayingViewModel extends MyBaseViewModel {
          allMediaItems.add(mediaItem);
          await audioHopperHandler.addQueueItems(allMediaItems);
          //await audioHopperHandler.player.setFilePath(playingData.localFilePath);
+         var time=myPlayList[0].audioFileDuration.split(":");
+         var total=Duration.zero;
+         if(time.length==1){
+           total=Duration(seconds: int.tryParse(time[0])??0);
+         }else if(time.length==2){
+           total=Duration(minutes: int.tryParse(time[0])??0,seconds: int.tryParse(time[1])??0);
+         }else if(time.length==3){
+           total=Duration(hours: int.tryParse(time[0])??0,minutes: int.tryParse(time[1])??0,seconds: int.tryParse(time[1])??0);
+         }
+
+         audioHopperHandler.totalDuration=total;
 
        } catch (e) {
          print("Error loading audio source: $e");
@@ -221,6 +245,7 @@ class PlayingViewModel extends MyBaseViewModel {
 
        currentPlayingIndex=0;
        previousPlayingIndex=0;
+
 
        await audioHopperHandler.player.seek(audioHopperHandler.currentPosition,index: currentPlayingIndex);
 
@@ -379,6 +404,18 @@ class PlayingViewModel extends MyBaseViewModel {
      currentPlayingIndex=0;
      previousPlayingIndex=0;
 
+     var time=myPlayList[0].audioFileDuration.split(":");
+     var total=Duration.zero;
+     if(time.length==1){
+       total=Duration(seconds: int.tryParse(time[0])??0);
+     }else if(time.length==2){
+       total=Duration(minutes: int.tryParse(time[0])??0,seconds: int.tryParse(time[1])??0);
+     }else if(time.length==3){
+       total=Duration(hours: int.tryParse(time[0])??0,minutes: int.tryParse(time[1])??0,seconds: int.tryParse(time[1])??0);
+     }
+
+     audioHopperHandler.totalDuration=total;
+
 
      await audioHopperHandler.player.seek(audioHopperHandler.currentPosition,index: currentPlayingIndex);
 
@@ -389,6 +426,7 @@ class PlayingViewModel extends MyBaseViewModel {
      playerSpeed=AudioConstant.audioViewModel.playerSpeed;
      _localPath=AudioConstant.audioViewModel._localPath;
      startDownLoad=AudioConstant.audioViewModel.startDownLoad;
+     downloadingState=AudioConstant.audioViewModel.downloadingState;
      totalDownLoad=AudioConstant.audioViewModel.totalDownLoad;
      progressDownload=AudioConstant.audioViewModel.progressDownload;
      dio=AudioConstant.audioViewModel.dio;
@@ -729,6 +767,7 @@ class PlayingViewModel extends MyBaseViewModel {
       await _prepareSaveDir();
     }
     startDownLoad=true;
+    downloadingState=DownloadingState.Started;
     notifyListeners();
 
     String fileName=url.split("/").last;
@@ -766,6 +805,7 @@ class PlayingViewModel extends MyBaseViewModel {
 
 
       startDownLoad = false;
+      downloadingState=DownloadingState.Pending;
       notifyListeners();
 
     }
@@ -874,6 +914,7 @@ class PlayingViewModel extends MyBaseViewModel {
     progressDownload = downloaded / totalSize;
     if (status) {
       startDownLoad = false;
+      downloadingState=DownloadingState.Completed;
     }
     notifyListeners();
   }

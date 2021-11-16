@@ -50,9 +50,9 @@ class HopperViewModel extends MyBaseViewModel {
 
   initialise() async {
 
+    getDownloadList();
     getMyHopperList();
     getRecentlyViewedList();
-    getDownloadList();
     // getDummyList();
   }
 

@@ -20,7 +20,10 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   //await FlutterDownloader.initialize(debug: true);
+  //await Firebase.initializeApp();
+
   await Firebase.initializeApp();
+
   //Initialize App Database
   //await AppDatabaseSingleton().prepareDatabase();
   //start notification listening
@@ -65,11 +68,11 @@ void main() async {
       _startRoute = AppRoutes.homeRoute;
       var _message = await FirebaseMessaging.instance.getInitialMessage();
       if(_message != null){
-        if(_message.data['post_id']==null){
+        if(_message.data['post_id']!=null){
            HomeBloc.postID=_message.data['post_id'].toInt();
           _startRoute = AppRoutes.playingRoute;
         }else{
-          _startRoute = AppRoutes.notificationsRoute;
+          _startRoute = AppRoutes.homeRoute;
         }
       }
     }else{

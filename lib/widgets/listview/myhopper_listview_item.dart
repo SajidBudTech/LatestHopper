@@ -10,6 +10,7 @@ import 'package:flutter_hopper/constants/api.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
+import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/models/dialog_data.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/utils/custom_dialog.dart';
@@ -45,10 +46,23 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
   bool _permissionReady = false;
   String _localPath="";
   bool startDownLoad=false;
+  DownloadingState downloadingState=DownloadingState.Pending;
   double totalDownLoad=1.0;
   double progressDownload=0.0;
   Dio dio=Dio();
   FileDownload fileDownload;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    widget.model.downloadedList.forEach((element) {
+      if(element.post.iD==widget.hopper.post.iD){
+        downloadingState=DownloadingState.Completed;
+      }
+    });
+    super.initState();
+  }
 
 
   @override
@@ -184,7 +198,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                           width: 16,
                         ),*/
                         widget.showDownload?
-                        (startDownLoad?
+                        (downloadingState==DownloadingState.Started?
                         SleekCircularSlider(
                           appearance: CircularSliderAppearance(
                             angleRange: 360,
@@ -205,10 +219,11 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                           innerWidget: (checkVakue){
 
                           },
-                        ):
-                         InkWell(
+                        )
+                        :downloadingState==DownloadingState.Pending?
+                        InkWell(
                             onTap: (){
-                              !startDownLoad?
+                              downloadingState==DownloadingState.Pending?
                               checkDownload():null;
                             },
                             child:Image.asset(
@@ -216,7 +231,13 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                               width: 22,
                               height: 22,
                               color: Colors.grey,
-                            )))
+                            ))
+                            :Icon(
+                          Icons.clear_sharp,
+                          size: 24,
+                          color: Colors.grey,
+                         )
+                        )
                             :SizedBox.shrink(),
 
                         widget.showAddTOPlayer?InkWell(
@@ -290,7 +311,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
 
 
     startDownLoad=true;
-
+    downloadingState=DownloadingState.Started;
     String fileName=url.split("/").last;
     File saveFile=File(_localPath+"/"+fileName);
 
@@ -345,6 +366,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
 
       setState(() {
         startDownLoad = false;
+        downloadingState=DownloadingState.Pending;
       });
 
     }
@@ -433,6 +455,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
       progressDownload = downloaded / totalSize;
       if (status) {
         startDownLoad = false;
+        downloadingState=DownloadingState.Completed;
       }
     });
   }

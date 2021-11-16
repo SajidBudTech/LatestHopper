@@ -15,7 +15,8 @@ class NotificationData {
   NotificationData.fromJson(Map<String, dynamic> json) {
     notificationTitle = json['notification_title'];
     notificationArticle = json['notification_article'];
-    notificationImage = json['notification_image'];
+    var image= json['notification_image'];
+    notificationImage = image==false?"":json['notification_image'];
     notificationSentOn = json['notification_sent_on'];
     notificationArticleId = json['notification_article_id'];
   }
