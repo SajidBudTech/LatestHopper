@@ -1,20 +1,31 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
+import 'package:flutter_hopper/viewmodels/payment.viewmodel.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 
 class CustomRadioGroup extends StatefulWidget {
+
+  CustomRadioGroup({Key key,this.products,this.model}) : super(key: key);
+
+  List<ProductDetails> products;
+  PaymentViewModel model;
+
   @override
   _CustomRadioGroupState createState() => _CustomRadioGroupState();
+
+
 }
 
-class PaymentList {
+/*class PaymentList {
   String title;
   String subtitle;
   int index;
   PaymentList({this.title,this.subtitle, this.index});
-}
+}*/
 
 class _CustomRadioGroupState extends State<CustomRadioGroup> {
 
@@ -23,42 +34,29 @@ class _CustomRadioGroupState extends State<CustomRadioGroup> {
   String radioItem = '\$6.99/month';
 
   // Group Value for Radio Button.
-  int id = 1;
-
-  int selected_index=1;
-
-  List<PaymentList> fList = [
-    PaymentList(
-      index: 1,
-      title: "\$6.99/month",
-      subtitle: "Premium"
-    ),
-    PaymentList(
-      index: 2,
-      title: "\$59.99/year",
-      subtitle: "Premium"
-    ),
-    PaymentList(
-      index: 3,
-      title: "Free Trial",
-      subtitle: "7-day trial"
-    ),
-  ];
-
+  int index = 0;
+  String selectedProId="";
+  bool platform;
 
   @override
   void initState() {
-
+    selectedProId=widget.products[0].id;
+    widget.model.selectedProduct=widget.products[0];
+    if(Platform.isAndroid){
+      platform=true;
+    }else{
+      platform=false;
+    }
   }
 
   Widget build(BuildContext context) {
     return  Column(
                 children:
-                fList.map((data) => Container(
+                widget.products.map((data) => Container(
                     margin: EdgeInsets.only(top: 8),
                     decoration: BoxDecoration(
-                      border: selected_index==data.index?Border.all(color: AppColor.accentColor,width: 1):null,
-                      borderRadius: BorderRadius.circular(selected_index==data.index?10:0)
+                      border: selectedProId==data.id?Border.all(color: AppColor.accentColor,width: 1):null,
+                      borderRadius: BorderRadius.circular(selectedProId==data.id?10:0)
                     ),
                    child: RadioListTile(
                    title: Column(
@@ -66,19 +64,19 @@ class _CustomRadioGroupState extends State<CustomRadioGroup> {
                      mainAxisAlignment: MainAxisAlignment.start,
                      crossAxisAlignment: CrossAxisAlignment.start,
                      children: [
-                          Text("${data.title}",style: AppTextStyle.h4TitleTextStyle(color: Colors.black,fontWeight: FontWeight.w600),),
-                          Text("${data.subtitle}",style: AppTextStyle.h6TitleTextStyle(color: Colors.grey[400],fontWeight: FontWeight.w400),),
+                          Text("${data.price}/${platform?data.id=="monthly_subscription"?"month":"year":(data.id=="com.hopper.monthlySubscription"?"month":"year")}",style: AppTextStyle.h4TitleTextStyle(color: Colors.black,fontWeight: FontWeight.w600),),
+                          Text("${data.description}",style: AppTextStyle.h6TitleTextStyle(color: Colors.grey[400],fontWeight: FontWeight.w400),),
                      ],
                    ),
-                  groupValue: id,
-                  value: data.index,
+                  groupValue: selectedProId,
+                  value: data.id,
                   dense: false,
                   activeColor: AppColor.accentColor,
                   onChanged: (val) {
                     setState(() {
-                      radioItem = data.title ;
-                      id = data.index;
-                      selected_index=data.index;
+                      radioItem = data.id;
+                      selectedProId=data.id;
+                      widget.model.selectedProduct=data;
                     });
                   },
                 ))).toList(),

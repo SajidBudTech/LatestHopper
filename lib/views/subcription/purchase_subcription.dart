@@ -14,15 +14,20 @@ import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
 import 'package:flutter_hopper/constants/strings/general.strings.dart';
 import 'package:flutter_hopper/constants/strings/login.strings.dart';
+import 'package:flutter_hopper/models/loading_state.dart';
+import 'package:flutter_hopper/models/state_data_model.dart';
 import 'package:flutter_hopper/utils/ui_spacer.dart';
 import 'package:flutter_hopper/viewmodels/payment.viewmodel.dart';
 import 'package:flutter_hopper/widgets/appbar/auth_appbar.dart';
 import 'package:flutter_hopper/widgets/appbar/subcription_appbar.dart';
 import 'package:flutter_hopper/widgets/buttons/custom_button.dart';
 import 'package:flutter_hopper/widgets/cool_radio_group/custom_radio_button_group.dart';
+import 'package:flutter_hopper/widgets/empty/empty_playing.dart';
 import 'package:flutter_hopper/widgets/inputs/custom_text_form_field.dart';
 import 'package:flutter_hopper/widgets/platform/platform_circular_progress_indicator.dart';
 import 'package:flutter_hopper/constants/app_sizes.dart';
+import 'package:flutter_hopper/widgets/shimmers/vendor_shimmer_list_view_item.dart';
+import 'package:flutter_hopper/widgets/state/state_loading_data.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:stacked/stacked.dart';
 
@@ -116,13 +121,44 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
                 ),
 
                 //UiSpacer.verticalSpace(space: 20),
-                Expanded(child: SingleChildScrollView(
+                Expanded(
+                 child:model.paymentLoadingState == LoadingState.Loading?
+                 Padding(padding:AppPaddings.defaultPadding(),child:VendorShimmerListViewItem())
+                     : model.paymentLoadingState == LoadingState.Failed?
+                 Padding(padding:AppPaddings.defaultPadding(),
+                     child:LoadingStateDataView(
+                       stateDataModel: StateDataModel(
+                         showActionButton: true,
+                         actionButtonStyle: AppTextStyle.h4TitleTextStyle(
+                           color: Colors.red,
+                         ),
+                         actionFunction: model.initPayment,
+                       ),
+                     )):model.paymentLoadingState == LoadingState.NoIntenet?
+                 Padding(padding:AppPaddings.defaultPadding(),
+                     child:LoadingStateDataView(
+                       stateDataModel: StateDataModel(
+                         title: "Internet Connnectivity",
+                         description: "Please check your internet connectivity and try again.",
+                         showActionButton: true,
+                         actionButtonStyle: AppTextStyle.h4TitleTextStyle(
+                           color: Colors.red,
+                         ),
+                         actionFunction: model.initPayment,
+                       ),
+                     ))
+                     :model.products.length==0?
+                 Center(
+                   // padding: EdgeInsets.only(),
+                     child: EmptyPlayingPage()
+                 )
+                 :SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   padding: EdgeInsets.only(left: 20,right: 20,bottom: 20,top: 8),
                   physics: AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
-                      CustomRadioGroup(),
+                      CustomRadioGroup(products: model.products,model: model),
                       UiSpacer.verticalSpace(space: 20),
                       Container(
                           child:Text(
@@ -170,8 +206,8 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
                                     ? (){
 
                                         //Navigator.pushNamed(context, AppRoutes.homeRoute);
-                                        ProductDetails productDetails = ProductDetails(title: "7 Day Free Trial",currencyCode: "USD",description: "Get Free 7 Days Trial",currencySymbol: "\$",price: "59.59",id: "7-day-free",rawPrice: 59.59);
-                                        model.purchaseSubcription(productDetails);
+                                       // ProductDetails productDetails = ProductDetails(title: "7 Day Free Trial",currencyCode: "USD",description: "Get Free 7 Days Trial",currencySymbol: "\$",price: "59.59",id: "7-day-free",rawPrice: 59.59);
+                                        model.purchaseSubcription(model.selectedProduct);
 
                                      }
                                     : null,
@@ -196,6 +232,7 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
                         child:InkWell(
                             onTap: (){
                              // Navigator.pushNamed(context, AppRoutes.loginRoute);
+                              model.restorePurchase();
                             },
                             child:Text(
                               "Restore Purchase",

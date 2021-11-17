@@ -78,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                     MenuItem(
                       title: "Subscription Details",
                       onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.subscriptionDetailsRoute);
+                        Navigator.pushNamed(context, AppRoutes.subcriptionPurchaseRoute);
                       },
                     ),
                     MenuItem(

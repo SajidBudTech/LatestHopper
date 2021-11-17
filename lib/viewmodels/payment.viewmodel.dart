@@ -27,32 +27,38 @@ class PaymentViewModel extends MyBaseViewModel {
 
 
  // StreamSubscription<List<PurchaseDetails>> _subscription;
-  List<String> _notFoundIds = [];
-  List<ProductDetails> _products = [];
-  List<PurchaseDetails> _purchases = [];
+  List<String> notFoundIds = [];
+  List<ProductDetails> products = [];
+
+  ProductDetails selectedProduct;
+  List<PurchaseDetails> purchases = [];
   bool _kAutoConsume=true;
-  final Set<String> _kIds = <String>{'product1', 'product2','product3'};
 
   final String _kConsumableId = 'consumable';
   final String _kUpgradeId = 'upgrade';
-  final String _kSilverSubscriptionId = 'subscription_silver';
-  final String _kGoldSubscriptionId = 'subscription_gold';
+  final String _kSilverSubscriptionId = 'monthly_subscription';
+  final String _kGoldSubscriptionId = 'yearly_subscription';
+  final String _kSilverSubscriptionIOSId = 'com.hopper.monthlySubscription';
+  final String _kGoldSubscriptionIOSId = 'com.hopper.yearly';
+
+  Set<String> _kIds ;
 
   PaymentViewModel(BuildContext context){
     this.viewContext=context;
+     if(Platform.isAndroid){
+       _kIds = <String>{_kConsumableId,_kSilverSubscriptionId, _kGoldSubscriptionId};
+     }else{
+       _kIds = <String>{_kConsumableId,_kSilverSubscriptionIOSId, _kGoldSubscriptionIOSId};
+     }
+
   }
 
   initPayment() async{
 
-    if (Platform.isIOS) {
-      var iosPlatformAddition = _inAppPurchase.getPlatformAddition<InAppPurchaseIosPlatformAddition>();
-      await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
-    }
-
-    _products=await retrieveProducts();
+    await retrieveProducts();
 
     _inAppPurchase.purchaseStream.listen((purchaseDetailsList) {
-      _purchases=purchaseDetailsList;
+      purchases=purchaseDetailsList;
       purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
         if (purchaseDetails.status == PurchaseStatus.pending) {
           //showPendingUI();
@@ -62,7 +68,7 @@ class PaymentViewModel extends MyBaseViewModel {
           } else if (purchaseDetails.status == PurchaseStatus.purchased || purchaseDetails.status == PurchaseStatus.restored) {
              bool valid = await _verifyPurchase(purchaseDetails);
             if (valid) {
-              _purchases.add(purchaseDetails);
+              purchases.add(purchaseDetails);
             } else {
               _handleInvalidPurchase(purchaseDetails);
               return;
@@ -80,8 +86,6 @@ class PaymentViewModel extends MyBaseViewModel {
             await _inAppPurchase.completePurchase(purchaseDetails);
           }
         }
-
-
       });
 
      });
@@ -103,27 +107,47 @@ class PaymentViewModel extends MyBaseViewModel {
     // handle invalid purchase here if  _verifyPurchase` failed.
   }
 
-  Future<List<ProductDetails>> retrieveProducts() async {
+  Future<void> retrieveProducts() async {
 
     paymentLoadingState=LoadingState.Loading;
-    final bool available = await InAppPurchase.instance.isAvailable();
+    final bool available = await _inAppPurchase.isAvailable();
+
     if (!available) {
       // Handle store not available
       paymentLoadingState=LoadingState.Done;
+      notifyListeners();
       print("error store not available");
-      return [];
-    } else {
-
-     final ProductDetailsResponse response = await InAppPurchase.instance.queryProductDetails(_kIds);
-
-    if (response.notFoundIDs.isNotEmpty) {
-    // Handle the error if desired
-      paymentLoadingState=LoadingState.Done;
-      return [];
+      return;
     }
-      paymentLoadingState=LoadingState.Done;
-      return response.productDetails;
+
+    if (Platform.isIOS) {
+      var iosPlatformAddition = _inAppPurchase.getPlatformAddition<InAppPurchaseIosPlatformAddition>();
+      await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
     }
+
+
+
+    final ProductDetailsResponse productDetailResponse = await InAppPurchase.instance.queryProductDetails(_kIds);
+    if (productDetailResponse.error == null) {
+      //_queryProductError = productDetailResponse.error.message;
+      //_isAvailable = isAvailable;
+      products = productDetailResponse.productDetails;
+      notFoundIds = productDetailResponse.notFoundIDs;
+      //_consumables = [];
+      //_purchasePending = false;
+      //_loading = false;
+      paymentLoadingState=LoadingState.Done;
+      notifyListeners();
+      return;
+
+    }else{
+
+      paymentLoadingState=LoadingState.Failed;
+      notifyListeners();
+      return;
+
+    }
+
 
 
   }
@@ -132,6 +156,7 @@ class PaymentViewModel extends MyBaseViewModel {
     _inAppPurchase.restorePurchases();
   }
 
+
   void purchaseSubcription(ProductDetails productDetails) {
     PurchaseParam purchaseParam;
     if (Platform.isAndroid) {
@@ -139,7 +164,7 @@ class PaymentViewModel extends MyBaseViewModel {
       // verify the latest status of you your subscription by using server side receipt validation
       // and update the UI accordingly. The subscription purchase status shown
       // inside the app may not be accurate.
-      final oldSubscription = null;//_getOldSubscription(productDetails, _purchases);
+      final oldSubscription = null;//_getOldSubscription(productDetails, purchases);
 
       purchaseParam = GooglePlayPurchaseParam(
           productDetails: productDetails,
@@ -149,17 +174,14 @@ class PaymentViewModel extends MyBaseViewModel {
                 prorationMode: ProrationMode.immediateWithTimeProration,)
               : null);
     } else {
-      purchaseParam = PurchaseParam(
-        productDetails: productDetails,
-        applicationUserName: null,
-      );
+      purchaseParam = PurchaseParam(productDetails: productDetails, applicationUserName: null,);
     }
 
-    if (productDetails.id == _kConsumableId) {
-      _inAppPurchase.buyConsumable(purchaseParam: purchaseParam, autoConsume: _kAutoConsume || Platform.isIOS);
-    } else {
-      _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
-    }
+   // if (productDetails.id == _kConsumableId) {
+     // _inAppPurchase.buyConsumable(purchaseParam: purchaseParam, autoConsume: _kAutoConsume || Platform.isIOS);
+    //} else {
+     _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+   // }
   }
 
 

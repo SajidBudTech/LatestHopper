@@ -208,7 +208,7 @@ class PlayingViewModel extends MyBaseViewModel {
                androidNotificationChannelName: 'Audio Hopper Service',
                androidNotificationOngoing: true,
                androidStopForegroundOnPause: true,
-               androidNotificationIcon: "drawable/ic_notification",
+               androidNotificationIcon: "@drawable/ic_notification",
                notificationColor:Color(0xFF008080)
            ),
          );
@@ -225,7 +225,7 @@ class PlayingViewModel extends MyBaseViewModel {
          allMediaItems.add(mediaItem);
          await audioHopperHandler.addQueueItems(allMediaItems);
          //await audioHopperHandler.player.setFilePath(playingData.localFilePath);
-         var time=myPlayList[0].audioFileDuration.split(":");
+         /*var time=myPlayList[0].audioFileDuration.split(":");
          var total=Duration.zero;
          if(time.length==1){
            total=Duration(seconds: int.tryParse(time[0])??0);
@@ -235,7 +235,7 @@ class PlayingViewModel extends MyBaseViewModel {
            total=Duration(hours: int.tryParse(time[0])??0,minutes: int.tryParse(time[1])??0,seconds: int.tryParse(time[1])??0);
          }
 
-         audioHopperHandler.totalDuration=total;
+         audioHopperHandler.totalDuration=total;*/
 
        } catch (e) {
          print("Error loading audio source: $e");
@@ -404,7 +404,7 @@ class PlayingViewModel extends MyBaseViewModel {
      currentPlayingIndex=0;
      previousPlayingIndex=0;
 
-     var time=myPlayList[0].audioFileDuration.split(":");
+    /* var time=myPlayList[0].audioFileDuration.split(":");
      var total=Duration.zero;
      if(time.length==1){
        total=Duration(seconds: int.tryParse(time[0])??0);
@@ -414,7 +414,7 @@ class PlayingViewModel extends MyBaseViewModel {
        total=Duration(hours: int.tryParse(time[0])??0,minutes: int.tryParse(time[1])??0,seconds: int.tryParse(time[1])??0);
      }
 
-     audioHopperHandler.totalDuration=total;
+     audioHopperHandler.totalDuration=total;*/
 
 
      await audioHopperHandler.player.seek(audioHopperHandler.currentPosition,index: currentPlayingIndex);
@@ -424,13 +424,17 @@ class PlayingViewModel extends MyBaseViewModel {
 
      // bufferedDuration=AudioConstant.audioViewModel.bufferedDuration;
      playerSpeed=AudioConstant.audioViewModel.playerSpeed;
-     _localPath=AudioConstant.audioViewModel._localPath;
-     startDownLoad=AudioConstant.audioViewModel.startDownLoad;
-     downloadingState=AudioConstant.audioViewModel.downloadingState;
-     totalDownLoad=AudioConstant.audioViewModel.totalDownLoad;
-     progressDownload=AudioConstant.audioViewModel.progressDownload;
-     dio=AudioConstant.audioViewModel.dio;
-     fileDownload=AudioConstant.audioViewModel.fileDownload;
+     if(myPlayList[currentPlayingIndex].id==AudioConstant.audioViewModel.myPlayList[AudioConstant.audioViewModel.currentPlayingIndex].id) {
+       _localPath=AudioConstant.audioViewModel._localPath;
+       startDownLoad = AudioConstant.audioViewModel.startDownLoad;
+       downloadingState = AudioConstant.audioViewModel.downloadingState;
+       totalDownLoad = AudioConstant.audioViewModel.totalDownLoad;
+       progressDownload = AudioConstant.audioViewModel.progressDownload;
+       dio = AudioConstant.audioViewModel.dio;
+       fileDownload = AudioConstant.audioViewModel.fileDownload;
+     }
+
+
      offLine=AudioConstant.audioViewModel.offLine;
 
 

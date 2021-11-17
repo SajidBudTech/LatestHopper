@@ -30,8 +30,8 @@ class AppNotification extends HttpService {
 
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
-    var token=await _firebaseMessaging.getToken();
-    print("FCM---TOKEN-------${token}");
+    /*var token=await _firebaseMessaging.getToken();
+    print("FCM---TOKEN-------${token}");*/
 
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
     var initializationSettingsAndroid = new AndroidInitializationSettings('@drawable/ic_notification');
