@@ -21,6 +21,7 @@ class Api {
   static const forgotPasswordValidateCode = "/bdpwr/v1/validate-code";
   static const forgotPasswordReset = "/bdpwr/v1/set-password";
   static const uploadUserAvatar = "/wp/v2/update-users-profile-picture";
+  static const getUserAvatar = "/wp/v2/get-profile-picture";
   static const notifications = "/wp/v2/users-notificatoon-list";
 
 

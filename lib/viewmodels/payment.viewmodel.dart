@@ -45,12 +45,6 @@ class PaymentViewModel extends MyBaseViewModel {
 
   PaymentViewModel(BuildContext context){
     this.viewContext=context;
-     if(Platform.isAndroid){
-       _kIds = <String>{_kConsumableId,_kSilverSubscriptionId, _kGoldSubscriptionId};
-     }else{
-       _kIds = <String>{_kConsumableId,_kSilverSubscriptionIOSId, _kGoldSubscriptionIOSId};
-     }
-
   }
 
   initPayment() async{
@@ -125,7 +119,11 @@ class PaymentViewModel extends MyBaseViewModel {
       await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
     }
 
-
+    if(Platform.isAndroid){
+      _kIds = <String>{_kConsumableId,_kSilverSubscriptionId, _kGoldSubscriptionId};
+    }else{
+      _kIds = <String>{_kConsumableId,_kSilverSubscriptionIOSId, _kGoldSubscriptionIOSId};
+    }
 
     final ProductDetailsResponse productDetailResponse = await InAppPurchase.instance.queryProductDetails(_kIds);
     if (productDetailResponse.error == null) {

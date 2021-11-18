@@ -148,10 +148,16 @@ class _SubcriptionPurchasePageState extends State<SubcriptionPurchasePage> {
                        ),
                      ))
                      :model.products.length==0?
-                 Center(
-                   // padding: EdgeInsets.only(),
-                     child: EmptyPlayingPage()
-                 )
+                 Padding(padding:AppPaddings.defaultPadding(),
+                     child:LoadingStateDataView(
+                       stateDataModel: StateDataModel(
+                         showActionButton: true,
+                         actionButtonStyle: AppTextStyle.h4TitleTextStyle(
+                           color: Colors.red,
+                         ),
+                         actionFunction: model.initPayment,
+                       ),
+                     ))
                  :SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   padding: EdgeInsets.only(left: 20,right: 20,bottom: 20,top: 8),

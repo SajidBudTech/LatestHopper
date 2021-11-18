@@ -441,6 +441,36 @@ class HomePageRepository extends HttpService {
 
   }
 
+  Future<DialogData> getProfilePicture(int userId) async {
+    final resultDialogData = DialogData();
+
+    //make http call for vendors data
+    final apiResult = await get(Api.getUserAvatar,queryParameters: {"user_id":userId});
+
+    // print("Api result ==> ${apiResult.data}");
+    //format the resposne
+    ApiResponse apiResponse = ApiResponseUtils.parseApiResponse(apiResult);
+
+    if (apiResponse.allGood) {
+      if(apiResponse.body[0]['profile_img_url']!="0") {
+        resultDialogData.title = "Successfully removed from download!";
+        resultDialogData.body = apiResponse.body[0]['profile_img_url'];
+        resultDialogData.dialogType = DialogType.success;
+      }else{
+        resultDialogData.title = "Failed to remove from download!";
+        resultDialogData.body = apiResponse.message;
+        resultDialogData.dialogType = DialogType.failed;
+      }
+    } else {
+      resultDialogData.title = "Failed to remove from download!";
+      resultDialogData.body = apiResponse.message;
+      resultDialogData.dialogType = DialogType.failed;
+    }
+
+    return resultDialogData;
+
+  }
+
   /*Future<List<CommonBook>> getNewReleases() async {
     List<CommonBook> categories = [];
 

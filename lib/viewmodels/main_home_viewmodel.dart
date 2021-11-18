@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
 import 'package:flutter_hopper/constants/app_routes.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter_hopper/models/dialog_data.dart';
 import 'package:flutter_hopper/models/home_category.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
@@ -59,6 +60,7 @@ class MainHomeViewModel extends MyBaseViewModel {
     if(connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi){
       getHomePostDetails();
       getHomeCategoryDetails();
+      getUserProfile();
     }else{
       mainHomeLoadingState = LoadingState.NoIntenet;
       notifyListeners();
@@ -139,6 +141,23 @@ class MainHomeViewModel extends MyBaseViewModel {
     } catch (error) {
       mainHomeCategoryLoadingState = LoadingState.Failed;
       notifyListeners();
+    }
+  }
+
+  void getUserProfile() async{
+    //add null data so listener can show shimmer widget to indicate loading
+   // mainHomeCategoryLoadingState = LoadingState.Loading;
+   // notifyListeners();
+
+    final int userId=await AuthBloc.getUserId();
+
+    try {
+        final resultDialog = await _homePageRepository.getProfilePicture(userId);
+        if(resultDialog.dialogType==DialogType.success){
+          AuthBloc.setUserProfileImage(resultDialog.body);
+        }
+    } catch (error) {
+       print("Error in get profile picture");
     }
   }
 
