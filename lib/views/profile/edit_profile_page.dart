@@ -117,11 +117,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             );
                           } else {
                             return UserProfilePhoto(
-                              userProfileImageUrl: "",
+                              userProfileImageUrl: _editProfileBloc.userImage,
                               isFile: false,
-                              userProfileImage: File(AppImages.defaultProfile),
+                              userProfileImage: null,
                               onCameraPressed: _editProfileBloc.pickNewProfilePhoto,
                             );
+                            //return UiSpacer.verticalSpace();
                           }
                     },
                  ),

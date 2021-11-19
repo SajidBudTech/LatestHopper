@@ -90,7 +90,7 @@ class EditProfileBloc extends BaseBloc {
       _profilePhoto.add(image);*/
     } catch (error) {
        print("Error picking profile photo");
-      _profilePhoto.addError(error);
+      //_profilePhoto.addError(error);
     }
   }
 

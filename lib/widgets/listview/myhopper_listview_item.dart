@@ -10,6 +10,7 @@ import 'package:flutter_hopper/constants/api.dart';
 import 'package:flutter_hopper/constants/app_color.dart';
 import 'package:flutter_hopper/constants/app_text_direction.dart';
 import 'package:flutter_hopper/constants/app_text_styles.dart';
+import 'package:flutter_hopper/constants/audio_constant.dart';
 import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/models/dialog_data.dart';
 import 'package:flutter_hopper/models/home_post.dart';
@@ -179,7 +180,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                             child:Container(
                             margin:EdgeInsets.only(right: 24),
                             child:InkWell(
-                                onTap: widget.onThreeDotPressed,
+                               // onTap: widget.onThreeDotPressed,
                                 child: Icon(
                                   FlutterIcons.three_bars_oct,
                                   size: 22,
@@ -240,7 +241,46 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                         )
                             :SizedBox.shrink(),
 
-                        widget.showAddTOPlayer?InkWell(
+                        widget.showAddTOPlayer?
+                        ((widget.showAddTOPlayer && widget.showDownload)?
+                         Row(
+                           children: [
+                             SizedBox(width: 24,),
+                             InkWell(
+                                 onTap:(){
+                                   bool check=false;
+                                   widget.model.myHopperList.forEach((element) {
+                                     if(element.post.iD==widget.hopper.post.iD){
+                                       check=true;
+                                     }
+                                   });
+                                   if(!check){
+                                     widget.model.addToMyHooper(postId: widget.hopper.post.iD,hopper: widget.hopper);
+                                   }else{
+                                     ShowFlash(context,
+                                         title:
+                                         "Already Added In MyHopper",
+                                         message:
+                                         "Please try with some other article!",
+                                         flashType: FlashType.failed)
+                                         .show();
+                                   }
+
+                                 },
+                                 child: Container(
+                                   //margin: EdgeInsets.only(left: (widget.showAddTOPlayer && widget.showDownload)?24:0),
+                                     child:Image.asset(
+                                       "assets/images/play_ic.png",
+                                       width: 24,
+                                       height: 24,
+                                       color: Colors.grey,
+                                     )
+
+                                 ))
+                           ],
+                         )
+
+                        :InkWell(
                             onTap:(){
                                  bool check=false;
                                  widget.model.myHopperList.forEach((element) {
@@ -261,13 +301,15 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
                                  }
 
                             },
-                            child:Container(
-                              margin: EdgeInsets.only(left: (widget.showAddTOPlayer && widget.showDownload)?24:0),
+                            child: Container(
+                              //margin: EdgeInsets.only(left: (widget.showAddTOPlayer && widget.showDownload)?24:0),
                                 child:Image.asset(
                               "assets/images/play_ic.png",
                               width: 24,
                               height: 24,
                               color: Colors.grey,
+                            )
+
                             ))):SizedBox.shrink(),
 
                        /* Visibility(
@@ -317,57 +359,74 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
 
     try {
 
-      /*await dio.downloadUri(Uri.parse(url), saveFile.path,
+      await dio.downloadUri(Uri.parse(url), saveFile.path,
           onReceiveProgress: (downloaded, totalSize) {
-        setState(() {
-          progressDownload = downloaded / totalSize;
-          if (downloaded == totalSize) {
-            startDownLoad = false;
+        if(mounted) {
+          setState(() {
+            progressDownload = downloaded / totalSize;
+            if (downloaded == totalSize) {
+              startDownLoad = false;
+              downloadingState=DownloadingState.Completed;
+            }
+          });
+        }
+      });
+
+      /*fileDownload=FileDownload(context: AudioConstant.navigatorKey.currentContext,url: url,path: saveFile.path,onReceiveProgress:DownloadRecevier);
+      await fileDownload.startDownload();*/
+
+         HomePost _homePost = HomePost();
+        _homePost.id = hopper.post.iD;
+        _homePost.coverImageUrl = hopper.postCustom.coverImageUrl[0] ?? "";
+        _homePost.author = hopper.postCustom.author[0] ?? "";
+        _homePost.isAdded = true;
+        _homePost.publication = hopper.postCustom.publication[0] ?? "";
+        _homePost.publicationDate = hopper.postCustom.publicationDate[0] ?? "";
+        _homePost.narrator = hopper.postCustom.narrator[0] ?? "";
+        _homePost.audioFile = hopper.postCustom.audioFile[0] ?? "";
+        _homePost.audioFileDuration =
+         hopper.postCustom.audioFileDuration[0] ?? "";
+        _homePost.title = Guid();
+        _homePost.title.rendered = hopper.post.postTitle ?? "";
+        _homePost.subHeader = hopper.postCustom.subHeader[0] ?? "";
+        _homePost.postDescription = hopper.postCustom.postDescription[0] ?? "";
+        _homePost.url = hopper.postCustom.url[0] ?? "";
+        _homePost.localFilePath = saveFile.path;
+        _homePost.userBy = widget.model.userId;
+
+        await AuthBloc.addUserDownloadFile(_homePost, saveFile.path);
+
+      if (mounted) {
+        bool check = false;
+        widget.model.downloadedList.forEach((element) {
+          if(_homePost.id==element.post.iD){
+            check=true;
           }
         });
-      });*/
-
-      fileDownload=FileDownload(context: context,url: url,path: saveFile.path,onReceiveProgress:DownloadRecevier);
-      await fileDownload.startDownload();
-
-       HomePost _homePost=HomePost();
-      _homePost.id=hopper.post.iD;
-      _homePost.coverImageUrl=hopper.postCustom.coverImageUrl[0]??"";
-      _homePost.author=hopper.postCustom.author[0]??"";
-      _homePost.isAdded=true;
-      _homePost.publication=hopper.postCustom.publication[0]??"";
-      _homePost.publicationDate=hopper.postCustom.publicationDate[0]??"";
-      _homePost.narrator=hopper.postCustom.narrator[0]??"";
-      _homePost.audioFile=hopper.postCustom.audioFile[0]??"";
-      _homePost.audioFileDuration=hopper.postCustom.audioFileDuration[0]??"";
-      _homePost.title=Guid();
-      _homePost.title.rendered=hopper.post.postTitle??"";
-      _homePost.subHeader=hopper.postCustom.subHeader[0]??"";
-      _homePost.postDescription=hopper.postCustom.postDescription[0]??"";
-      _homePost.url=hopper.postCustom.url[0]??"";
-      _homePost.localFilePath=saveFile.path;
-      _homePost.userBy=widget.model.userId;
-
-      await AuthBloc.addUserDownloadFile(_homePost,saveFile.path);
-
-      setState(() {
-         widget.model.downloadedList.add(hopper);
-         widget.model.notify();
-      });
+        setState(() {
+          if(!check){
+            widget.model.downloadedList.add(hopper);
+            widget.model.notify();
+          }
+        });
+      }
 
 
 
     }catch(e){
-      ShowFlash(context,
-          title: "Error in file downloading....",
-          message: "Please try again!",
-          flashType: FlashType.failed)
-          .show();
-
-      setState(() {
-        startDownLoad = false;
-        downloadingState=DownloadingState.Pending;
-      });
+      if (mounted) {
+        ShowFlash(context,
+            title: "Error in file downloading....",
+            message: "Please try again!",
+            flashType: FlashType.failed)
+            .show();
+      }
+      if (mounted) {
+        setState(() {
+          startDownLoad = false;
+          downloadingState = DownloadingState.Pending;
+        });
+      }
 
     }
   }
@@ -496,6 +555,7 @@ class _MyHopperListViewItemState extends State<MyHopperListViewItem> {
         myHopperList.add(hopper);
         notifyListeners();
       });*/
+
         downloadFile(widget.hopper.postCustom.audioFile[0] ?? "",widget.hopper);
 
       } else {

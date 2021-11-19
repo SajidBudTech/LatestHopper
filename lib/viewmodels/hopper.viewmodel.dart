@@ -1,5 +1,6 @@
 // ViewModel
 import 'package:audio_service/audio_service.dart';
+import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hopper/bloc/home.bloc.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_hopper/models/audio_player_state.dart';
 import 'package:flutter_hopper/models/home_post.dart';
 import 'package:flutter_hopper/models/loading_state.dart';
 import 'package:flutter_hopper/repositories/home.repository.dart';
+import 'package:flutter_hopper/utils/file_download.dart';
 import 'package:flutter_hopper/utils/flash_alert.dart';
 import 'package:flutter_hopper/viewmodels/base.viewmodel.dart';
 import 'package:flutter_hopper/bloc/auth.bloc.dart';
@@ -43,6 +45,8 @@ class HopperViewModel extends MyBaseViewModel {
   Dio dio=Dio();
   List<HomePost> savedDownLoads=[];
   int userId;
+  DownloadingState downloadingState=DownloadingState.Pending;
+  FileDownload fileDownload;
 
   HopperViewModel(BuildContext context) {
     this.viewContext = context;
@@ -105,6 +109,7 @@ class HopperViewModel extends MyBaseViewModel {
   void notify(){
     notifyListeners();
   }
+
   getDownloadList() async {
     downloadLoadingState = LoadingState.Loading;
     notifyListeners();
@@ -302,8 +307,8 @@ class HopperViewModel extends MyBaseViewModel {
         myHopperList.add(hopper);
         notifyListeners();
       });*/
-        //downloadFile(hopper.postCustom.audioFile[0] ?? "",hopper);
-        downloadedList.add(hopper);
+        downloadFile(hopper.postCustom.audioFile[0] ?? "",userId,hopper);
+        //downloadedList.add(hopper);
         notifyListeners();
       } else {
         //prepare the data model to be used to show the alert on the view
@@ -522,21 +527,27 @@ class HopperViewModel extends MyBaseViewModel {
     }
   }
 
-  downloadFile(String url,Hopper hopper) async {
+
+  downloadFile(String url, int userId,Hopper hopper)async{
     _permissionReady = await _checkPermission();
 
     if (_permissionReady) {
       await _prepareSaveDir();
     }
-
     startDownLoad=true;
+    downloadingState=DownloadingState.Started;
     notifyListeners();
 
     String fileName=url.split("/").last;
+    //_localPath=_localPath+"/"+fileName;
     File saveFile=File(_localPath+"/"+fileName);
     try {
-      await dio.download(url, saveFile.path,
-          onReceiveProgress: (downloaded, totalSize) {
+
+
+      fileDownload=FileDownload(context: viewContext,url: url,path: saveFile.path,onReceiveProgress:DownloadRecevier);
+      await fileDownload.startDownload();
+      /*await dio.downloadUri(Uri.parse(url), saveFile.path,
+              onReceiveProgress: (downloaded, totalSize) {
 
             progressDownload = downloaded / totalSize;
             if (downloaded == totalSize) {
@@ -545,7 +556,7 @@ class HopperViewModel extends MyBaseViewModel {
 
             notifyListeners();
 
-          });
+          });*/
 
        HomePost _homePost=HomePost();
       _homePost.id=hopper.post.iD;
@@ -562,57 +573,64 @@ class HopperViewModel extends MyBaseViewModel {
       _homePost.subHeader=hopper.postCustom.subHeader[0]??"";
       _homePost.postDescription=hopper.postCustom.postDescription[0]??"";
       _homePost.url=hopper.postCustom.url[0]??"";
-
-
+      _homePost.localFilePath=saveFile.path;
+      _homePost.userBy=userId;
       await AuthBloc.addUserDownloadFile(_homePost,saveFile.path);
 
 
-
     }catch(e){
-      print(e);
+      ShowFlash(viewContext,
+          title: "Error in file downloading...",
+          message: "please try again",
+          flashType: FlashType.failed)
+          .show();
+
+
+      startDownLoad = false;
+      downloadingState=DownloadingState.Pending;
+      notifyListeners();
+
     }
+
+
 
     /*final taskId = await FlutterDownloader.enqueue(
-      url: url ?? "",
+      url: url,
       savedDir: _localPath,
-      showNotification:
-          true, // show download progress in status bar (for Android)
-      openFileFromNotification:
-          true, // click on notification to open downloaded file (for Android)
+      showNotification: true, // show download progress in status bar (for Android)
+      openFileFromNotification: true,
+      //saveInPublicStorage: true,// click on notification to open downloaded file (for Android)
     );*/
+
   }
 
- /* Future<bool> _checkPermission() async {
-    if (Platform.isAndroid) {
-      final status = await Permission.storage.status;
-
-      if (status != PermissionStatus.granted) {
-        final result = await Permission.storage.request();
-        if (result == PermissionStatus.granted) {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    return false;
-  }*/
   Future<bool> _checkPermission() async {
     if (Platform.isAndroid) {
-      final status = await Permission.storage.status;
 
-      if (status != PermissionStatus.granted) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      final storageStatus = await Permission.storage.status;
+
+
+      final accessStatus = androidInfo.version.sdkInt >= 30?await Permission.accessMediaLocation.status:true;
+      final manageStatus = androidInfo.version.sdkInt >= 30?await Permission.manageExternalStorage.status:true;
+
+
+      if (storageStatus != PermissionStatus.granted && accessStatus!=PermissionStatus.granted && manageStatus!=PermissionStatus.granted) {
         final result = await Permission.storage.request();
-        if (result == PermissionStatus.granted) {
+        final result2 = androidInfo.version.sdkInt >= 30?await Permission.accessMediaLocation.request():PermissionStatus.granted;
+        final result3 = androidInfo.version.sdkInt >= 30?await Permission.manageExternalStorage.request():PermissionStatus.granted;
+
+        if (result == PermissionStatus.granted && result2 == PermissionStatus.granted && result3 == PermissionStatus.granted) {
           return true;
         }
+
       } else {
         return true;
       }
     } else if(Platform.isIOS){
-      final status = await Permission.photos.status;
+      /*final status = await Permission.photos.status;
       if (status != PermissionStatus.granted) {
         final result = await Permission.photos.request();
         if (result == PermissionStatus.granted) {
@@ -620,20 +638,12 @@ class HopperViewModel extends MyBaseViewModel {
         }
       } else {
         return true;
-      }
+      }*/
+      return true;
     }
     return false;
   }
 
-  /*Future<void> _prepareSaveDir() async {
-    _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
-
-    final savedDir = Directory(_localPath);
-    bool hasExisted = await savedDir.exists();
-    if (!hasExisted) {
-      savedDir.create();
-    }
-  }*/
   Future<void> _prepareSaveDir() async {
     _localPath = (await _findLocalPath());
     final savedDir = Directory(_localPath);
@@ -643,12 +653,6 @@ class HopperViewModel extends MyBaseViewModel {
     }
   }
 
- /* Future<String> _findLocalPath() async {
-    final directory = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
-    return directory?.path;
-  }*/
   Future<String> _findLocalPath() async {
     var externalStorageDirPath;
     Directory directory;
@@ -671,18 +675,30 @@ class HopperViewModel extends MyBaseViewModel {
           break;
         }
       }
+
       newPath=newPath+"/AudioHopperApp";
       directory=Directory(newPath);
 
 
     } else if (Platform.isIOS) {
-      // directory = await getTemporaryDirectory();
-      directory=await getApplicationDocumentsDirectory();
+      directory = await getTemporaryDirectory();
+      //directory=await getApplicationDocumentsDirectory();
       //externalStorageDirPath = (await getApplicationDocumentsDirectory()).absolute.path;
     }
 
     externalStorageDirPath=directory.path;
     return externalStorageDirPath;
+
+  }
+
+
+  void DownloadRecevier(int downloaded,int totalSize,bool status){
+    progressDownload = downloaded / totalSize;
+    if (status) {
+      startDownLoad = false;
+      downloadingState=DownloadingState.Completed;
+    }
+    notifyListeners();
   }
 
 }

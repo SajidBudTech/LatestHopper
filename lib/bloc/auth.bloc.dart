@@ -101,9 +101,16 @@ class AuthBloc extends BaseBloc {
     if(downloadList==null){
       downloadList=[];
     }
-    downloadList.add(post);
-
-    saveUserDownloadedFiles(downloadList);
+    bool check = false;
+    downloadList.forEach((element) {
+      if(post.id==element.id){
+        check=true;
+      }
+    });
+    if(!check){
+      downloadList.add(post);
+      saveUserDownloadedFiles(downloadList);
+    }
   }
 
   static List<HomePost> getUserDownloadedFiles(){
